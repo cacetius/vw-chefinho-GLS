@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Send, MessageSquare, Plus, Hash, Users, Paperclip, Smile, Pin, Search } from "lucide-react";
+import { Send, MessageSquare, Plus, Hash, Users, Paperclip, Smile, Pin, Search, Trash2, MoreVertical } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export default function Chat() {
   const [canais, setCanais] = useState([]);
@@ -146,6 +147,12 @@ export default function Chat() {
     loadMensagens();
   };
 
+  const handleDeleteMessage = async (mensagemId) => {
+    if (!window.confirm("Tem certeza que deseja excluir esta mensagem?")) return;
+    await base44.entities.MensagemChat.delete(mensagemId);
+    loadMensagens();
+  };
+
   const filteredMensagens = mensagens.filter(msg =>
     msg.mensagem?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     msg.remetente?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -154,22 +161,24 @@ export default function Chat() {
   const mensagensFixadas = mensagens.filter(m => m.fixada);
 
   return (
-    <div className="h-screen bg-gradient-to-br from-gray-50 to-orange-50 flex flex-col">
-      <div className="p-4 md:p-6 border-b bg-white shadow-sm">
+    <div className="h-[calc(100vh-120px)] md:h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex flex-col">
+      <div className="p-3 md:p-6 border-b bg-white/90 backdrop-blur-sm shadow-sm">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 flex items-center gap-3">
-                <MessageSquare className="w-7 h-7 md:w-8 md:h-8 text-orange-600" />
-                Chat da Equipe
-              </h1>
-              <p className="text-sm text-gray-600 mt-1">Comunicação em tempo real com canais organizados</p>
+          <div className="flex items-center justify-between gap-2 mb-3 md:mb-4">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                <MessageSquare className="w-5 h-5 md:w-6 md:h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-lg md:text-2xl font-bold text-gray-900">Chat</h1>
+                <p className="text-xs md:text-sm text-gray-500 hidden md:block">Comunicação em tempo real</p>
+              </div>
             </div>
             <Dialog open={showNewChannel} onOpenChange={setShowNewChannel}>
               <DialogTrigger asChild>
-                <Button className="bg-gradient-to-r from-orange-500 to-orange-600">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Novo Canal
+                <Button className="bg-gradient-to-r from-blue-500 to-indigo-600 text-xs md:text-sm px-3 md:px-4">
+                  <Plus className="w-4 h-4 md:mr-2" />
+                  <span className="hidden md:inline">Novo Canal</span>
                 </Button>
               </DialogTrigger>
               <DialogContent>
@@ -240,27 +249,25 @@ export default function Chat() {
         </div>
       </div>
 
-      <div className="flex-1 flex overflow-hidden max-w-7xl mx-auto w-full">
-        {/* Lista de Canais */}
-        <div className="w-64 bg-white border-r overflow-y-auto hidden md:block">
-          <div className="p-4">
-            <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Canais</h3>
-            <div className="space-y-1">
-              {canais.map((canal) => (
-                <button
-                  key={canal.id}
-                  onClick={() => setCanalAtivo(canal)}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center gap-2 ${
-                    canalAtivo?.id === canal.id
-                      ? 'bg-orange-100 text-orange-900'
-                      : 'hover:bg-gray-100 text-gray-700'
-                  }`}
-                >
-                  <Hash className="w-4 h-4" />
-                  <span className="truncate">{canal.nome}</span>
-                </button>
-              ))}
-            </div>
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden max-w-7xl mx-auto w-full">
+        {/* Lista de Canais - Mobile: horizontal, Desktop: vertical */}
+        <div className="md:w-56 bg-white border-b md:border-b-0 md:border-r overflow-x-auto md:overflow-y-auto flex-shrink-0">
+          <div className="p-2 md:p-4 flex md:flex-col gap-2 md:gap-1">
+            <h3 className="hidden md:block text-xs font-semibold text-gray-500 uppercase mb-2">Canais</h3>
+            {canais.map((canal) => (
+              <button
+                key={canal.id}
+                onClick={() => setCanalAtivo(canal)}
+                className={`flex-shrink-0 md:w-full text-left px-3 py-2 rounded-lg transition-all flex items-center gap-2 text-sm ${
+                  canalAtivo?.id === canal.id
+                    ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md'
+                    : 'bg-gray-100 md:bg-transparent hover:bg-gray-100 text-gray-700'
+                }`}
+              >
+                <Hash className="w-4 h-4 flex-shrink-0" />
+                <span className="truncate">{canal.nome}</span>
+              </button>
+            ))}
           </div>
         </div>
 
@@ -336,20 +343,36 @@ export default function Chat() {
                               })}
                             </span>
                             
-                            {/* Botão Fixar (apenas líderes) */}
-                            {currentUser?.cargo === 'lider' && (
-                              <button
-                                onClick={() => handleFixMessage(msg)}
-                                className="opacity-0 group-hover:opacity-100 transition-opacity"
-                              >
-                                <Pin className={`w-3 h-3 ${msg.fixada ? 'text-yellow-600' : 'text-gray-400'}`} />
-                              </button>
-                            )}
+                            {/* Menu de opções */}
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 rounded">
+                                  <MoreVertical className="w-4 h-4 text-gray-500" />
+                                </button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                {currentUser?.cargo === 'lider' && (
+                                  <DropdownMenuItem onClick={() => handleFixMessage(msg)}>
+                                    <Pin className={`w-4 h-4 mr-2 ${msg.fixada ? 'text-yellow-600' : ''}`} />
+                                    {msg.fixada ? 'Desafixar' : 'Fixar mensagem'}
+                                  </DropdownMenuItem>
+                                )}
+                                {(isCurrentUser || currentUser?.cargo === 'lider') && (
+                                  <DropdownMenuItem 
+                                    onClick={() => handleDeleteMessage(msg.id)}
+                                    className="text-red-600 focus:text-red-600"
+                                  >
+                                    <Trash2 className="w-4 h-4 mr-2" />
+                                    Excluir mensagem
+                                  </DropdownMenuItem>
+                                )}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                           
                           <div className={`rounded-2xl px-4 py-3 ${
                             isCurrentUser 
-                              ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-tr-sm' 
+                              ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-tr-sm' 
                               : 'bg-gray-100 text-gray-900 rounded-tl-sm'
                           }`}>
                             <p className="whitespace-pre-wrap break-words">{msg.mensagem}</p>
@@ -426,7 +449,7 @@ export default function Chat() {
               <Button 
                 type="submit" 
                 disabled={!novaMensagem.trim() || sending || !canalAtivo}
-                className="bg-gradient-to-r from-orange-500 to-orange-600"
+                className="bg-gradient-to-r from-blue-500 to-indigo-600"
               >
                 <Send className="w-5 h-5" />
               </Button>
