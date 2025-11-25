@@ -122,12 +122,9 @@ export default function LinhaVisual({ carros, onEdit }) {
 
               {/* Linha de Fluxo da Categoria */}
               <div className="relative">
-                <div className="absolute top-10 left-0 right-0 h-1 z-0">
-                  <div className="h-full bg-gradient-to-r from-gray-300 via-blue-400 to-blue-600 rounded-full"></div>
-                </div>
 
                 {/* Estações da Categoria */}
-                <div className="relative z-10 flex justify-start items-start gap-2 md:gap-4 overflow-x-auto pb-4 scrollbar-thin">
+                <div className="relative z-10 grid grid-cols-4 sm:grid-cols-6 md:flex md:justify-start md:items-start gap-2 md:gap-3 pb-2 md:pb-4">
                   {estacoesCategoria.map((estacao, index) => {
                     const carrosNaEstacao = carrosAnimados.filter(c => c.estacao_atual === estacao.id);
                     const temErro = carrosNaEstacao.some(c => c.status === "erro");
@@ -140,18 +137,18 @@ export default function LinhaVisual({ carros, onEdit }) {
                           initial={{ scale: 0, opacity: 0 }}
                           animate={{ scale: 1, opacity: 1 }}
                           transition={{ delay: catIndex * 0.1 + index * 0.05, type: "spring" }}
-                          className="flex flex-col items-center min-w-[60px] md:min-w-[80px]"
+                          className="flex flex-col items-center"
                         >
                           {/* Ícone da Estação */}
                           <motion.div
                             whileHover={{ scale: 1.15, rotate: 5 }}
-                            className={`relative w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br ${estacao.color} rounded-xl md:rounded-2xl shadow-lg md:shadow-2xl flex flex-col items-center justify-center cursor-pointer border-2 md:border-4 ${
+                            className={`relative w-11 h-11 md:w-14 md:h-14 bg-gradient-to-br ${estacao.color} rounded-lg md:rounded-xl shadow-md md:shadow-xl flex flex-col items-center justify-center cursor-pointer border-2 md:border-3 ${
                               temErro ? 'border-red-500 animate-pulse' : 
                               temAlerta ? 'border-yellow-500 animate-pulse' : 
                               'border-white'
                             }`}
                           >
-                            <span className="text-xl md:text-2xl">{estacao.icon}</span>
+                            <span className="text-lg md:text-xl">{estacao.icon}</span>
                             
                             {/* Contador de Carros */}
                             {carrosNaEstacao.length > 0 && (
@@ -187,7 +184,7 @@ export default function LinhaVisual({ carros, onEdit }) {
                           </motion.div>
 
                           {/* Nome da Estação */}
-                          <p className="font-semibold text-[10px] md:text-xs text-gray-900 text-center mt-1.5 md:mt-2 max-w-[60px] md:max-w-[80px] leading-tight">
+                          <p className="font-semibold text-[9px] md:text-xs text-gray-900 text-center mt-1 md:mt-2 max-w-[55px] md:max-w-[80px] leading-tight truncate">
                             {estacao.nome}
                           </p>
                           
@@ -228,15 +225,15 @@ export default function LinhaVisual({ carros, onEdit }) {
                           )}
                         </motion.div>
 
-                        {/* Seta de Fluxo entre estações */}
+                        {/* Seta de Fluxo entre estações - apenas desktop */}
                         {index < estacoesCategoria.length - 1 && (
                           <motion.div
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: catIndex * 0.1 + index * 0.05 + 0.1 }}
-                            className="flex items-center pt-4 md:pt-6"
+                            className="hidden md:flex items-center pt-6"
                           >
-                            <ArrowRight className="w-4 h-4 md:w-5 md:h-5 text-blue-400" />
+                            <ArrowRight className="w-5 h-5 text-blue-400" />
                           </motion.div>
                         )}
                       </React.Fragment>
