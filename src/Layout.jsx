@@ -265,14 +265,14 @@ export default function Layout({ children, currentPageName }) {
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-slate-200 fixed left-0 top-0 bottom-0 z-30 shadow-sm">
         {/* Logo Header */}
-        <div className="p-6 border-b border-[#001e50]/20 bg-gradient-to-r from-[#001e50] via-[#0066b1] to-[#001e50]">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-lg">
-              <span className="text-3xl">🏭</span>
+        <div className="p-4 border-b border-slate-200 bg-white">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 bg-[#0066b1] rounded-lg flex items-center justify-center">
+              <span className="text-2xl">🏭</span>
             </div>
             <div className="flex-1">
-              <h2 className="font-bold text-white text-xl tracking-tight">VW Chefinho</h2>
-              <p className="text-xs text-blue-100 font-medium">Sistema de Gestão Industrial</p>
+              <h2 className="font-bold text-slate-900 text-base">VW Chefinho</h2>
+              <p className="text-[10px] text-slate-500">Gestão Industrial</p>
             </div>
           </div>
         </div>
@@ -336,39 +336,32 @@ export default function Layout({ children, currentPageName }) {
         </div>
 
         {/* User Profile */}
-        <div className="border-t border-slate-200 p-4 bg-slate-50">
-          <div className="flex items-center gap-3 mb-3 p-3 rounded-lg bg-white border border-slate-200">
-            <Avatar className="w-10 h-10 bg-gradient-to-br from-[#001e50] to-[#0066b1] ring-2 ring-blue-200">
+        <div className="border-t border-slate-200 p-3 bg-white">
+          <div className="flex items-center gap-2 mb-2">
+            <Avatar className="w-9 h-9 bg-[#0066b1]">
               {currentUser.foto_perfil ? (
                 <AvatarImage src={currentUser.foto_perfil} alt={currentUser.nome_exibicao || currentUser.full_name} />
               ) : (
-                <AvatarFallback className="text-white font-semibold bg-gradient-to-br from-[#001e50] to-[#0066b1]">
+                <AvatarFallback className="text-white font-semibold text-sm bg-[#0066b1]">
                   {(currentUser.nome_exibicao || currentUser.full_name)?.charAt(0) || 'U'}
                 </AvatarFallback>
               )}
             </Avatar>
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-slate-900 text-sm truncate">
+              <p className="font-semibold text-slate-900 text-xs truncate">
                 {currentUser.nome_exibicao || currentUser.full_name}
               </p>
-              <Badge
-                variant="outline"
-                className={`text-xs mt-0.5 ${
-                  currentUser.cargo === 'lider'
-                    ? 'bg-[#0066b1] text-white border-[#0066b1]'
-                    : 'bg-slate-100 text-slate-700 border-slate-300'
-                }`}
-              >
+              <p className="text-[10px] text-slate-500">
                 {currentUser.cargo === 'lider' ? 'Líder' : 'Monitor'}
-              </Badge>
+              </p>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-1.5">
             <Link to={createPageUrl("Perfil")}>
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full text-xs hover:bg-blue-50 hover:text-[#0066b1] hover:border-[#0066b1] border-slate-300"
+                className="w-full text-[10px] h-7 hover:bg-blue-50 hover:text-[#0066b1] hover:border-[#0066b1]"
               >
                 <User className="w-3 h-3 mr-1" />
                 Perfil
@@ -377,7 +370,7 @@ export default function Layout({ children, currentPageName }) {
             <Button
               variant="outline"
               size="sm"
-              className="w-full text-xs hover:bg-red-50 hover:text-red-600 hover:border-red-300"
+              className="w-full text-[10px] h-7 hover:bg-red-50 hover:text-red-600 hover:border-red-300"
               onClick={handleLogout}
             >
               <LogOut className="w-3 h-3 mr-1" />
@@ -408,18 +401,18 @@ export default function Layout({ children, currentPageName }) {
             >
               <div className="flex flex-col h-full">
                 {/* Logo Header */}
-                <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-[#001e50] to-[#0066b1]">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-lg">
-                      <span className="text-2xl">🏭</span>
+                <div className="p-3 border-b border-slate-200 flex items-center justify-between bg-white">
+                  <div className="flex items-center gap-2">
+                    <div className="w-9 h-9 bg-[#0066b1] rounded-lg flex items-center justify-center">
+                      <span className="text-xl">🏭</span>
                     </div>
                     <div className="flex-1">
-                      <h2 className="font-bold text-white text-lg">VW Chefinho</h2>
-                      <p className="text-[10px] text-blue-100">Sistema de Gestão</p>
+                      <h2 className="font-bold text-slate-900 text-sm">VW Chefinho</h2>
+                      <p className="text-[9px] text-slate-500">Gestão Industrial</p>
                     </div>
                   </div>
-                  <Button variant="ghost" size="icon" onClick={() => setMobileOpen(false)} className="text-white hover:bg-white/20">
-                    <X className="w-5 h-5" />
+                  <Button variant="ghost" size="icon" onClick={() => setMobileOpen(false)} className="h-8 w-8">
+                    <X className="w-4 h-4" />
                   </Button>
                 </div>
 
@@ -475,13 +468,13 @@ export default function Layout({ children, currentPageName }) {
                 </div>
 
                 {/* User Profile */}
-                <div className="border-t border-slate-200 p-3 bg-slate-50">
-                  <div className="flex items-center gap-3 mb-3 p-3 rounded-lg bg-white">
-                    <Avatar className="w-10 h-10 bg-gradient-to-br from-[#001e50] to-[#0066b1] ring-2 ring-blue-200">
+                <div className="border-t border-slate-200 p-3 bg-white">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Avatar className="w-10 h-10 bg-[#0066b1]">
                       {currentUser.foto_perfil ? (
                         <AvatarImage src={currentUser.foto_perfil} alt={currentUser.nome_exibicao || currentUser.full_name} />
                       ) : (
-                        <AvatarFallback className="text-white font-semibold">
+                        <AvatarFallback className="text-white font-semibold bg-[#0066b1]">
                           {(currentUser.nome_exibicao || currentUser.full_name)?.charAt(0) || 'U'}
                         </AvatarFallback>
                       )}
@@ -490,19 +483,19 @@ export default function Layout({ children, currentPageName }) {
                       <p className="font-semibold text-gray-900 text-sm truncate">
                         {currentUser.nome_exibicao || currentUser.full_name}
                       </p>
-                      <Badge variant="outline" className={`text-[10px] mt-0.5 ${currentUser.cargo === 'lider' ? 'bg-[#0066b1] text-white border-[#0066b1]' : ''}`}>
+                      <p className="text-xs text-gray-500">
                         {currentUser.cargo === 'lider' ? 'Líder' : 'Monitor'}
-                      </Badge>
+                      </p>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <Link to={createPageUrl("Perfil")} onClick={() => setMobileOpen(false)}>
-                      <Button variant="outline" size="sm" className="w-full text-xs hover:bg-blue-50">
+                      <Button variant="outline" size="sm" className="w-full text-xs hover:bg-blue-50 hover:text-[#0066b1] hover:border-[#0066b1]">
                         <User className="w-3 h-3 mr-1" />
                         Perfil
                       </Button>
                     </Link>
-                    <Button variant="outline" size="sm" className="w-full text-xs hover:bg-red-50 hover:text-red-600" onClick={handleLogout}>
+                    <Button variant="outline" size="sm" className="w-full text-xs hover:bg-red-50 hover:text-red-600 hover:border-red-300" onClick={handleLogout}>
                       <LogOut className="w-3 h-3 mr-1" />
                       Sair
                     </Button>

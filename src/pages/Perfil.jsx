@@ -151,27 +151,27 @@ export default function Perfil() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 p-2 md:p-6">
+    <div className="min-h-screen bg-slate-50">
       <div className="max-w-6xl mx-auto">
         {/* Header com Foto de Perfil */}
-        <div className="relative mb-8 md:mb-12">
-          <div className="h-32 md:h-48 bg-gradient-to-r from-[#001e50] to-[#0066b1] rounded-lg md:rounded-2xl shadow-md"></div>
-          <div className="absolute -bottom-12 md:-bottom-16 left-3 md:left-8 flex items-end gap-3 md:gap-6">
+        <div className="relative mb-20">
+          <div className="h-40 bg-gradient-to-r from-[#001e50] to-[#0066b1] rounded-b-xl"></div>
+          <div className="absolute -bottom-16 left-6 flex items-end gap-4">
             <div className="relative">
-              <Avatar className="w-20 h-20 md:w-32 md:h-32 border-3 md:border-4 border-white shadow-lg bg-gradient-to-br from-[#001e50] to-[#0066b1]">
+              <Avatar className="w-28 h-28 border-4 border-white shadow-xl bg-[#0066b1]">
                 {currentUser?.foto_perfil ? (
                   <AvatarImage src={currentUser.foto_perfil} alt={displayName} />
                 ) : (
-                  <AvatarFallback className="text-white font-bold text-2xl md:text-4xl">
+                  <AvatarFallback className="text-white font-bold text-3xl bg-[#0066b1]">
                     {displayName?.charAt(0) || 'U'}
                   </AvatarFallback>
                 )}
               </Avatar>
               <label 
                 htmlFor="foto-upload" 
-                className="absolute bottom-1 right-1 md:bottom-2 md:right-2 w-7 h-7 md:w-10 md:h-10 bg-[#0066b1] rounded-full flex items-center justify-center cursor-pointer hover:bg-[#004d82] transition-all shadow-md active:scale-95"
+                className="absolute bottom-1 right-1 w-9 h-9 bg-[#0066b1] rounded-full flex items-center justify-center cursor-pointer hover:bg-[#004d82] transition-all shadow-lg"
               >
-                <Camera className="w-3 h-3 md:w-5 md:h-5 text-white" />
+                <Camera className="w-4 h-4 text-white" />
                 <input
                   id="foto-upload"
                   type="file"
@@ -182,29 +182,29 @@ export default function Perfil() {
                 />
               </label>
             </div>
-            <div className="pb-2 md:pb-4">
-              <h1 className="text-lg md:text-3xl font-bold text-gray-900 mb-1">{displayName}</h1>
-              <div className="flex flex-wrap items-center gap-1.5 md:gap-3">
-                <Badge className={`text-xs md:text-sm ${
+            <div className="pb-3">
+              <h1 className="text-2xl font-bold text-slate-900 mb-2">{displayName}</h1>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge className={`${
                   currentUser?.cargo === 'lider' 
                     ? 'bg-[#0066b1]' 
                     : 'bg-slate-600'
-                } text-white border-0`}>
+                } text-white`}>
                   {currentUser?.cargo === 'lider' ? (
-                    <><Shield className="w-2.5 h-2.5 md:w-3 md:h-3 mr-1" /> Líder</>
+                    <><Shield className="w-3 h-3 mr-1" /> Líder</>
                   ) : (
                     'Monitor'
                   )}
                 </Badge>
                 {currentUser?.equipe && (
-                  <Badge variant="outline" className="bg-white text-xs md:text-sm">
-                    <Users className="w-2.5 h-2.5 md:w-3 md:h-3 mr-1" />
+                  <Badge variant="outline" className="bg-white/80">
+                    <Users className="w-3 h-3 mr-1" />
                     {currentUser.equipe}
                   </Badge>
                 )}
                 {currentUser?.turno && (
-                  <Badge variant="outline" className="bg-white text-xs md:text-sm">
-                    <Clock className="w-2.5 h-2.5 md:w-3 md:h-3 mr-1" />
+                  <Badge variant="outline" className="bg-white/80">
+                    <Clock className="w-3 h-3 mr-1" />
                     {currentUser.turno}
                   </Badge>
                 )}
@@ -213,84 +213,84 @@ export default function Perfil() {
           </div>
         </div>
 
-        <div className="mt-16 md:mt-20">
+        <div className="px-6 pb-6">
           {success && (
-            <Alert className="mb-4 bg-green-50 border-green-200 shadow-sm">
-              <AlertDescription className="text-green-800 font-medium text-sm">
+            <Alert className="mb-6 bg-green-50 border-green-200">
+              <AlertDescription className="text-green-800 font-medium">
                 ✓ Perfil atualizado com sucesso!
               </AlertDescription>
             </Alert>
           )}
 
           {error && (
-            <Alert variant="destructive" className="mb-4 shadow-sm">
-              <AlertDescription className="text-sm">{error}</AlertDescription>
+            <Alert variant="destructive" className="mb-6">
+              <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
 
           {uploading && (
-            <Alert className="mb-4 bg-blue-50 border-blue-200 shadow-sm">
-              <AlertDescription className="text-blue-800 text-sm">
+            <Alert className="mb-6 bg-blue-50 border-blue-200">
+              <AlertDescription className="text-blue-800">
                 Fazendo upload da foto...
               </AlertDescription>
             </Alert>
           )}
 
-          <div className="grid lg:grid-cols-3 gap-3 md:gap-6 mb-3 md:mb-6">
+          <div className="grid lg:grid-cols-3 gap-6 mb-6">
             {/* Estatísticas Rápidas */}
-            <Card className="shadow-md border-0 bg-gradient-to-br from-blue-500 to-blue-600 text-white">
-              <CardContent className="pt-4 md:pt-6">
+            <Card className="border-0 bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+              <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-blue-100 text-xs md:text-sm font-medium">Pedidos de EPI</p>
-                    <p className="text-2xl md:text-4xl font-bold mt-0.5 md:mt-1">{stats.pedidosFeitos}</p>
+                    <p className="text-blue-100 text-sm font-medium">Pedidos de EPI</p>
+                    <p className="text-3xl font-bold mt-1">{stats.pedidosFeitos}</p>
                   </div>
-                  <div className="w-12 h-12 md:w-16 md:h-16 bg-white/20 rounded-xl md:rounded-2xl flex items-center justify-center">
-                    <Award className="w-6 h-6 md:w-8 md:h-8" />
+                  <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
+                    <Award className="w-7 h-7" />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="shadow-md border-0 bg-gradient-to-br from-green-500 to-green-600 text-white">
-              <CardContent className="pt-4 md:pt-6">
+            <Card className="border-0 bg-gradient-to-br from-green-500 to-green-600 text-white">
+              <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-green-100 text-xs md:text-sm font-medium">Tarefas Concluídas</p>
-                    <p className="text-2xl md:text-4xl font-bold mt-0.5 md:mt-1">{stats.tarefasConcluidas}</p>
+                    <p className="text-green-100 text-sm font-medium">Tarefas Concluídas</p>
+                    <p className="text-3xl font-bold mt-1">{stats.tarefasConcluidas}</p>
                   </div>
-                  <div className="w-12 h-12 md:w-16 md:h-16 bg-white/20 rounded-xl md:rounded-2xl flex items-center justify-center">
-                    <Award className="w-6 h-6 md:w-8 md:h-8" />
+                  <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
+                    <Award className="w-7 h-7" />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="shadow-md border-0 bg-gradient-to-br from-purple-500 to-purple-600 text-white">
-              <CardContent className="pt-4 md:pt-6">
+            <Card className="border-0 bg-gradient-to-br from-purple-500 to-purple-600 text-white">
+              <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-purple-100 text-xs md:text-sm font-medium">Dias no Sistema</p>
-                    <p className="text-2xl md:text-4xl font-bold mt-0.5 md:mt-1">{stats.diasCadastro}</p>
+                    <p className="text-purple-100 text-sm font-medium">Dias no Sistema</p>
+                    <p className="text-3xl font-bold mt-1">{stats.diasCadastro}</p>
                   </div>
-                  <div className="w-12 h-12 md:w-16 md:h-16 bg-white/20 rounded-xl md:rounded-2xl flex items-center justify-center">
-                    <Calendar className="w-6 h-6 md:w-8 md:h-8" />
+                  <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
+                    <Calendar className="w-7 h-7" />
                   </div>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-3 md:gap-6">
+          <div className="grid lg:grid-cols-3 gap-6">
             {/* Informações do Perfil */}
-            <Card className="lg:col-span-1 shadow-md border border-slate-200">
-              <CardHeader className="bg-slate-50 border-b p-4 md:p-6">
-                <CardTitle className="flex items-center gap-2 text-base md:text-lg">
-                  <UserCircle className="w-4 h-4 md:w-5 md:h-5 text-[#0066b1]" />
-                  Informações
+            <Card className="lg:col-span-1">
+              <CardHeader className="bg-slate-50 border-b">
+                <CardTitle className="flex items-center gap-2">
+                  <UserCircle className="w-5 h-5 text-[#0066b1]" />
+                  Informações do Perfil
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pt-4 md:pt-6 space-y-3 md:space-y-4 p-4 md:p-6">
+              <CardContent className="pt-6 space-y-4">
                 <div className="space-y-3">
                   <div>
                     <p className="text-sm text-gray-500 mb-2">Completude do Perfil</p>
@@ -362,18 +362,18 @@ export default function Perfil() {
             </Card>
 
             {/* Formulário de Edição */}
-            <Card className="lg:col-span-2 shadow-md border border-slate-200">
-              <CardHeader className="bg-slate-50 border-b p-4 md:p-6">
-                <CardTitle className="flex items-center gap-2 text-base md:text-lg">
-                  <Save className="w-4 h-4 md:w-5 md:h-5 text-[#0066b1]" />
+            <Card className="lg:col-span-2">
+              <CardHeader className="bg-slate-50 border-b">
+                <CardTitle className="flex items-center gap-2">
+                  <Save className="w-5 h-5 text-[#0066b1]" />
                   Editar Informações
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pt-4 md:pt-6 p-4 md:p-6">
-                <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
-                  <div className="grid md:grid-cols-2 gap-3 md:gap-6">
-                    <div className="space-y-1.5 md:space-y-2">
-                      <Label htmlFor="nome_exibicao" className="text-xs md:text-sm font-semibold">
+              <CardContent className="pt-6">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="nome_exibicao" className="text-sm font-semibold">
                         Nome de Exibição *
                       </Label>
                       <Input
@@ -382,16 +382,16 @@ export default function Perfil() {
                         value={formData.nome_exibicao}
                         onChange={(e) => setFormData({...formData, nome_exibicao: e.target.value})}
                         required
-                        className="h-9 md:h-11 text-sm"
+                        className="h-11"
                       />
-                      <p className="text-[10px] md:text-xs text-gray-500">
+                      <p className="text-xs text-gray-500">
                         Este nome aparecerá para outros usuários
                       </p>
                     </div>
 
-                    <div className="space-y-1.5 md:space-y-2">
-                      <Label htmlFor="celular" className="text-xs md:text-sm font-semibold">
-                        Celular *
+                    <div className="space-y-2">
+                      <Label htmlFor="celular" className="text-sm font-semibold">
+                        Número de Celular *
                       </Label>
                       <Input
                         id="celular"
@@ -399,15 +399,15 @@ export default function Perfil() {
                         value={formData.celular}
                         onChange={(e) => setFormData({...formData, celular: e.target.value})}
                         required
-                        className="h-9 md:h-11 text-sm"
+                        className="h-11"
                       />
                     </div>
                   </div>
 
-                  <div className="grid md:grid-cols-3 gap-3 md:gap-6">
-                    <div className="space-y-1.5 md:space-y-2">
-                      <Label htmlFor="chapa" className="text-xs md:text-sm font-semibold">
-                        Chapa *
+                  <div className="grid md:grid-cols-3 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="chapa" className="text-sm font-semibold">
+                        Número de Chapa *
                       </Label>
                       <Input
                         id="chapa"
@@ -415,33 +415,33 @@ export default function Perfil() {
                         value={formData.chapa}
                         onChange={(e) => setFormData({...formData, chapa: e.target.value})}
                         required
-                        className="h-9 md:h-11 text-sm"
+                        className="h-11"
                       />
                     </div>
 
-                    <div className="space-y-1.5 md:space-y-2">
-                      <Label htmlFor="equipe" className="text-xs md:text-sm font-semibold">
+                    <div className="space-y-2">
+                      <Label htmlFor="equipe" className="text-sm font-semibold">
                         Equipe
                       </Label>
                       <Input
                         id="equipe"
-                        placeholder="Equipe"
+                        placeholder="Nome da sua equipe"
                         value={formData.equipe}
                         onChange={(e) => setFormData({...formData, equipe: e.target.value})}
-                        className="h-9 md:h-11 text-sm"
+                        className="h-11"
                       />
                     </div>
 
-                    <div className="space-y-1.5 md:space-y-2">
-                      <Label htmlFor="turno" className="text-xs md:text-sm font-semibold">
+                    <div className="space-y-2">
+                      <Label htmlFor="turno" className="text-sm font-semibold">
                         Turno
                       </Label>
                       <Select
                         value={formData.turno}
                         onValueChange={(value) => setFormData({...formData, turno: value})}
                       >
-                        <SelectTrigger className="h-9 md:h-11 text-sm">
-                          <SelectValue placeholder="Selecione" />
+                        <SelectTrigger className="h-11">
+                          <SelectValue placeholder="Selecione o turno" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="manha">Manhã</SelectItem>
@@ -485,14 +485,14 @@ export default function Perfil() {
                     </p>
                   </div>
 
-                  <div className="flex justify-end pt-2 md:pt-4">
+                  <div className="flex justify-end pt-4">
                     <Button
                       type="submit"
                       disabled={saving}
-                      className="w-full md:w-auto bg-[#0066b1] hover:bg-[#004d82] px-6 md:px-8 h-10 md:h-12 text-sm md:text-base font-semibold shadow-md"
+                      className="bg-[#0066b1] hover:bg-[#004d82] px-8 h-12 text-base font-semibold"
                     >
-                      <Save className="w-4 h-4 md:w-5 md:h-5 mr-2" />
-                      {saving ? "Salvando..." : "Salvar"}
+                      <Save className="w-5 h-5 mr-2" />
+                      {saving ? "Salvando..." : "Salvar Alterações"}
                     </Button>
                   </div>
                 </form>
@@ -501,49 +501,49 @@ export default function Perfil() {
           </div>
 
           {/* Dicas e Informações */}
-          <Card className="mt-3 md:mt-6 shadow-md border border-slate-200 border-l-4 border-l-yellow-500">
-            <CardHeader className="bg-yellow-50 p-4 md:p-6">
-              <CardTitle className="text-yellow-800 flex items-center gap-2 text-sm md:text-base">
-                <Award className="w-4 h-4 md:w-5 md:h-5" />
-                Dicas
+          <Card className="mt-6 border-l-4 border-l-yellow-500">
+            <CardHeader className="bg-yellow-50">
+              <CardTitle className="text-yellow-800 flex items-center gap-2">
+                <Award className="w-5 h-5" />
+                Dicas para um Perfil Completo
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-4 md:pt-6 p-4 md:p-6">
-              <div className="grid md:grid-cols-2 gap-3 md:gap-4">
-                <div className="flex items-start gap-2 md:gap-3">
-                  <div className="w-6 h-6 md:w-8 md:h-8 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <span className="text-yellow-600 font-bold text-xs md:text-sm">1</span>
+            <CardContent className="pt-6">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <span className="text-yellow-600 font-bold">1</span>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900 text-xs md:text-sm">Adicione uma foto</p>
-                    <p className="text-[10px] md:text-xs text-gray-600">Facilita identificação</p>
+                    <p className="font-semibold text-gray-900">Adicione uma foto de perfil</p>
+                    <p className="text-sm text-gray-600">Facilita a identificação nos chats e avisos</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-2 md:gap-3">
-                  <div className="w-6 h-6 md:w-8 md:h-8 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <span className="text-yellow-600 font-bold text-xs md:text-sm">2</span>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <span className="text-yellow-600 font-bold">2</span>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900 text-xs md:text-sm">Preencha equipe e turno</p>
-                    <p className="text-[10px] md:text-xs text-gray-600">Organização de tarefas</p>
+                    <p className="font-semibold text-gray-900">Preencha equipe e turno</p>
+                    <p className="text-sm text-gray-600">Ajuda na organização de pedidos e tarefas</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-2 md:gap-3">
-                  <div className="w-6 h-6 md:w-8 md:h-8 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <span className="text-yellow-600 font-bold text-xs md:text-sm">3</span>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <span className="text-yellow-600 font-bold">3</span>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900 text-xs md:text-sm">Mantenha atualizado</p>
-                    <p className="text-[10px] md:text-xs text-gray-600">Melhor comunicação</p>
+                    <p className="font-semibold text-gray-900">Mantenha os dados atualizados</p>
+                    <p className="text-sm text-gray-600">Garante melhor comunicação com a equipe</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-2 md:gap-3">
-                  <div className="w-6 h-6 md:w-8 md:h-8 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <span className="text-yellow-600 font-bold text-xs md:text-sm">4</span>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <span className="text-yellow-600 font-bold">4</span>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900 text-xs md:text-sm">Nome de exibição claro</p>
-                    <p className="text-[10px] md:text-xs text-gray-600">Fácil localização</p>
+                    <p className="font-semibold text-gray-900">Use um nome de exibição claro</p>
+                    <p className="text-sm text-gray-600">Facilita que outros te encontrem no sistema</p>
                   </div>
                 </div>
               </div>
