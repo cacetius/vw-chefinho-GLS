@@ -403,19 +403,19 @@ export default function Layout({ children, currentPageName }) {
               animate={{ x: 0 }}
               exit={{ x: -300 }}
               transition={{ type: "spring", damping: 25 }}
-              className="fixed left-0 top-0 bottom-0 w-72 bg-white shadow-2xl z-50 lg:hidden"
+              className="fixed left-0 top-0 bottom-0 w-80 bg-white shadow-2xl z-50 lg:hidden overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex flex-col h-full">
                 {/* Logo Header */}
-                <div className="p-5 border-b border-gray-200 flex items-center justify-between bg-gradient-to-br from-[#001e50] via-[#0066b1] to-[#00b0f0]">
+                <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-[#001e50] to-[#0066b1]">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg">
-                      <span className="text-3xl">👔</span>
+                    <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-lg">
+                      <span className="text-2xl">🏭</span>
                     </div>
                     <div className="flex-1">
-                      <h2 className="font-bold text-white text-xl">Chefinho</h2>
-                      <p className="text-xs text-blue-100">VW Gestão</p>
+                      <h2 className="font-bold text-white text-lg">VW Chefinho</h2>
+                      <p className="text-[10px] text-blue-100">Sistema de Gestão</p>
                     </div>
                   </div>
                   <Button variant="ghost" size="icon" onClick={() => setMobileOpen(false)} className="text-white hover:bg-white/20">
@@ -424,46 +424,64 @@ export default function Layout({ children, currentPageName }) {
                 </div>
 
                 {/* Navigation */}
-                <div className="flex-1 overflow-y-auto p-4">
-                  {filteredSections.map((section) => (
+                <div className="flex-1 overflow-y-auto p-3">
+                  {filteredSections.map((section, idx) => (
                     <div key={section.title} className="mb-4">
-                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-2 mb-2">
-                        {section.title}
-                      </p>
-                      <nav className="space-y-1">
-                        {section.items.map((item) => (
-                          <Link
-                            key={item.title}
-                            to={item.url}
-                            onClick={() => setMobileOpen(false)}
-                            className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 ${
-                              isActive(item.url)
-                                ? 'bg-gradient-to-r shadow-md text-white ' + item.gradient
-                                : 'text-gray-700 hover:bg-gray-100'
-                            }`}
+                      <button
+                        onClick={() => toggleSection(section.title)}
+                        className="w-full flex items-center justify-between px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wider hover:text-gray-700 transition-colors"
+                      >
+                        <span>{section.title}</span>
+                        <ChevronDown className={`w-4 h-4 transition-transform ${expandedSections[section.title] ? 'rotate-180' : ''}`} />
+                      </button>
+                      
+                      <AnimatePresence>
+                        {(expandedSections[section.title] !== false) && (
+                          <motion.nav 
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            className="space-y-1 mt-1"
                           >
-                            <item.icon className="w-5 h-5" />
-                            <span className="flex-1 text-sm font-medium">{item.title}</span>
-                            {item.badge && (
-                              <Badge className="ml-auto bg-green-500 text-white text-xs py-0.5 px-2 rounded-full font-bold">
-                                {item.badge}
-                              </Badge>
-                            )}
-                          </Link>
-                        ))}
-                      </nav>
+                            {section.items.map((item) => (
+                              <Link
+                                key={item.title}
+                                to={item.url}
+                                onClick={() => setMobileOpen(false)}
+                              >
+                                <motion.div
+                                  whileTap={{ scale: 0.98 }}
+                                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
+                                    isActive(item.url)
+                                      ? 'bg-gradient-to-r from-[#001e50] to-[#0066b1] text-white shadow-md'
+                                      : 'text-gray-700 hover:bg-blue-50 active:bg-blue-100'
+                                  }`}
+                                >
+                                  <item.icon className="w-5 h-5 flex-shrink-0" />
+                                  <span className="flex-1 text-sm font-medium">{item.title}</span>
+                                  {item.badge && (
+                                    <Badge className="bg-[#00b0f0] text-white text-[10px] py-0 px-1.5 rounded">
+                                      {item.badge}
+                                    </Badge>
+                                  )}
+                                </motion.div>
+                              </Link>
+                            ))}
+                          </motion.nav>
+                        )}
+                      </AnimatePresence>
                     </div>
                   ))}
                 </div>
 
                 {/* User Profile */}
-                <div className="border-t border-gray-200 p-4 bg-gray-50">
-                  <div className="flex items-center gap-3 mb-3">
-                    <Avatar className="w-12 h-12 bg-gradient-to-br from-[#001e50] to-[#0066b1] ring-2 ring-gray-200">
+                <div className="border-t border-slate-200 p-3 bg-slate-50">
+                  <div className="flex items-center gap-3 mb-3 p-3 rounded-lg bg-white">
+                    <Avatar className="w-10 h-10 bg-gradient-to-br from-[#001e50] to-[#0066b1] ring-2 ring-blue-200">
                       {currentUser.foto_perfil ? (
                         <AvatarImage src={currentUser.foto_perfil} alt={currentUser.nome_exibicao || currentUser.full_name} />
                       ) : (
-                        <AvatarFallback className="text-white font-semibold text-lg">
+                        <AvatarFallback className="text-white font-semibold">
                           {(currentUser.nome_exibicao || currentUser.full_name)?.charAt(0) || 'U'}
                         </AvatarFallback>
                       )}
@@ -472,19 +490,19 @@ export default function Layout({ children, currentPageName }) {
                       <p className="font-semibold text-gray-900 text-sm truncate">
                         {currentUser.nome_exibicao || currentUser.full_name}
                       </p>
-                      <Badge variant="outline" className="text-xs mt-1">
+                      <Badge variant="outline" className={`text-[10px] mt-0.5 ${currentUser.cargo === 'lider' ? 'bg-[#0066b1] text-white border-[#0066b1]' : ''}`}>
                         {currentUser.cargo === 'lider' ? 'Líder' : 'Monitor'}
                       </Badge>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <Link to={createPageUrl("Perfil")} onClick={() => setMobileOpen(false)}>
-                      <Button variant="outline" size="sm" className="w-full text-xs">
+                      <Button variant="outline" size="sm" className="w-full text-xs hover:bg-blue-50">
                         <User className="w-3 h-3 mr-1" />
                         Perfil
                       </Button>
                     </Link>
-                    <Button variant="outline" size="sm" className="w-full text-xs" onClick={handleLogout}>
+                    <Button variant="outline" size="sm" className="w-full text-xs hover:bg-red-50 hover:text-red-600" onClick={handleLogout}>
                       <LogOut className="w-3 h-3 mr-1" />
                       Sair
                     </Button>

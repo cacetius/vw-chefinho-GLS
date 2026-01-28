@@ -113,11 +113,12 @@ export default function AuditoriaVDAForm({ auditoria, onSubmit, currentUser, onC
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
+      className="fixed inset-0 z-50 bg-black/50 flex items-start justify-center overflow-y-auto p-4 lg:p-0 lg:relative lg:bg-transparent"
     >
-      <Card className="shadow-lg border border-slate-200">
-        <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-white">
+      <Card className="w-full max-w-4xl shadow-lg border border-slate-200 my-4 lg:my-0">
+        <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-white sticky top-0 z-10">
           <div className="flex justify-between items-center">
-            <CardTitle className="text-xl text-slate-900">
+            <CardTitle className="text-lg md:text-xl text-slate-900">
               {auditoria ? "Editar Auditoria VDA" : "Nova Auditoria VDA"}
             </CardTitle>
             <Button variant="ghost" size="icon" onClick={onCancel}>
@@ -126,10 +127,10 @@ export default function AuditoriaVDAForm({ auditoria, onSubmit, currentUser, onC
           </div>
         </CardHeader>
 
-        <CardContent className="pt-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <CardContent className="pt-4 md:pt-6 max-h-[calc(100vh-200px)] overflow-y-auto lg:max-h-none">
+          <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
             {/* Informações Gerais */}
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid sm:grid-cols-2 gap-3 md:gap-4">
               <div className="space-y-2">
                 <Label htmlFor="titulo">Título da Auditoria *</Label>
                 <Input
@@ -209,8 +210,8 @@ export default function AuditoriaVDAForm({ auditoria, onSubmit, currentUser, onC
 
               {/* Form para adicionar novo item */}
               <Card className="mb-4 bg-gradient-to-r from-blue-50 to-white border border-slate-200">
-                <CardContent className="pt-6">
-                  <div className="grid md:grid-cols-2 gap-4 mb-4">
+                <CardContent className="pt-4 md:pt-6">
+                  <div className="grid sm:grid-cols-2 gap-3 md:gap-4 mb-4">
                     <div className="space-y-2">
                       <Label>Número do Item *</Label>
                       <Input

@@ -44,7 +44,7 @@ export default function AuditoriaVDAList({ auditorias, onEdit, onDelete, current
   }
 
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-4 md:gap-6">
       {auditorias.map((auditoria, index) => (
         <motion.div
           key={auditoria.id}
@@ -53,17 +53,17 @@ export default function AuditoriaVDAList({ auditorias, onEdit, onDelete, current
           transition={{ delay: index * 0.1 }}
         >
           <Card className="hover:shadow-lg transition-all border-l-4 border-l-[#0066b1]">
-            <CardContent className="pt-6">
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h3 className="text-xl font-bold text-gray-900">{auditoria.titulo}</h3>
+            <CardContent className="pt-4 md:pt-6">
+              <div className="flex flex-col md:flex-row justify-between items-start gap-3 mb-4">
+                <div className="flex-1 w-full">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                    <h3 className="text-lg md:text-xl font-bold text-gray-900">{auditoria.titulo}</h3>
                     <Badge className={getStatusColor(auditoria.status)}>
                       {auditoria.status}
                     </Badge>
                   </div>
                   
-                  <div className="flex flex-wrap gap-2 mb-3">
+                  <div className="flex flex-wrap gap-1.5 md:gap-2 mb-3">
                     <Badge variant="outline" className="text-indigo-700 border-indigo-300">
                       {getTipoAuditoriaLabel(auditoria.tipo_auditoria)}
                     </Badge>
@@ -78,38 +78,38 @@ export default function AuditoriaVDAList({ auditorias, onEdit, onDelete, current
                     </Badge>
                   </div>
 
-                  <div className="grid md:grid-cols-3 gap-4 mt-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center">
-                        <TrendingUp className={`w-5 h-5 ${getConformidadeColor(auditoria.percentual_conformidade || 0)}`} />
+                  <div className="grid grid-cols-3 gap-2 md:gap-4 mt-4">
+                    <div className="flex flex-col items-center text-center">
+                      <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center mb-1">
+                        <TrendingUp className={`w-4 h-4 md:w-5 md:h-5 ${getConformidadeColor(auditoria.percentual_conformidade || 0)}`} />
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500">Conformidade</p>
-                        <p className={`text-lg font-bold ${getConformidadeColor(auditoria.percentual_conformidade || 0)}`}>
+                        <p className="text-[10px] md:text-xs text-gray-500">Conformidade</p>
+                        <p className={`text-sm md:text-lg font-bold ${getConformidadeColor(auditoria.percentual_conformidade || 0)}`}>
                           {auditoria.percentual_conformidade || 0}%
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
-                        <CheckCircle className="w-5 h-5 text-blue-600" />
+                    <div className="flex flex-col items-center text-center">
+                      <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center mb-1">
+                        <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500">Itens Checklist</p>
-                        <p className="text-lg font-bold text-gray-900">
+                        <p className="text-[10px] md:text-xs text-gray-500">Itens</p>
+                        <p className="text-sm md:text-lg font-bold text-gray-900">
                           {auditoria.itens_checklist?.length || 0}
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-100 to-pink-100 flex items-center justify-center">
-                        <AlertTriangle className="w-5 h-5 text-red-600" />
+                    <div className="flex flex-col items-center text-center">
+                      <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-red-100 to-pink-100 flex items-center justify-center mb-1">
+                        <AlertTriangle className="w-4 h-4 md:w-5 md:h-5 text-red-600" />
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500">Não Conformidades</p>
-                        <p className="text-lg font-bold text-red-600">
+                        <p className="text-[10px] md:text-xs text-gray-500">NC</p>
+                        <p className="text-sm md:text-lg font-bold text-red-600">
                           {auditoria.nao_conformidades?.length || 0}
                         </p>
                       </div>
@@ -135,7 +135,7 @@ export default function AuditoriaVDAList({ auditorias, onEdit, onDelete, current
                   </div>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex md:flex-col gap-2">
                   <Button
                     variant="outline"
                     size="icon"

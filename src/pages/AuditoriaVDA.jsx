@@ -127,22 +127,22 @@ export default function AuditoriaVDA() {
   }
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen pb-20 md:pb-0">
+      <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-[#001e50] to-[#0066b1] rounded-lg flex items-center justify-center">
-                <ClipboardCheck className="w-6 h-6 text-white" />
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div className="flex-1">
+            <h1 className="text-xl md:text-2xl font-bold text-slate-900 flex items-center gap-2">
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-[#001e50] to-[#0066b1] rounded-lg flex items-center justify-center">
+                <ClipboardCheck className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
               Auditoria VDA
             </h1>
-            <p className="text-slate-600 mt-1 text-sm">Sistema de gestão de qualidade automotiva</p>
+            <p className="text-slate-600 mt-1 text-xs md:text-sm">Sistema de gestão de qualidade automotiva</p>
           </div>
           <Button 
             onClick={() => setShowForm(!showForm)}
-            className="bg-gradient-to-r from-[#001e50] to-[#0066b1] hover:from-[#001e50] hover:to-[#004d82]"
+            className="w-full sm:w-auto bg-gradient-to-r from-[#001e50] to-[#0066b1] hover:from-[#001e50] hover:to-[#004d82]"
           >
             <Plus className="w-4 h-4 mr-2" />
             Nova Auditoria
@@ -150,16 +150,16 @@ export default function AuditoriaVDA() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           <Card className="border border-slate-200 hover:shadow-md transition-shadow">
-            <CardContent className="pt-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-slate-600 text-xs font-medium mb-1">Total de Auditorias</p>
-                  <p className="text-3xl font-bold text-[#0066b1]">{auditorias.length}</p>
+            <CardContent className="pt-4 pb-4">
+              <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-2">
+                <div className="text-center sm:text-left">
+                  <p className="text-slate-600 text-[10px] sm:text-xs font-medium mb-1">Total</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-[#0066b1]">{auditorias.length}</p>
                 </div>
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center">
-                  <ClipboardCheck className="w-6 h-6 text-[#0066b1]" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center">
+                  <ClipboardCheck className="w-5 h-5 sm:w-6 sm:h-6 text-[#0066b1]" />
                 </div>
               </div>
             </CardContent>
