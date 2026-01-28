@@ -105,136 +105,113 @@ export default function Dashboard() {
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-br from-[#001e50] via-[#0066b1] to-[#00b0f0] rounded-3xl shadow-2xl p-8 md:p-10 text-white relative overflow-hidden"
+          className="bg-gradient-to-r from-slate-800 to-slate-700 rounded-xl shadow-lg p-6 md:p-8 text-white"
         >
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-24 -mb-24"></div>
           <div className="relative z-10">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  <h1 className="text-3xl md:text-5xl font-bold mb-3">
-                    Olá, {currentUser?.nome_exibicao || currentUser?.full_name?.split(' ')[0]}! 👋
+                <div>
+                  <h1 className="text-2xl md:text-3xl font-bold mb-2">
+                    Olá, {currentUser?.nome_exibicao || currentUser?.full_name?.split(' ')[0]}
                   </h1>
-                  <p className="text-blue-100 text-lg md:text-xl">
-                    Seu resumo de atividades está pronto
+                  <p className="text-slate-300 text-base md:text-lg">
+                    Resumo de atividades e indicadores
                   </p>
-                </motion.div>
+                </div>
               </div>
-              <motion.div 
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
-                className="flex flex-col items-start md:items-end gap-3"
-              >
-                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-5 py-2 text-sm shadow-lg">
-                  {currentUser?.cargo === 'lider' ? '🛡️ Líder' : '📋 Monitor'} • Chapa {currentUser?.chapa}
+              <div className="flex flex-col items-start md:items-end gap-2">
+                <Badge className="bg-white/10 text-white border-white/20 px-3 py-1 text-sm">
+                  {currentUser?.cargo === 'lider' ? 'Líder' : 'Monitor'} • Chapa {currentUser?.chapa}
                 </Badge>
                 {currentUser?.equipe && (
-                  <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 shadow-lg">
-                    📍 Equipe: {currentUser.equipe}
+                  <Badge className="bg-white/10 text-white border-white/20 px-3 py-1">
+                    Equipe: {currentUser.equipe}
                   </Badge>
                 )}
-              </motion.div>
+              </div>
             </div>
           </div>
         </motion.div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <Card className="hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-blue-500 to-blue-600 text-white">
-              <CardContent className="pt-6 pb-6">
-                <div className="flex flex-col items-center text-center">
-                  <div className="p-3 bg-white/20 rounded-2xl mb-3 backdrop-blur-sm">
-                    <Truck className="w-6 h-6" />
-                  </div>
-                  <div className="text-3xl font-bold mb-1">{stats.atividadesLogistica}</div>
-                  <p className="text-xs text-blue-100">Logística</p>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <Card className="hover:shadow-md transition-shadow border border-slate-200">
+            <CardContent className="pt-5 pb-5">
+              <div className="flex flex-col items-center text-center">
+                <div className="w-12 h-12 bg-blue-50 rounded-lg mb-3 flex items-center justify-center">
+                  <Truck className="w-6 h-6 text-blue-600" />
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+                <div className="text-2xl font-bold text-slate-900 mb-1">{stats.atividadesLogistica}</div>
+                <p className="text-xs text-slate-600">Logística</p>
+              </div>
+            </CardContent>
+          </Card>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <Card className="hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-green-500 to-emerald-600 text-white">
-              <CardContent className="pt-6 pb-6">
-                <div className="flex flex-col items-center text-center">
-                  <div className="p-3 bg-white/20 rounded-2xl mb-3 backdrop-blur-sm">
-                    <ShoppingCart className="w-6 h-6" />
-                  </div>
-                  <div className="text-3xl font-bold mb-1">{stats.pedidosEPI}</div>
-                  <p className="text-xs text-green-100">Pedidos EPI</p>
+          <Card className="hover:shadow-md transition-shadow border border-slate-200">
+            <CardContent className="pt-5 pb-5">
+              <div className="flex flex-col items-center text-center">
+                <div className="w-12 h-12 bg-green-50 rounded-lg mb-3 flex items-center justify-center">
+                  <ShoppingCart className="w-6 h-6 text-green-600" />
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+                <div className="text-2xl font-bold text-slate-900 mb-1">{stats.pedidosEPI}</div>
+                <p className="text-xs text-slate-600">Pedidos EPI</p>
+              </div>
+            </CardContent>
+          </Card>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-            <Card className="hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-purple-500 to-purple-600 text-white">
-              <CardContent className="pt-6 pb-6">
-                <div className="flex flex-col items-center text-center">
-                  <div className="p-3 bg-white/20 rounded-2xl mb-3 backdrop-blur-sm">
-                    <Users className="w-6 h-6" />
-                  </div>
-                  <div className="text-3xl font-bold mb-1">{stats.versatilidade}</div>
-                  <p className="text-xs text-purple-100">Colaboradores</p>
+          <Card className="hover:shadow-md transition-shadow border border-slate-200">
+            <CardContent className="pt-5 pb-5">
+              <div className="flex flex-col items-center text-center">
+                <div className="w-12 h-12 bg-purple-50 rounded-lg mb-3 flex items-center justify-center">
+                  <Users className="w-6 h-6 text-purple-600" />
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+                <div className="text-2xl font-bold text-slate-900 mb-1">{stats.versatilidade}</div>
+                <p className="text-xs text-slate-600">Colaboradores</p>
+              </div>
+            </CardContent>
+          </Card>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-            <Card className="hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-orange-500 to-red-600 text-white">
-              <CardContent className="pt-6 pb-6">
-                <div className="flex flex-col items-center text-center">
-                  <div className="p-3 bg-white/20 rounded-2xl mb-3 backdrop-blur-sm">
-                    <MessageSquare className="w-6 h-6" />
-                  </div>
-                  <div className="text-3xl font-bold mb-1">{stats.mensagens}</div>
-                  <p className="text-xs text-orange-100">Mensagens</p>
+          <Card className="hover:shadow-md transition-shadow border border-slate-200">
+            <CardContent className="pt-5 pb-5">
+              <div className="flex flex-col items-center text-center">
+                <div className="w-12 h-12 bg-orange-50 rounded-lg mb-3 flex items-center justify-center">
+                  <MessageSquare className="w-6 h-6 text-orange-600" />
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+                <div className="text-2xl font-bold text-slate-900 mb-1">{stats.mensagens}</div>
+                <p className="text-xs text-slate-600">Mensagens</p>
+              </div>
+            </CardContent>
+          </Card>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-            <Card className="hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-cyan-500 to-blue-600 text-white">
-              <CardContent className="pt-6 pb-6">
-                <div className="flex flex-col items-center text-center">
-                  <div className="p-3 bg-white/20 rounded-2xl mb-3 backdrop-blur-sm">
-                    <CheckCircle2 className="w-6 h-6" />
-                  </div>
-                  <div className="text-3xl font-bold mb-1">{stats.objetivosConcluidos}</div>
-                  <p className="text-xs text-cyan-100">Objetivos OK</p>
+          <Card className="hover:shadow-md transition-shadow border border-slate-200">
+            <CardContent className="pt-5 pb-5">
+              <div className="flex flex-col items-center text-center">
+                <div className="w-12 h-12 bg-cyan-50 rounded-lg mb-3 flex items-center justify-center">
+                  <CheckCircle2 className="w-6 h-6 text-cyan-600" />
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+                <div className="text-2xl font-bold text-slate-900 mb-1">{stats.objetivosConcluidos}</div>
+                <p className="text-xs text-slate-600">Objetivos OK</p>
+              </div>
+            </CardContent>
+          </Card>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
-            <Card className="hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-red-500 to-pink-600 text-white">
-              <CardContent className="pt-6 pb-6">
-                <div className="flex flex-col items-center text-center">
-                  <div className="p-3 bg-white/20 rounded-2xl mb-3 backdrop-blur-sm">
-                    <AlertCircle className="w-6 h-6" />
-                  </div>
-                  <div className="text-3xl font-bold mb-1">{stats.avisosImportantes}</div>
-                  <p className="text-xs text-red-100">Avisos Urgentes</p>
+          <Card className="hover:shadow-md transition-shadow border border-slate-200">
+            <CardContent className="pt-5 pb-5">
+              <div className="flex flex-col items-center text-center">
+                <div className="w-12 h-12 bg-red-50 rounded-lg mb-3 flex items-center justify-center">
+                  <AlertCircle className="w-6 h-6 text-red-600" />
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+                <div className="text-2xl font-bold text-slate-900 mb-1">{stats.avisosImportantes}</div>
+                <p className="text-xs text-slate-600">Avisos Urgentes</p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Quick Actions */}
         <div>
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-            <Activity className="w-7 h-7 text-[#0066b1]" />
+          <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+            <Activity className="w-5 h-5 text-slate-700" />
             Ações Rápidas
           </h2>
           <AtalhosRapidos />
@@ -244,11 +221,11 @@ export default function Dashboard() {
         <div className="grid lg:grid-cols-2 gap-8">
           <HistoricoAtividades currentUser={currentUser} />
           
-          <Card className="shadow-2xl border-0">
-            <CardHeader className="border-b bg-gradient-to-r from-purple-50 to-pink-50">
-              <CardTitle className="text-xl flex items-center gap-2">
-                <Lightbulb className="w-6 h-6 text-amber-500" />
-                Dicas do Dia
+          <Card className="border border-slate-200">
+            <CardHeader className="border-b bg-slate-50">
+              <CardTitle className="text-lg flex items-center gap-2 font-semibold text-slate-900">
+                <Lightbulb className="w-5 h-5 text-amber-500" />
+                Dicas e Lembretes
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">

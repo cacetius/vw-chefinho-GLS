@@ -127,45 +127,43 @@ export default function AuditoriaVDA() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="min-h-screen">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 flex items-center gap-3">
-              <div className="p-3 bg-gradient-to-br from-indigo-600 to-blue-600 rounded-2xl shadow-xl">
-                <ClipboardCheck className="w-8 h-8 text-white" />
+            <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                <ClipboardCheck className="w-6 h-6 text-white" />
               </div>
               Auditoria VDA
             </h1>
-            <p className="text-gray-600 mt-2 text-lg">Sistema de gestão de qualidade automotiva</p>
+            <p className="text-slate-600 mt-1 text-sm">Sistema de gestão de qualidade automotiva</p>
           </div>
           <Button 
             onClick={() => setShowForm(!showForm)}
-            className="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 shadow-lg hover:shadow-xl transition-all px-6 py-6 text-base"
+            className="bg-blue-600 hover:bg-blue-700"
           >
-            <Plus className="w-5 h-5 mr-2" />
+            <Plus className="w-4 h-4 mr-2" />
             Nova Auditoria
           </Button>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <Card className="shadow-xl border-0 bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:shadow-2xl transition-all">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-blue-100 text-sm font-medium mb-1">Total de Auditorias</p>
-                    <p className="text-4xl font-bold">{auditorias.length}</p>
-                  </div>
-                  <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                    <ClipboardCheck className="w-8 h-8" />
-                  </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="border border-slate-200">
+            <CardContent className="pt-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-slate-600 text-xs font-medium mb-1">Total de Auditorias</p>
+                  <p className="text-3xl font-bold text-slate-900">{auditorias.length}</p>
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+                <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
+                  <ClipboardCheck className="w-6 h-6 text-blue-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
             <Card className="shadow-xl border-0 bg-gradient-to-br from-green-500 to-emerald-600 text-white hover:shadow-2xl transition-all">
