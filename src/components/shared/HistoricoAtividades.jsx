@@ -1,84 +1,70 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity, CheckCircle, Clock, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Clock, Activity } from "lucide-react";
+import { motion } from "framer-motion";
+import moment from "moment";
+import "moment/locale/pt-br";
+
+moment.locale("pt-br");
 
 export default function HistoricoAtividades({ currentUser }) {
-  const [atividades, setAtividades] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (currentUser) {
-      loadAtividades();
-    }
-  }, [currentUser]);
-
-  const loadAtividades = async () => {
-    try {
-      // Busca as últimas atividades do usuário em diferentes entidades
-      const [tarefas, pedidos, objetivos] = await Promise.all([
-        base44.entities.TarefaMonitor.list("-updated_date", 5),
-        base44.entities.PedidoEPI.filter({ solicitante_id: currentUser.id }, "-updated_date", 5),
-        base44.entities.Objetivo.list("-updated_date", 5)
+  const { data: atividades = [], isLoading } = useQuery({
+    queryKey: ["atividades-recentes", currentUser?.id],
+    queryFn: async () => {
+      const [logistica, pedidos, objetivos, avisos] = await Promise.all([
+        base44.entities.AtividadeLogistica.list("-created_date", 5),
+        base44.entities.PedidoEPI.list("-created_date", 5),
+        base44.entities.Objetivo.list("-updated_date", 5),
+        base44.entities.Aviso.list("-created_date", 5)
       ]);
 
-      const historico = [];
+      const combined = [
+        ...logistica.map(a => ({ ...a, tipo: "logistica", icon: "🚚" })),
+        ...pedidos.map(p => ({ ...p, tipo: "pedido", icon: "🛒" })),
+        ...objetivos.map(o => ({ ...o, tipo: "objetivo", icon: "🎯" })),
+        ...avisos.map(av => ({ ...av, tipo: "aviso", icon: "📢" }))
+      ];
 
-      tarefas.forEach(t => {
-        historico.push({
-          tipo: "tarefa",
-          titulo: t.titulo,
-          status: t.status,
-          data: t.updated_date,
-          icon: CheckCircle,
-          color: t.status === "concluida" ? "text-green-600" : t.status === "em_andamento" ? "text-blue-600" : "text-yellow-600"
-        });
-      });
+      return combined
+        .sort((a, b) => new Date(b.created_date || b.updated_date) - new Date(a.created_date || a.updated_date))
+        .slice(0, 8);
+    },
+    enabled: !!currentUser,
+    refetchInterval: 30000
+  });
 
-      pedidos.forEach(p => {
-        historico.push({
-          tipo: "pedido",
-          titulo: `Pedido de ${p.item}`,
-          status: p.status,
-          data: p.updated_date,
-          icon: CheckCircle,
-          color: p.status === "aprovado" ? "text-green-600" : p.status === "reprovado" ? "text-red-600" : "text-yellow-600"
-        });
-      });
-
-      objetivos.forEach(o => {
-        historico.push({
-          tipo: "objetivo",
-          titulo: o.titulo,
-          status: o.concluido ? "concluido" : "em_andamento",
-          data: o.updated_date,
-          icon: CheckCircle,
-          color: o.concluido ? "text-green-600" : "text-blue-600"
-        });
-      });
-
-      // Ordena por data
-      historico.sort((a, b) => new Date(b.data) - new Date(a.data));
-      setAtividades(historico.slice(0, 10));
-    } catch (error) {
-      console.error("Erro ao carregar histórico:", error);
+  const getActivityText = (item) => {
+    switch (item.tipo) {
+      case "logistica":
+        return `Atividade de logística: ${item.descricao || "Nova entrada"}`;
+      case "pedido":
+        return `Pedido EPI: ${item.item || "Novo pedido"}`;
+      case "objetivo":
+        return `Objetivo: ${item.titulo || "Atualizado"}`;
+      case "aviso":
+        return `Aviso: ${item.titulo || "Novo comunicado"}`;
+      default:
+        return "Atividade registrada";
     }
-    setLoading(false);
   };
 
-  if (loading) {
+  const getStatusBadge = (item) => {
+    if (item.status === "pendente") return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300 text-xs">Pendente</Badge>;
+    if (item.status === "concluido" || item.concluido) return <Badge className="bg-green-100 text-green-800 border-green-300 text-xs">Concluído</Badge>;
+    if (item.prioridade === "urgente") return <Badge className="bg-red-100 text-red-800 border-red-300 text-xs">Urgente</Badge>;
+    if (item.prioridade === "importante") return <Badge className="bg-orange-100 text-orange-800 border-orange-300 text-xs">Importante</Badge>;
+    return null;
+  };
+
+  if (isLoading) {
     return (
-      <Card className="shadow-xl border-0">
-        <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-white">
-          <CardTitle className="text-xl flex items-center gap-2">
-            <Activity className="w-5 h-5 text-blue-600" />
-            Histórico de Atividades
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-6">
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0066b1] mx-auto"></div>
+      <Card className="shadow-2xl border-0">
+        <CardContent className="p-8">
+          <div className="flex items-center justify-center">
+            <div className="animate-spin rounded-full h-10 w-10 border-4 border-[#0066b1] border-t-transparent"></div>
           </div>
         </CardContent>
       </Card>
@@ -86,41 +72,48 @@ export default function HistoricoAtividades({ currentUser }) {
   }
 
   return (
-    <Card className="shadow-xl border-0">
-      <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-white">
+    <Card className="shadow-2xl border-0 overflow-hidden">
+      <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-indigo-50">
         <CardTitle className="text-xl flex items-center gap-2">
-          <Activity className="w-5 h-5 text-blue-600" />
-          Histórico de Atividades
+          <Activity className="w-6 h-6 text-[#0066b1]" />
+          Atividades Recentes
         </CardTitle>
       </CardHeader>
-      <CardContent className="pt-6">
-        {atividades.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <Activity className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p>Nenhuma atividade recente</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {atividades.map((ativ, index) => (
-              <div key={index} className="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors">
-                <div className={`mt-1 ${ativ.color}`}>
-                  <ativ.icon className="w-5 h-5" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900 text-sm">{ativ.titulo}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Badge variant="outline" className="text-xs">
-                      {ativ.tipo}
-                    </Badge>
-                    <span className="text-xs text-gray-500">
-                      {new Date(ativ.data).toLocaleString('pt-BR')}
-                    </span>
+      <CardContent className="p-0">
+        <div className="divide-y divide-gray-100">
+          {atividades.length === 0 ? (
+            <div className="p-8 text-center text-gray-500">
+              <Activity className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+              <p className="text-sm">Nenhuma atividade recente</p>
+            </div>
+          ) : (
+            atividades.map((item, index) => (
+              <motion.div
+                key={`${item.tipo}-${item.id}`}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.05 }}
+                className="p-4 hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-transparent transition-all duration-200"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="text-2xl mt-1">{item.icon}</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 leading-snug mb-1">
+                      {getActivityText(item)}
+                    </p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                        <Clock className="w-3 h-3" />
+                        {moment(item.created_date || item.updated_date).fromNow()}
+                      </div>
+                      {getStatusBadge(item)}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+              </motion.div>
+            ))
+          )}
+        </div>
       </CardContent>
     </Card>
   );

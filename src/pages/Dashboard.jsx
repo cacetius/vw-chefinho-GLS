@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { Card, CardContent } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
   Truck,
@@ -12,13 +12,8 @@ import {
   TrendingUp,
   CheckCircle2,
   AlertCircle,
-  Target,
-  Bell,
   Activity,
-  Calendar,
-  Star,
-  Lightbulb,
-  FileText
+  Sparkles
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
@@ -26,32 +21,39 @@ import AtalhosRapidos from "../components/shared/AtalhosRapidos";
 import HistoricoAtividades from "../components/shared/HistoricoAtividades";
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
-  const [stats, setStats] = useState({
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadUser();
+  }, []);
+
+  const loadUser = async () => {
+    try {
+      const user = await base44.auth.me();
+      if (!user.cargo) {
+        navigate(createPageUrl("Registro"));
+        return;
+      }
+      setCurrentUser(user);
+    } catch (error) {
+      console.error("Erro ao carregar usuário:", error);
+      navigate(createPageUrl("Registro"));
+    }
+    setLoading(false);
+  };
+
+  const { data: stats = {
     atividadesLogistica: 0,
     pedidosEPI: 0,
     versatilidade: 0,
     mensagens: 0,
     objetivosConcluidos: 0,
     avisosImportantes: 0
-  });
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    loadDashboard();
-  }, []);
-
-  const loadDashboard = async () => {
-    try {
-      const user = await base44.auth.me();
-
-      if (!user.cargo) {
-        window.location.href = createPageUrl("Registro");
-        return;
-      }
-
-      setCurrentUser(user);
-
+  }} = useQuery({
+    queryKey: ["dashboard-stats"],
+    queryFn: async () => {
       const [atividades, pedidos, versatilidade, mensagens, objetivos, avisos] = await Promise.all([
         base44.entities.AtividadeLogistica.list(),
         base44.entities.PedidoEPI.list(),
@@ -61,28 +63,36 @@ export default function Dashboard() {
         base44.entities.Aviso.list()
       ]);
 
-      setStats({
+      return {
         atividadesLogistica: atividades.length,
         pedidosEPI: pedidos.filter(p => p.status === "pendente").length,
         versatilidade: versatilidade.length,
         mensagens: mensagens.length,
         objetivosConcluidos: objetivos.filter(o => o.concluido).length,
         avisosImportantes: avisos.filter(a => a.prioridade === "urgente" || a.prioridade === "importante").length
-      });
-    } catch (error) {
-      console.error("Erro ao carregar dashboard:", error);
-      window.location.href = createPageUrl("Registro");
-    }
-    setLoading(false);
-  };
+      };
+    },
+    enabled: !!currentUser,
+    refetchInterval: 30000
+  });
 
-  if (loading) {
+  if (loading || !currentUser) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#0066b1] border-t-transparent"></div>
-          <p className="text-gray-600 font-medium">Carregando dashboard...</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+        <motion.div 
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="flex flex-col items-center gap-4"
+        >
+          <div className="relative">
+            <div className="animate-spin rounded-full h-20 w-20 border-4 border-transparent bg-gradient-to-r from-blue-500 to-purple-600" style={{ borderTopColor: 'transparent' }}></div>
+            <div className="absolute top-2 left-2 rounded-full h-16 w-16 bg-white"></div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-purple-600 animate-pulse" />
+            <p className="text-gray-700 font-semibold text-lg">Carregando dashboard...</p>
+          </div>
+        </motion.div>
       </div>
     );
   }
@@ -101,23 +111,34 @@ export default function Dashboard() {
           <div className="relative z-10">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
-                <h1 className="text-3xl md:text-5xl font-bold mb-3">
-                  Olá, {currentUser?.nome_exibicao || currentUser?.full_name?.split(' ')[0]}! 👋
-                </h1>
-                <p className="text-blue-100 text-lg md:text-xl">
-                  Seu resumo de atividades está pronto
-                </p>
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <h1 className="text-3xl md:text-5xl font-bold mb-3">
+                    Olá, {currentUser?.nome_exibicao || currentUser?.full_name?.split(' ')[0]}! 👋
+                  </h1>
+                  <p className="text-blue-100 text-lg md:text-xl">
+                    Seu resumo de atividades está pronto
+                  </p>
+                </motion.div>
               </div>
-              <div className="flex flex-col items-start md:items-end gap-3">
-                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-5 py-2 text-sm">
+              <motion.div 
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+                className="flex flex-col items-start md:items-end gap-3"
+              >
+                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-5 py-2 text-sm shadow-lg">
                   {currentUser?.cargo === 'lider' ? '🛡️ Líder' : '📋 Monitor'} • Chapa {currentUser?.chapa}
                 </Badge>
                 {currentUser?.equipe && (
-                  <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2">
+                  <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 shadow-lg">
                     📍 Equipe: {currentUser.equipe}
                   </Badge>
                 )}
-              </div>
+              </motion.div>
             </div>
           </div>
         </motion.div>
@@ -231,33 +252,48 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent className="p-6">
               <div className="space-y-4">
-                <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200 hover:shadow-md transition-all">
-                  <h4 className="font-bold text-[#001e50] mb-2 text-sm flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-blue-600" />
-                    Segurança em Primeiro Lugar
+              {[
+                {
+                  icon: CheckCircle2,
+                  title: "Segurança em Primeiro Lugar",
+                  desc: "Sempre verifique se todos estão usando EPIs adequados antes de iniciar qualquer atividade",
+                  gradient: "from-blue-50 to-cyan-50",
+                  border: "border-blue-200",
+                  iconColor: "text-blue-600"
+                },
+                {
+                  icon: TrendingUp,
+                  title: "Acompanhe seus Objetivos",
+                  desc: "Mantenha seus objetivos diários atualizados para melhor produtividade",
+                  gradient: "from-green-50 to-emerald-50",
+                  border: "border-green-200",
+                  iconColor: "text-green-600"
+                },
+                {
+                  icon: Users,
+                  title: "Versatilidade da Equipe",
+                  desc: "Atualize regularmente a matriz de habilidades dos colaboradores",
+                  gradient: "from-purple-50 to-pink-50",
+                  border: "border-purple-200",
+                  iconColor: "text-purple-600"
+                }
+              ].map((tip, index) => (
+                <motion.div
+                  key={tip.title}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.7 + index * 0.1 }}
+                  className={`p-4 bg-gradient-to-r ${tip.gradient} rounded-xl border ${tip.border} hover:shadow-lg transition-all cursor-pointer`}
+                >
+                  <h4 className="font-bold text-gray-900 mb-2 text-sm flex items-center gap-2">
+                    <tip.icon className={`w-4 h-4 ${tip.iconColor}`} />
+                    {tip.title}
                   </h4>
                   <p className="text-xs text-gray-700 leading-relaxed">
-                    Sempre verifique se todos estão usando EPIs adequados antes de iniciar qualquer atividade
+                    {tip.desc}
                   </p>
-                </div>
-                <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200 hover:shadow-md transition-all">
-                  <h4 className="font-bold text-green-900 mb-2 text-sm flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4 text-green-600" />
-                    Acompanhe seus Objetivos
-                  </h4>
-                  <p className="text-xs text-green-800 leading-relaxed">
-                    Mantenha seus objetivos diários atualizados para melhor produtividade
-                  </p>
-                </div>
-                <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200 hover:shadow-md transition-all">
-                  <h4 className="font-bold text-purple-900 mb-2 text-sm flex items-center gap-2">
-                    <Users className="w-4 h-4 text-purple-600" />
-                    Versatilidade da Equipe
-                  </h4>
-                  <p className="text-xs text-purple-800 leading-relaxed">
-                    Atualize regularmente a matriz de habilidades dos colaboradores
-                  </p>
-                </div>
+                </motion.div>
+              ))}
               </div>
             </CardContent>
           </Card>

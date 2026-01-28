@@ -3,50 +3,138 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  Target,
   Truck,
   ShoppingCart,
   Users,
-  Bell,
   MessageSquare,
+  Target,
+  Bell,
   Calendar,
-  FileText
+  Star,
+  Lightbulb,
+  FileText,
+  Car,
+  ClipboardList
 } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function AtalhosRapidos() {
-  const atalhos = [
-    { title: "Objetivos", icon: Target, url: "Objetivos", gradient: "from-green-500 to-emerald-600", color: "text-green-600" },
-    { title: "Logística", icon: Truck, url: "Logistica", gradient: "from-orange-500 to-red-600", color: "text-orange-600" },
-    { title: "Pedidos EPI", icon: ShoppingCart, url: "PedidosEPI", gradient: "from-purple-500 to-purple-600", color: "text-purple-600" },
-    { title: "Versatilidade", icon: Users, url: "Versatilidade", gradient: "from-blue-500 to-indigo-600", color: "text-blue-600" },
-    { title: "Avisos", icon: Bell, url: "Avisos", gradient: "from-yellow-500 to-amber-600", color: "text-yellow-600" },
-    { title: "Chat", icon: MessageSquare, url: "Chat", gradient: "from-cyan-500 to-blue-600", color: "text-cyan-600" },
-    { title: "Calendário", icon: Calendar, url: "Calendario", gradient: "from-pink-500 to-rose-600", color: "text-pink-600" },
-    { title: "Documentos", icon: FileText, url: "Documentos", gradient: "from-indigo-500 to-purple-600", color: "text-indigo-600" },
+  const shortcuts = [
+    {
+      title: "Linha de Produção",
+      icon: Car,
+      url: createPageUrl("LinhaProducao"),
+      gradient: "from-blue-500 via-blue-600 to-cyan-600",
+      description: "Monitore a produção"
+    },
+    {
+      title: "Auditoria VDA",
+      icon: ClipboardList,
+      url: createPageUrl("AuditoriaVDA"),
+      gradient: "from-indigo-500 via-purple-600 to-purple-700",
+      description: "Checklists e auditorias"
+    },
+    {
+      title: "Logística",
+      icon: Truck,
+      url: createPageUrl("Logistica"),
+      gradient: "from-orange-500 via-red-500 to-red-600",
+      description: "Gestão de entregas"
+    },
+    {
+      title: "Pedidos EPI",
+      icon: ShoppingCart,
+      url: createPageUrl("PedidosEPI"),
+      gradient: "from-purple-500 via-pink-500 to-pink-600",
+      description: "Equipamentos de proteção"
+    },
+    {
+      title: "Versatilidade",
+      icon: Users,
+      url: createPageUrl("Versatilidade"),
+      gradient: "from-cyan-500 via-blue-500 to-blue-600",
+      description: "Habilidades da equipe"
+    },
+    {
+      title: "Chat",
+      icon: MessageSquare,
+      url: createPageUrl("Chat"),
+      gradient: "from-blue-400 via-blue-500 to-blue-600",
+      description: "Comunicação rápida"
+    },
+    {
+      title: "Objetivos",
+      icon: Target,
+      url: createPageUrl("Objetivos"),
+      gradient: "from-green-500 via-emerald-600 to-teal-600",
+      description: "Metas e resultados"
+    },
+    {
+      title: "Avisos",
+      icon: Bell,
+      url: createPageUrl("Avisos"),
+      gradient: "from-red-500 via-pink-500 to-rose-600",
+      description: "Comunicados importantes"
+    },
+    {
+      title: "Feedback 360°",
+      icon: Star,
+      url: createPageUrl("Feedback360"),
+      gradient: "from-yellow-500 via-amber-500 to-orange-500",
+      description: "Avaliações da equipe"
+    },
+    {
+      title: "Sugestões",
+      icon: Lightbulb,
+      url: createPageUrl("Sugestoes"),
+      gradient: "from-amber-400 via-yellow-500 to-yellow-600",
+      description: "Ideias e melhorias"
+    },
+    {
+      title: "Calendário",
+      icon: Calendar,
+      url: createPageUrl("Calendario"),
+      gradient: "from-pink-500 via-rose-500 to-red-500",
+      description: "Agenda e eventos"
+    },
+    {
+      title: "Documentos",
+      icon: FileText,
+      url: createPageUrl("Documentos"),
+      gradient: "from-teal-500 via-cyan-600 to-blue-600",
+      description: "Arquivos importantes"
+    }
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
-      {atalhos.map((atalho, index) => (
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+      {shortcuts.map((shortcut, index) => (
         <motion.div
-          key={atalho.url}
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.05 * index }}
+          key={shortcut.title}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: index * 0.05 }}
         >
-          <Link to={createPageUrl(atalho.url)}>
-            <Card className="hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer border-0 bg-white group overflow-hidden relative">
-              <div className={`absolute inset-0 bg-gradient-to-br ${atalho.gradient} opacity-0 group-hover:opacity-10 transition-opacity`}></div>
-              <CardContent className="pt-6 pb-6 relative z-10">
-                <div className="flex flex-col items-center text-center">
-                  <div className={`p-4 bg-gradient-to-br ${atalho.gradient} rounded-2xl mb-3 shadow-lg group-hover:scale-110 transition-transform`}>
-                    <atalho.icon className="w-6 h-6 text-white" />
+          <Link to={shortcut.url}>
+            <Card className="group hover:shadow-2xl transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm overflow-hidden h-full">
+              <CardContent className="p-5">
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="flex flex-col items-center text-center gap-3"
+                >
+                  <div className={`p-4 rounded-2xl bg-gradient-to-br ${shortcut.gradient} shadow-lg group-hover:shadow-xl transition-all`}>
+                    <shortcut.icon className="w-7 h-7 text-white" />
                   </div>
-                  <p className={`text-sm font-bold ${atalho.color}`}>
-                    {atalho.title}
-                  </p>
-                </div>
+                  <div>
+                    <h3 className="font-bold text-gray-900 text-sm mb-1 group-hover:text-[#0066b1] transition-colors">
+                      {shortcut.title}
+                    </h3>
+                    <p className="text-xs text-gray-500 leading-tight">
+                      {shortcut.description}
+                    </p>
+                  </div>
+                </motion.div>
               </CardContent>
             </Card>
           </Link>
