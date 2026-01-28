@@ -254,7 +254,7 @@ export default function AuditoriaVDA() {
                 <PlanoAcaoList
                   planosAcao={planosAcao}
                   auditorias={auditorias}
-                  onRefresh={loadPlanosAcao}
+                  onRefresh={() => queryClient.invalidateQueries({ queryKey: ["planos-acao"] })}
                   currentUser={currentUser}
                 />
               </TabsContent>
