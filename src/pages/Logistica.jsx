@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Truck, CheckCircle, Clock, XCircle, Filter, Sparkles } from "lucide-react";
+import { Plus, Truck, CheckCircle, Clock, Filter, Sparkles } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import AtividadeForm from "../components/logistica/AtividadeForm";
@@ -10,15 +11,14 @@ import AtividadesList from "../components/logistica/AtividadesList";
 import AtividadesFilters from "../components/logistica/AtividadesFilters";
 
 export default function Logistica() {
-  const [atividades, setAtividades] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingAtividade, setEditingAtividade] = useState(null);
   const [filters, setFilters] = useState({ status: "all", prioridade: "all" });
   const [currentUser, setCurrentUser] = useState(null);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     loadUser();
-    loadAtividades();
   }, []);
 
   const loadUser = async () => {
@@ -26,20 +26,41 @@ export default function Logistica() {
     setCurrentUser(user);
   };
 
-  const loadAtividades = async () => {
-    const data = await base44.entities.AtividadeLogistica.list("-created_date");
-    setAtividades(data);
-  };
+  const { data: atividades = [], isLoading } = useQuery({
+    queryKey: ["atividades-logistica"],
+    queryFn: () => base44.entities.AtividadeLogistica.list("-created_date"),
+    refetchInterval: 30000
+  });
 
-  const handleSubmit = async (atividadeData) => {
-    if (editingAtividade) {
-      await base44.entities.AtividadeLogistica.update(editingAtividade.id, atividadeData);
-    } else {
-      await base44.entities.AtividadeLogistica.create(atividadeData);
+  const createAtividadeMutation = useMutation({
+    mutationFn: (data) => base44.entities.AtividadeLogistica.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["atividades-logistica"] });
+      setShowForm(false);
+      setEditingAtividade(null);
     }
-    setShowForm(false);
-    setEditingAtividade(null);
-    loadAtividades();
+  });
+
+  const updateAtividadeMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.AtividadeLogistica.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["atividades-logistica"] });
+      setShowForm(false);
+      setEditingAtividade(null);
+    }
+  });
+
+  const deleteAtividadeMutation = useMutation({
+    mutationFn: (id) => base44.entities.AtividadeLogistica.delete(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["atividades-logistica"] })
+  });
+
+  const handleSubmit = (atividadeData) => {
+    if (editingAtividade) {
+      updateAtividadeMutation.mutate({ id: editingAtividade.id, data: atividadeData });
+    } else {
+      createAtividadeMutation.mutate(atividadeData);
+    }
   };
 
   const handleEdit = (atividade) => {
@@ -47,10 +68,10 @@ export default function Logistica() {
     setShowForm(true);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Tem certeza que deseja excluir esta atividade?")) return;
-    await base44.entities.AtividadeLogistica.delete(id);
-    loadAtividades();
+  const handleDelete = (id) => {
+    if (window.confirm("Tem certeza que deseja excluir esta atividade?")) {
+      deleteAtividadeMutation.mutate(id);
+    }
   };
 
   const filteredAtividades = atividades.filter(atividade => {

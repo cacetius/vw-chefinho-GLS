@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, DollarSign, TrendingUp, Receipt } from "lucide-react";
-import { AnimatePresence } from "framer-motion";
+import { Plus, DollarSign, TrendingUp, Receipt, Sparkles } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import PedidoForm from "../components/pedidos/PedidoForm";
@@ -13,19 +14,16 @@ import OrcamentosList from "../components/pedidos/OrcamentosList";
 import OrcamentoForm from "../components/pedidos/OrcamentoForm";
 
 export default function PedidosEPI() {
-  const [pedidos, setPedidos] = useState([]);
-  const [orcamentos, setOrcamentos] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [showOrcamentoForm, setShowOrcamentoForm] = useState(false);
   const [editingPedido, setEditingPedido] = useState(null);
   const [editingOrcamento, setEditingOrcamento] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [activeTab, setActiveTab] = useState("pedidos");
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     loadUser();
-    loadPedidos();
-    loadOrcamentos();
   }, []);
 
   const loadUser = async () => {
@@ -33,40 +31,91 @@ export default function PedidosEPI() {
     setCurrentUser(user);
   };
 
-  const loadPedidos = async () => {
-    const user = await base44.auth.me();
-    let data = await base44.entities.PedidoEPI.list("-created_date");
-    
-    // Filtra pedidos por equipe e turno se for monitor
-    if (user.cargo === "monitor" && (user.equipe || user.turno)) {
-      data = data.filter(p => {
-        const equipMatch = !user.equipe || p.equipe === user.equipe;
-        const turnoMatch = !user.turno || p.turno === user.turno;
-        return equipMatch && turnoMatch;
-      });
-    }
-    
-    setPedidos(data);
-  };
+  const { data: pedidos = [], isLoading: loadingPedidos } = useQuery({
+    queryKey: ["pedidos-epi", currentUser?.id],
+    queryFn: async () => {
+      let data = await base44.entities.PedidoEPI.list("-created_date");
+      
+      if (currentUser?.cargo === "monitor" && (currentUser.equipe || currentUser.turno)) {
+        data = data.filter(p => {
+          const equipMatch = !currentUser.equipe || p.equipe === currentUser.equipe;
+          const turnoMatch = !currentUser.turno || p.turno === currentUser.turno;
+          return equipMatch && turnoMatch;
+        });
+      }
+      
+      return data;
+    },
+    enabled: !!currentUser,
+    refetchInterval: 30000
+  });
 
-  const loadOrcamentos = async () => {
-    const user = await base44.auth.me();
-    let data = await base44.entities.Orcamento.list("-mes_referencia");
-    
-    // Filtra orçamentos por equipe e turno se for monitor
-    if (user.cargo === "monitor" && (user.equipe || user.turno)) {
-      data = data.filter(o => {
-        const equipMatch = !user.equipe || o.equipe === user.equipe;
-        const turnoMatch = !user.turno || o.turno === user.turno || o.turno === "todos";
-        return equipMatch && turnoMatch;
-      });
-    }
-    
-    setOrcamentos(data);
-  };
+  const { data: orcamentos = [] } = useQuery({
+    queryKey: ["orcamentos", currentUser?.id],
+    queryFn: async () => {
+      let data = await base44.entities.Orcamento.list("-mes_referencia");
+      
+      if (currentUser?.cargo === "monitor" && (currentUser.equipe || currentUser.turno)) {
+        data = data.filter(o => {
+          const equipMatch = !currentUser.equipe || o.equipe === currentUser.equipe;
+          const turnoMatch = !currentUser.turno || o.turno === currentUser.turno || o.turno === "todos";
+          return equipMatch && turnoMatch;
+        });
+      }
+      
+      return data;
+    },
+    enabled: !!currentUser,
+    refetchInterval: 30000
+  });
 
-  const handleSubmit = async (pedidoData) => {
-    // Adiciona informações de equipe e turno do solicitante
+  const createPedidoMutation = useMutation({
+    mutationFn: (data) => base44.entities.PedidoEPI.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pedidos-epi"] });
+      setShowForm(false);
+      setEditingPedido(null);
+    }
+  });
+
+  const updatePedidoMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.PedidoEPI.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pedidos-epi"] });
+      setShowForm(false);
+      setEditingPedido(null);
+    }
+  });
+
+  const deletePedidoMutation = useMutation({
+    mutationFn: (id) => base44.entities.PedidoEPI.delete(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["pedidos-epi"] })
+  });
+
+  const createOrcamentoMutation = useMutation({
+    mutationFn: (data) => base44.entities.Orcamento.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["orcamentos"] });
+      setShowOrcamentoForm(false);
+      setEditingOrcamento(null);
+    }
+  });
+
+  const updateOrcamentoMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Orcamento.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["orcamentos"] });
+      setShowOrcamentoForm(false);
+      setEditingOrcamento(null);
+    }
+  });
+
+  const deleteOrcamentoMutation = useMutation({
+    mutationFn: (id) => base44.entities.Orcamento.delete(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["orcamentos"] })
+  });
+
+  const handleSubmit = (pedidoData) => {
     const pedidoComEquipe = {
       ...pedidoData,
       solicitante_id: currentUser.id,
@@ -75,24 +124,18 @@ export default function PedidosEPI() {
     };
 
     if (editingPedido) {
-      await base44.entities.PedidoEPI.update(editingPedido.id, pedidoComEquipe);
+      updatePedidoMutation.mutate({ id: editingPedido.id, data: pedidoComEquipe });
     } else {
-      await base44.entities.PedidoEPI.create(pedidoComEquipe);
+      createPedidoMutation.mutate(pedidoComEquipe);
     }
-    setShowForm(false);
-    setEditingPedido(null);
-    loadPedidos();
   };
 
-  const handleOrcamentoSubmit = async (orcamentoData) => {
+  const handleOrcamentoSubmit = (orcamentoData) => {
     if (editingOrcamento) {
-      await base44.entities.Orcamento.update(editingOrcamento.id, orcamentoData);
+      updateOrcamentoMutation.mutate({ id: editingOrcamento.id, data: orcamentoData });
     } else {
-      await base44.entities.Orcamento.create(orcamentoData);
+      createOrcamentoMutation.mutate(orcamentoData);
     }
-    setShowOrcamentoForm(false);
-    setEditingOrcamento(null);
-    loadOrcamentos();
   };
 
   const handleEdit = (pedido) => {
@@ -100,12 +143,13 @@ export default function PedidosEPI() {
     setShowForm(true);
   };
 
-  const handleDelete = async (id) => {
-    await base44.entities.PedidoEPI.delete(id);
-    loadPedidos();
+  const handleDelete = (id) => {
+    if (window.confirm("Tem certeza que deseja excluir este pedido?")) {
+      deletePedidoMutation.mutate(id);
+    }
   };
 
-  const handleUpdateStatus = async (id, status, orcamentoAprovado = null, observacoes = null) => {
+  const handleUpdateStatus = (id, status, orcamentoAprovado = null, observacoes = null) => {
     const pedido = pedidos.find(p => p.id === id);
     const updateData = { ...pedido, status };
     
@@ -116,8 +160,7 @@ export default function PedidosEPI() {
       updateData.observacoes_orcamento = observacoes;
     }
     
-    await base44.entities.PedidoEPI.update(id, updateData);
-    loadPedidos();
+    updatePedidoMutation.mutate({ id, data: updateData });
   };
 
   const handleOrcamentoEdit = (orcamento) => {
@@ -125,9 +168,10 @@ export default function PedidosEPI() {
     setShowOrcamentoForm(true);
   };
 
-  const handleOrcamentoDelete = async (id) => {
-    await base44.entities.Orcamento.delete(id);
-    loadOrcamentos();
+  const handleOrcamentoDelete = (id) => {
+    if (window.confirm("Tem certeza que deseja excluir este orçamento?")) {
+      deleteOrcamentoMutation.mutate(id);
+    }
   };
 
   const totalGastos = pedidos
@@ -147,9 +191,30 @@ export default function PedidosEPI() {
      currentUser?.data_cargo_temporario && 
      new Date(currentUser.data_cargo_temporario) >= new Date());
 
+  if (loadingPedidos || !currentUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-green-50">
+        <motion.div 
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="flex flex-col items-center gap-4"
+        >
+          <div className="relative">
+            <div className="animate-spin rounded-full h-20 w-20 border-4 border-transparent bg-gradient-to-r from-green-500 to-emerald-600" style={{ borderTopColor: 'transparent' }}></div>
+            <div className="absolute top-2 left-2 rounded-full h-16 w-16 bg-white"></div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-green-600 animate-pulse" />
+            <p className="text-gray-700 font-semibold text-lg">Carregando pedidos...</p>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-green-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-green-50">
+      <div className="max-w-7xl mx-auto p-4 md:p-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Pedidos de EPI & Gestão de Gastos</h1>

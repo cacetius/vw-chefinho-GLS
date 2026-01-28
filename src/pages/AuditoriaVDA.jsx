@@ -1,29 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ClipboardCheck, Plus, TrendingUp, AlertTriangle, CheckCircle, XCircle, FileText, Download } from "lucide-react";
+import { ClipboardCheck, Plus, TrendingUp, AlertTriangle, FileText, Sparkles } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Badge } from "@/components/ui/badge";
 import AuditoriaVDAForm from "../components/auditoria/AuditoriaVDAForm";
 import AuditoriaVDAList from "../components/auditoria/AuditoriaVDAList";
 import PlanoAcaoList from "../components/auditoria/PlanoAcaoList";
 import AuditoriaChart from "../components/auditoria/AuditoriaChart";
 
 export default function AuditoriaVDA() {
-  const [auditorias, setAuditorias] = useState([]);
-  const [planosAcao, setPlanosAcao] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingAuditoria, setEditingAuditoria] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [activeTab, setActiveTab] = useState("auditorias");
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     loadUser();
-    loadAuditorias();
-    loadPlanosAcao();
   }, []);
 
   const loadUser = async () => {
@@ -31,19 +27,42 @@ export default function AuditoriaVDA() {
     setCurrentUser(user);
   };
 
-  const loadAuditorias = async () => {
-    const data = await base44.entities.AuditoriaVDA.list("-data_auditoria");
-    setAuditorias(data);
-    setLoading(false);
-  };
+  const { data: auditorias = [], isLoading } = useQuery({
+    queryKey: ["auditorias"],
+    queryFn: () => base44.entities.AuditoriaVDA.list("-data_auditoria"),
+    refetchInterval: 30000
+  });
 
-  const loadPlanosAcao = async () => {
-    const data = await base44.entities.PlanoAcaoVDA.list("-created_date");
-    setPlanosAcao(data);
-  };
+  const { data: planosAcao = [] } = useQuery({
+    queryKey: ["planos-acao"],
+    queryFn: () => base44.entities.PlanoAcaoVDA.list("-created_date"),
+    refetchInterval: 30000
+  });
+
+  const createAuditoriaMutation = useMutation({
+    mutationFn: (auditoriaData) => base44.entities.AuditoriaVDA.create(auditoriaData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["auditorias"] });
+      setShowForm(false);
+      setEditingAuditoria(null);
+    }
+  });
+
+  const updateAuditoriaMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.AuditoriaVDA.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["auditorias"] });
+      setShowForm(false);
+      setEditingAuditoria(null);
+    }
+  });
+
+  const deleteAuditoriaMutation = useMutation({
+    mutationFn: (id) => base44.entities.AuditoriaVDA.delete(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["auditorias"] })
+  });
 
   const handleSubmit = async (auditoriaData) => {
-    // Calcular pontuação total e percentual
     const itens = auditoriaData.itens_checklist || [];
     const pontuacaoTotal = itens.reduce((sum, item) => sum + (item.pontuacao || 0), 0);
     const pontuacaoMaxima = itens.length * 10;
@@ -57,14 +76,10 @@ export default function AuditoriaVDA() {
     };
 
     if (editingAuditoria) {
-      await base44.entities.AuditoriaVDA.update(editingAuditoria.id, dataComCalculo);
+      updateAuditoriaMutation.mutate({ id: editingAuditoria.id, data: dataComCalculo });
     } else {
-      await base44.entities.AuditoriaVDA.create(dataComCalculo);
+      createAuditoriaMutation.mutate(dataComCalculo);
     }
-    
-    setShowForm(false);
-    setEditingAuditoria(null);
-    loadAuditorias();
   };
 
   const handleEdit = (auditoria) => {
@@ -72,9 +87,10 @@ export default function AuditoriaVDA() {
     setShowForm(true);
   };
 
-  const handleDelete = async (id) => {
-    await base44.entities.AuditoriaVDA.delete(id);
-    loadAuditorias();
+  const handleDelete = (id) => {
+    if (window.confirm("Tem certeza que deseja excluir esta auditoria?")) {
+      deleteAuditoriaMutation.mutate(id);
+    }
   };
 
   const calcularMediaConformidade = () => {
@@ -89,10 +105,23 @@ export default function AuditoriaVDA() {
     }, 0);
   };
 
-  if (loading) {
+  if (isLoading || !currentUser) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0066b1]"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+        <motion.div 
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="flex flex-col items-center gap-4"
+        >
+          <div className="relative">
+            <div className="animate-spin rounded-full h-20 w-20 border-4 border-transparent bg-gradient-to-r from-indigo-500 to-blue-600" style={{ borderTopColor: 'transparent' }}></div>
+            <div className="absolute top-2 left-2 rounded-full h-16 w-16 bg-white"></div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-indigo-600 animate-pulse" />
+            <p className="text-gray-700 font-semibold text-lg">Carregando auditorias...</p>
+          </div>
+        </motion.div>
       </div>
     );
   }

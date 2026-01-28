@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Send, MessageSquare, Plus, Hash, Users, Paperclip, Smile, Pin, Search, Trash2, MoreVertical } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Send, MessageSquare, Plus, Hash, Paperclip, Pin, Search, Trash2, MoreVertical } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -15,9 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export default function Chat() {
-  const [canais, setCanais] = useState([]);
   const [canalAtivo, setCanalAtivo] = useState(null);
-  const [mensagens, setMensagens] = useState([]);
   const [novaMensagem, setNovaMensagem] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
   const [sending, setSending] = useState(false);
@@ -32,57 +29,61 @@ export default function Chat() {
   });
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     loadUser();
-    loadCanais();
   }, []);
 
   useEffect(() => {
-    if (canalAtivo) {
-      loadMensagens();
-      const interval = setInterval(loadMensagens, 3000);
-      return () => clearInterval(interval);
-    }
-  }, [canalAtivo]);
-
-  useEffect(() => {
     scrollToBottom();
-  }, [mensagens]);
+  }, [canalAtivo]);
 
   const loadUser = async () => {
     const user = await base44.auth.me();
     setCurrentUser(user);
   };
 
-  const loadCanais = async () => {
-    const data = await base44.entities.CanalChat.list();
-    setCanais(data);
-    if (data.length > 0 && !canalAtivo) {
-      setCanalAtivo(data[0]);
-    }
-  };
+  const { data: canais = [] } = useQuery({
+    queryKey: ["canais-chat"],
+    queryFn: async () => {
+      const data = await base44.entities.CanalChat.list();
+      if (data.length > 0 && !canalAtivo) {
+        setCanalAtivo(data[0]);
+      }
+      return data;
+    },
+    refetchInterval: 30000
+  });
 
-  const loadMensagens = async () => {
-    if (!canalAtivo) return;
-    const data = await base44.entities.MensagemChat.filter({ canal_id: canalAtivo.id }, "created_date");
-    setMensagens(data);
-  };
+  const { data: mensagens = [] } = useQuery({
+    queryKey: ["mensagens-chat", canalAtivo?.id],
+    queryFn: () => base44.entities.MensagemChat.filter({ canal_id: canalAtivo.id }, "created_date"),
+    enabled: !!canalAtivo,
+    refetchInterval: 3000
+  });
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const handleEnviar = async (e) => {
+  const createMensagemMutation = useMutation({
+    mutationFn: (data) => base44.entities.MensagemChat.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["mensagens-chat", canalAtivo?.id] });
+      setNovaMensagem("");
+      setSending(false);
+    }
+  });
+
+  const handleEnviar = (e) => {
     e.preventDefault();
     if (!novaMensagem.trim() || sending || !canalAtivo) return;
 
     setSending(true);
-    
-    // Detectar menções (@usuario)
     const mencoes = novaMensagem.match(/@\w+/g) || [];
     
-    await base44.entities.MensagemChat.create({
+    createMensagemMutation.mutate({
       canal_id: canalAtivo.id,
       remetente: currentUser.nome_exibicao || currentUser.full_name,
       remetente_id: currentUser.id,
@@ -91,21 +92,15 @@ export default function Chat() {
       mencoes: mencoes,
       anexos: []
     });
-    
-    setNovaMensagem("");
-    await loadMensagens();
-    setSending(false);
   };
 
-  const handleFileUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file || !canalAtivo) return;
-
-    setUploading(true);
-    try {
+  const uploadFileMutation = useMutation({
+    mutationFn: async (file) => {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      
-      await base44.entities.MensagemChat.create({
+      return { file_url, file };
+    },
+    onSuccess: ({ file_url, file }) => {
+      createMensagemMutation.mutate({
         canal_id: canalAtivo.id,
         remetente: currentUser.nome_exibicao || currentUser.full_name,
         remetente_id: currentUser.id,
@@ -117,40 +112,56 @@ export default function Chat() {
           nome: file.name
         }]
       });
-      
-      await loadMensagens();
-    } catch (error) {
-      console.error("Erro ao fazer upload:", error);
+      setUploading(false);
     }
-    setUploading(false);
+  });
+
+  const createCanalMutation = useMutation({
+    mutationFn: (data) => base44.entities.CanalChat.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["canais-chat"] });
+      setShowNewChannel(false);
+      setNewChannelData({ nome: "", descricao: "", tipo: "geral", privado: false });
+    }
+  });
+
+  const updateMensagemMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.MensagemChat.update(id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["mensagens-chat", canalAtivo?.id] })
+  });
+
+  const deleteMensagemMutation = useMutation({
+    mutationFn: (id) => base44.entities.MensagemChat.delete(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["mensagens-chat", canalAtivo?.id] })
+  });
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !canalAtivo) return;
+    setUploading(true);
+    uploadFileMutation.mutate(file);
   };
 
-  const handleCreateChannel = async () => {
+  const handleCreateChannel = () => {
     if (!newChannelData.nome.trim()) return;
-
-    await base44.entities.CanalChat.create({
+    createCanalMutation.mutate({
       ...newChannelData,
       criado_por: currentUser.id,
       membros: [currentUser.id]
     });
-
-    setShowNewChannel(false);
-    setNewChannelData({ nome: "", descricao: "", tipo: "geral", privado: false });
-    loadCanais();
   };
 
-  const handleFixMessage = async (mensagem) => {
-    await base44.entities.MensagemChat.update(mensagem.id, {
-      ...mensagem,
-      fixada: !mensagem.fixada
+  const handleFixMessage = (mensagem) => {
+    updateMensagemMutation.mutate({
+      id: mensagem.id,
+      data: { ...mensagem, fixada: !mensagem.fixada }
     });
-    loadMensagens();
   };
 
-  const handleDeleteMessage = async (mensagemId) => {
-    if (!window.confirm("Tem certeza que deseja excluir esta mensagem?")) return;
-    await base44.entities.MensagemChat.delete(mensagemId);
-    loadMensagens();
+  const handleDeleteMessage = (mensagemId) => {
+    if (window.confirm("Tem certeza que deseja excluir esta mensagem?")) {
+      deleteMensagemMutation.mutate(mensagemId);
+    }
   };
 
   const filteredMensagens = mensagens.filter(msg =>
