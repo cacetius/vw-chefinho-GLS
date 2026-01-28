@@ -228,17 +228,17 @@ export default function PedidosEPI() {
               <Button 
                 onClick={() => setShowOrcamentoForm(!showOrcamentoForm)}
                 variant="outline"
-                className="border-purple-200 text-purple-700 hover:bg-purple-50"
+                className="border-[#0066b1] text-[#0066b1] hover:bg-blue-50"
               >
-                <Receipt className="w-5 h-5 mr-2" />
+                <Receipt className="w-4 h-4 mr-2" />
                 Novo Orçamento
               </Button>
             )}
             <Button 
               onClick={() => setShowForm(!showForm)}
-              className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
+              className="bg-gradient-to-r from-[#001e50] to-[#0066b1] hover:from-[#001e50] hover:to-[#004d82]"
             >
-              <Plus className="w-5 h-5 mr-2" />
+              <Plus className="w-4 h-4 mr-2" />
               Novo Pedido
             </Button>
           </div>

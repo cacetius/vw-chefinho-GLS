@@ -114,10 +114,10 @@ export default function AuditoriaVDAForm({ auditoria, onSubmit, currentUser, onC
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
     >
-      <Card className="shadow-2xl border-0">
-        <CardHeader className="border-b bg-gradient-to-r from-indigo-50 to-blue-50">
+      <Card className="shadow-lg border border-slate-200">
+        <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-white">
           <div className="flex justify-between items-center">
-            <CardTitle className="text-2xl text-gray-900">
+            <CardTitle className="text-xl text-slate-900">
               {auditoria ? "Editar Auditoria VDA" : "Nova Auditoria VDA"}
             </CardTitle>
             <Button variant="ghost" size="icon" onClick={onCancel}>
@@ -203,12 +203,12 @@ export default function AuditoriaVDAForm({ auditoria, onSubmit, currentUser, onC
             {/* Checklist */}
             <div className="border-t pt-6">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-indigo-600" />
+                <CheckCircle className="w-5 h-5 text-[#0066b1]" />
                 Itens do Checklist
               </h3>
 
               {/* Form para adicionar novo item */}
-              <Card className="mb-4 bg-gradient-to-r from-indigo-50 to-blue-50">
+              <Card className="mb-4 bg-gradient-to-r from-blue-50 to-white border border-slate-200">
                 <CardContent className="pt-6">
                   <div className="grid md:grid-cols-2 gap-4 mb-4">
                     <div className="space-y-2">
@@ -324,7 +324,7 @@ export default function AuditoriaVDAForm({ auditoria, onSubmit, currentUser, onC
                   <Button
                     type="button"
                     onClick={adicionarItem}
-                    className="w-full bg-gradient-to-r from-indigo-600 to-blue-600"
+                    className="w-full bg-gradient-to-r from-[#001e50] to-[#0066b1] hover:from-[#001e50] hover:to-[#004d82]"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Adicionar Item ao Checklist
@@ -335,7 +335,7 @@ export default function AuditoriaVDAForm({ auditoria, onSubmit, currentUser, onC
               {/* Lista de itens adicionados */}
               <div className="space-y-2">
                 {formData.itens_checklist.map((item, index) => (
-                  <Card key={index} className="border-l-4 border-l-indigo-500">
+                  <Card key={index} className="border-l-4 border-l-[#0066b1]">
                     <CardContent className="pt-4">
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
@@ -446,7 +446,7 @@ export default function AuditoriaVDAForm({ auditoria, onSubmit, currentUser, onC
               <Button type="button" variant="outline" onClick={onCancel}>
                 Cancelar
               </Button>
-              <Button type="submit" className="bg-gradient-to-r from-indigo-600 to-blue-600">
+              <Button type="submit" className="bg-gradient-to-r from-[#001e50] to-[#0066b1] hover:from-[#001e50] hover:to-[#004d82]">
                 {auditoria ? "Atualizar Auditoria" : "Salvar Auditoria"}
               </Button>
             </div>

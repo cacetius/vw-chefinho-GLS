@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
@@ -75,13 +74,13 @@ export default function Registro() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#001e50] to-[#0066b1] rounded-2xl mb-4 shadow-lg">
-            <span className="text-3xl">👔</span>
+            <span className="text-3xl">🏭</span>
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Bem-vindo ao Chefinho
+            Bem-vindo ao VW Chefinho
           </h1>
           <p className="text-gray-600">
-            Sistema VW de Gestão - Complete seu cadastro
+            Sistema Volkswagen de Gestão - Complete seu cadastro
           </p>
         </div>
 

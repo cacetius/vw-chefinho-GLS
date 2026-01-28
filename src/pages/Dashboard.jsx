@@ -105,7 +105,7 @@ export default function Dashboard() {
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-slate-800 to-slate-700 rounded-xl shadow-lg p-6 md:p-8 text-white"
+          className="bg-gradient-to-r from-[#001e50] via-[#0066b1] to-[#00b0f0] rounded-xl shadow-lg p-6 md:p-8 text-white"
         >
           <div className="relative z-10">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -114,7 +114,7 @@ export default function Dashboard() {
                   <h1 className="text-2xl md:text-3xl font-bold mb-2">
                     Olá, {currentUser?.nome_exibicao || currentUser?.full_name?.split(' ')[0]}
                   </h1>
-                  <p className="text-slate-300 text-base md:text-lg">
+                  <p className="text-blue-100 text-base md:text-lg">
                     Resumo de atividades e indicadores
                   </p>
                 </div>

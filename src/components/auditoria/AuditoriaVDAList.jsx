@@ -52,7 +52,7 @@ export default function AuditoriaVDAList({ auditorias, onEdit, onDelete, current
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: index * 0.1 }}
         >
-          <Card className="hover:shadow-xl transition-all border-l-4 border-l-indigo-500">
+          <Card className="hover:shadow-lg transition-all border-l-4 border-l-[#0066b1]">
             <CardContent className="pt-6">
               <div className="flex justify-between items-start mb-4">
                 <div className="flex-1">
@@ -140,7 +140,7 @@ export default function AuditoriaVDAList({ auditorias, onEdit, onDelete, current
                     variant="outline"
                     size="icon"
                     onClick={() => onEdit(auditoria)}
-                    className="hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-300"
+                    className="hover:bg-blue-50 hover:text-[#0066b1] hover:border-[#0066b1]"
                   >
                     <Pencil className="w-4 h-4" />
                   </Button>

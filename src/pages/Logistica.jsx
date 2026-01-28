@@ -107,9 +107,9 @@ export default function Logistica() {
           </div>
           <Button 
             onClick={() => setShowForm(!showForm)}
-            className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 shadow-lg hover:shadow-xl transition-all px-6 py-6"
+            className="bg-gradient-to-r from-[#001e50] to-[#0066b1] hover:from-[#001e50] hover:to-[#004d82]"
           >
-            <Plus className="w-5 h-5 mr-2" />
+            <Plus className="w-4 h-4 mr-2" />
             Nova Atividade
           </Button>
         </motion.div>

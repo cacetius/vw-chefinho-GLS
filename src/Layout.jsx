@@ -265,14 +265,14 @@ export default function Layout({ children, currentPageName }) {
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex flex-col w-72 bg-white border-r border-slate-200 fixed left-0 top-0 bottom-0 z-30 shadow-sm">
         {/* Logo Header */}
-        <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800">
+        <div className="p-6 border-b border-[#001e50]/20 bg-gradient-to-r from-[#001e50] via-[#0066b1] to-[#001e50]">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-lg">
               <span className="text-3xl">🏭</span>
             </div>
             <div className="flex-1">
               <h2 className="font-bold text-white text-xl tracking-tight">VW Chefinho</h2>
-              <p className="text-xs text-slate-300 font-medium">Sistema de Gestão Industrial</p>
+              <p className="text-xs text-blue-100 font-medium">Sistema de Gestão Industrial</p>
             </div>
           </div>
         </div>
@@ -312,8 +312,8 @@ export default function Layout({ children, currentPageName }) {
                           whileHover={{ scale: 1.02, x: 4 }}
                           className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 ${
                             isActive(item.url)
-                              ? 'bg-slate-700 text-white shadow-sm'
-                              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                              ? 'bg-gradient-to-r from-[#001e50] to-[#0066b1] text-white shadow-sm'
+                              : 'text-slate-600 hover:bg-blue-50 hover:text-[#0066b1]'
                           }`}
                         >
                           <item.icon className="w-4 h-4" />
@@ -321,7 +321,7 @@ export default function Layout({ children, currentPageName }) {
                             {item.title}
                           </span>
                           {item.badge && (
-                            <Badge className="bg-blue-600 text-white text-xs px-1.5 py-0 rounded">
+                            <Badge className="bg-[#00b0f0] text-white text-xs px-1.5 py-0 rounded">
                               {item.badge}
                             </Badge>
                           )}
@@ -338,11 +338,11 @@ export default function Layout({ children, currentPageName }) {
         {/* User Profile */}
         <div className="border-t border-slate-200 p-4 bg-slate-50">
           <div className="flex items-center gap-3 mb-3 p-3 rounded-lg bg-white border border-slate-200">
-            <Avatar className="w-10 h-10 bg-slate-700 ring-2 ring-slate-200">
+            <Avatar className="w-10 h-10 bg-gradient-to-br from-[#001e50] to-[#0066b1] ring-2 ring-blue-200">
               {currentUser.foto_perfil ? (
                 <AvatarImage src={currentUser.foto_perfil} alt={currentUser.nome_exibicao || currentUser.full_name} />
               ) : (
-                <AvatarFallback className="text-white font-semibold bg-slate-700">
+                <AvatarFallback className="text-white font-semibold bg-gradient-to-br from-[#001e50] to-[#0066b1]">
                   {(currentUser.nome_exibicao || currentUser.full_name)?.charAt(0) || 'U'}
                 </AvatarFallback>
               )}
@@ -355,7 +355,7 @@ export default function Layout({ children, currentPageName }) {
                 variant="outline"
                 className={`text-xs mt-0.5 ${
                   currentUser.cargo === 'lider'
-                    ? 'bg-blue-600 text-white border-blue-600'
+                    ? 'bg-[#0066b1] text-white border-[#0066b1]'
                     : 'bg-slate-100 text-slate-700 border-slate-300'
                 }`}
               >
@@ -368,7 +368,7 @@ export default function Layout({ children, currentPageName }) {
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full text-xs hover:bg-slate-100 border-slate-300"
+                className="w-full text-xs hover:bg-blue-50 hover:text-[#0066b1] hover:border-[#0066b1] border-slate-300"
               >
                 <User className="w-3 h-3 mr-1" />
                 Perfil

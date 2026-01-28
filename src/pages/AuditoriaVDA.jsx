@@ -133,7 +133,7 @@ export default function AuditoriaVDA() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#001e50] to-[#0066b1] rounded-lg flex items-center justify-center">
                 <ClipboardCheck className="w-6 h-6 text-white" />
               </div>
               Auditoria VDA
@@ -142,7 +142,7 @@ export default function AuditoriaVDA() {
           </div>
           <Button 
             onClick={() => setShowForm(!showForm)}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-gradient-to-r from-[#001e50] to-[#0066b1] hover:from-[#001e50] hover:to-[#004d82]"
           >
             <Plus className="w-4 h-4 mr-2" />
             Nova Auditoria
@@ -151,15 +151,15 @@ export default function AuditoriaVDA() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="border border-slate-200">
+          <Card className="border border-slate-200 hover:shadow-md transition-shadow">
             <CardContent className="pt-5">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-slate-600 text-xs font-medium mb-1">Total de Auditorias</p>
-                  <p className="text-3xl font-bold text-slate-900">{auditorias.length}</p>
+                  <p className="text-3xl font-bold text-[#0066b1]">{auditorias.length}</p>
                 </div>
-                <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
-                  <ClipboardCheck className="w-6 h-6 text-blue-600" />
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center">
+                  <ClipboardCheck className="w-6 h-6 text-[#0066b1]" />
                 </div>
               </div>
             </CardContent>
