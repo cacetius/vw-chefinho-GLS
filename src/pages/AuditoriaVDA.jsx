@@ -240,7 +240,7 @@ export default function AuditoriaVDA() {
               </TabsList>
             </CardHeader>
 
-            <CardContent className="pt-6">
+            <CardContent className="pt-4 md:pt-6">
               <TabsContent value="auditorias" className="mt-0">
                 <AuditoriaVDAList
                   auditorias={auditorias}
