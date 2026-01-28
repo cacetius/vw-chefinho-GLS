@@ -105,26 +105,26 @@ export default function Dashboard() {
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-[#001e50] via-[#0066b1] to-[#00b0f0] rounded-xl shadow-lg p-6 md:p-8 text-white"
+          className="bg-gradient-to-r from-[#001e50] to-[#0066b1] rounded-lg shadow-md p-4 md:p-6 text-white"
         >
           <div className="relative z-10">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
               <div>
                 <div>
-                  <h1 className="text-2xl md:text-3xl font-bold mb-2">
+                  <h1 className="text-xl md:text-2xl font-semibold mb-1">
                     Olá, {currentUser?.nome_exibicao || currentUser?.full_name?.split(' ')[0]}
                   </h1>
-                  <p className="text-blue-100 text-base md:text-lg">
+                  <p className="text-blue-100 text-sm md:text-base">
                     Resumo de atividades e indicadores
                   </p>
                 </div>
               </div>
-              <div className="flex flex-col items-start md:items-end gap-2">
-                <Badge className="bg-white/10 text-white border-white/20 px-3 py-1 text-sm">
+              <div className="flex flex-wrap items-start gap-2">
+                <Badge className="bg-white/10 text-white border-white/20 px-2 py-0.5 text-xs">
                   {currentUser?.cargo === 'lider' ? 'Líder' : 'Monitor'} • Chapa {currentUser?.chapa}
                 </Badge>
                 {currentUser?.equipe && (
-                  <Badge className="bg-white/10 text-white border-white/20 px-3 py-1">
+                  <Badge className="bg-white/10 text-white border-white/20 px-2 py-0.5 text-xs">
                     Equipe: {currentUser.equipe}
                   </Badge>
                 )}
@@ -134,75 +134,75 @@ export default function Dashboard() {
         </motion.div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           <Card className="hover:shadow-md transition-shadow border border-slate-200">
-            <CardContent className="pt-5 pb-5">
+            <CardContent className="pt-4 pb-4">
               <div className="flex flex-col items-center text-center">
-                <div className="w-12 h-12 bg-blue-50 rounded-lg mb-3 flex items-center justify-center">
-                  <Truck className="w-6 h-6 text-blue-600" />
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-50 rounded-lg mb-2 flex items-center justify-center">
+                  <Truck className="w-5 h-5 md:w-6 md:h-6 text-[#0066b1]" />
                 </div>
-                <div className="text-2xl font-bold text-slate-900 mb-1">{stats.atividadesLogistica}</div>
-                <p className="text-xs text-slate-600">Logística</p>
+                <div className="text-xl md:text-2xl font-bold text-slate-900 mb-0.5">{stats.atividadesLogistica}</div>
+                <p className="text-[10px] md:text-xs text-slate-600">Logística</p>
               </div>
             </CardContent>
           </Card>
 
           <Card className="hover:shadow-md transition-shadow border border-slate-200">
-            <CardContent className="pt-5 pb-5">
+            <CardContent className="pt-4 pb-4">
               <div className="flex flex-col items-center text-center">
-                <div className="w-12 h-12 bg-green-50 rounded-lg mb-3 flex items-center justify-center">
-                  <ShoppingCart className="w-6 h-6 text-green-600" />
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-green-50 rounded-lg mb-2 flex items-center justify-center">
+                  <ShoppingCart className="w-5 h-5 md:w-6 md:h-6 text-green-600" />
                 </div>
-                <div className="text-2xl font-bold text-slate-900 mb-1">{stats.pedidosEPI}</div>
-                <p className="text-xs text-slate-600">Pedidos EPI</p>
+                <div className="text-xl md:text-2xl font-bold text-slate-900 mb-0.5">{stats.pedidosEPI}</div>
+                <p className="text-[10px] md:text-xs text-slate-600">Pedidos EPI</p>
               </div>
             </CardContent>
           </Card>
 
           <Card className="hover:shadow-md transition-shadow border border-slate-200">
-            <CardContent className="pt-5 pb-5">
+            <CardContent className="pt-4 pb-4">
               <div className="flex flex-col items-center text-center">
-                <div className="w-12 h-12 bg-purple-50 rounded-lg mb-3 flex items-center justify-center">
-                  <Users className="w-6 h-6 text-purple-600" />
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-purple-50 rounded-lg mb-2 flex items-center justify-center">
+                  <Users className="w-5 h-5 md:w-6 md:h-6 text-purple-600" />
                 </div>
-                <div className="text-2xl font-bold text-slate-900 mb-1">{stats.versatilidade}</div>
-                <p className="text-xs text-slate-600">Colaboradores</p>
+                <div className="text-xl md:text-2xl font-bold text-slate-900 mb-0.5">{stats.versatilidade}</div>
+                <p className="text-[10px] md:text-xs text-slate-600">Colaboradores</p>
               </div>
             </CardContent>
           </Card>
 
           <Card className="hover:shadow-md transition-shadow border border-slate-200">
-            <CardContent className="pt-5 pb-5">
+            <CardContent className="pt-4 pb-4">
               <div className="flex flex-col items-center text-center">
-                <div className="w-12 h-12 bg-orange-50 rounded-lg mb-3 flex items-center justify-center">
-                  <MessageSquare className="w-6 h-6 text-orange-600" />
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-orange-50 rounded-lg mb-2 flex items-center justify-center">
+                  <MessageSquare className="w-5 h-5 md:w-6 md:h-6 text-orange-600" />
                 </div>
-                <div className="text-2xl font-bold text-slate-900 mb-1">{stats.mensagens}</div>
-                <p className="text-xs text-slate-600">Mensagens</p>
+                <div className="text-xl md:text-2xl font-bold text-slate-900 mb-0.5">{stats.mensagens}</div>
+                <p className="text-[10px] md:text-xs text-slate-600">Mensagens</p>
               </div>
             </CardContent>
           </Card>
 
           <Card className="hover:shadow-md transition-shadow border border-slate-200">
-            <CardContent className="pt-5 pb-5">
+            <CardContent className="pt-4 pb-4">
               <div className="flex flex-col items-center text-center">
-                <div className="w-12 h-12 bg-cyan-50 rounded-lg mb-3 flex items-center justify-center">
-                  <CheckCircle2 className="w-6 h-6 text-cyan-600" />
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-cyan-50 rounded-lg mb-2 flex items-center justify-center">
+                  <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-cyan-600" />
                 </div>
-                <div className="text-2xl font-bold text-slate-900 mb-1">{stats.objetivosConcluidos}</div>
-                <p className="text-xs text-slate-600">Objetivos OK</p>
+                <div className="text-xl md:text-2xl font-bold text-slate-900 mb-0.5">{stats.objetivosConcluidos}</div>
+                <p className="text-[10px] md:text-xs text-slate-600">Objetivos OK</p>
               </div>
             </CardContent>
           </Card>
 
           <Card className="hover:shadow-md transition-shadow border border-slate-200">
-            <CardContent className="pt-5 pb-5">
+            <CardContent className="pt-4 pb-4">
               <div className="flex flex-col items-center text-center">
-                <div className="w-12 h-12 bg-red-50 rounded-lg mb-3 flex items-center justify-center">
-                  <AlertCircle className="w-6 h-6 text-red-600" />
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-red-50 rounded-lg mb-2 flex items-center justify-center">
+                  <AlertCircle className="w-5 h-5 md:w-6 md:h-6 text-red-600" />
                 </div>
-                <div className="text-2xl font-bold text-slate-900 mb-1">{stats.avisosImportantes}</div>
-                <p className="text-xs text-slate-600">Avisos Urgentes</p>
+                <div className="text-xl md:text-2xl font-bold text-slate-900 mb-0.5">{stats.avisosImportantes}</div>
+                <p className="text-[10px] md:text-xs text-slate-600">Avisos Urgentes</p>
               </div>
             </CardContent>
           </Card>
@@ -210,8 +210,8 @@ export default function Dashboard() {
 
         {/* Quick Actions */}
         <div>
-          <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-            <Activity className="w-5 h-5 text-slate-700" />
+          <h2 className="text-base md:text-lg font-semibold text-slate-900 mb-3 flex items-center gap-2">
+            <Activity className="w-4 h-4 md:w-5 md:h-5 text-[#0066b1]" />
             Ações Rápidas
           </h2>
           <AtalhosRapidos />

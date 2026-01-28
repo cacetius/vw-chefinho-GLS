@@ -230,13 +230,13 @@ export default function AuditoriaVDA() {
         </AnimatePresence>
 
         {/* Tabs */}
-        <Card className="shadow-2xl border-0">
+        <Card className="shadow-md border border-slate-200">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <CardHeader className="border-b bg-gradient-to-r from-indigo-50 to-blue-50">
-              <TabsList className="grid w-full md:w-[600px] grid-cols-3">
-                <TabsTrigger value="auditorias">Auditorias</TabsTrigger>
-                <TabsTrigger value="planos">Planos de Ação</TabsTrigger>
-                <TabsTrigger value="indicadores">Indicadores</TabsTrigger>
+            <CardHeader className="border-b bg-slate-50 p-3 md:p-6">
+              <TabsList className="grid w-full grid-cols-3 h-9">
+                <TabsTrigger value="auditorias" className="text-xs md:text-sm">Auditorias</TabsTrigger>
+                <TabsTrigger value="planos" className="text-xs md:text-sm">Planos</TabsTrigger>
+                <TabsTrigger value="indicadores" className="text-xs md:text-sm">Indicadores</TabsTrigger>
               </TabsList>
             </CardHeader>
 

@@ -263,7 +263,7 @@ export default function Layout({ children, currentPageName }) {
   return (
     <div className="min-h-screen flex bg-slate-50">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex flex-col w-72 bg-white border-r border-slate-200 fixed left-0 top-0 bottom-0 z-30 shadow-sm">
+      <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-slate-200 fixed left-0 top-0 bottom-0 z-30 shadow-sm">
         {/* Logo Header */}
         <div className="p-6 border-b border-[#001e50]/20 bg-gradient-to-r from-[#001e50] via-[#0066b1] to-[#001e50]">
           <div className="flex items-center gap-3">
@@ -278,7 +278,7 @@ export default function Layout({ children, currentPageName }) {
         </div>
 
         {/* Navigation */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-6">
+        <div className="flex-1 overflow-y-auto p-3 space-y-4">
           {filteredSections.map((section, idx) => (
             <motion.div 
               key={section.title}
@@ -288,10 +288,10 @@ export default function Layout({ children, currentPageName }) {
             >
               <button
                 onClick={() => toggleSection(section.title)}
-                className="w-full flex items-center justify-between px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wider hover:text-gray-700 transition-colors"
+                className="w-full flex items-center justify-between px-3 py-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider hover:text-[#0066b1] transition-colors"
               >
                 <span>{section.title}</span>
-                <ChevronDown className={`w-4 h-4 transition-transform ${expandedSections[section.title] ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-3 h-3 transition-transform ${expandedSections[section.title] ? 'rotate-180' : ''}`} />
               </button>
               
               <AnimatePresence>
@@ -309,11 +309,11 @@ export default function Layout({ children, currentPageName }) {
                         className="group relative"
                       >
                         <motion.div
-                          whileHover={{ scale: 1.02, x: 4 }}
-                          className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 ${
+                          whileHover={{ scale: 1.01, x: 2 }}
+                          className={`flex items-center gap-2.5 px-3 py-2 rounded-md transition-all duration-200 ${
                             isActive(item.url)
-                              ? 'bg-gradient-to-r from-[#001e50] to-[#0066b1] text-white shadow-sm'
-                              : 'text-slate-600 hover:bg-blue-50 hover:text-[#0066b1]'
+                              ? 'bg-[#0066b1] text-white shadow-sm'
+                              : 'text-slate-700 hover:bg-blue-50 hover:text-[#0066b1]'
                           }`}
                         >
                           <item.icon className="w-4 h-4" />
@@ -515,10 +515,10 @@ export default function Layout({ children, currentPageName }) {
       </AnimatePresence>
 
       {/* Main Content */}
-      <main className="flex-1 lg:ml-72 bg-slate-50">
+      <main className="flex-1 lg:ml-64 bg-slate-50">
         {/* Header */}
-        <header className="sticky top-0 z-20 bg-white border-b border-slate-200 shadow-sm">
-          <div className="flex items-center justify-between px-4 md:px-6 py-3">
+        <header className="sticky top-0 z-20 bg-white border-b border-slate-200">
+          <div className="flex items-center justify-between px-3 md:px-6 py-2.5 md:py-3">
             <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
@@ -529,11 +529,11 @@ export default function Layout({ children, currentPageName }) {
                 <Menu className="w-5 h-5 text-slate-700" />
               </Button>
               <div>
-                <h1 className="text-lg md:text-xl font-bold text-slate-900">
+                <h1 className="text-base md:text-lg font-semibold text-slate-900">
                   {currentPageName}
                 </h1>
                 {(currentUser.equipe || currentUser.turno) && (
-                  <p className="text-xs text-slate-500 mt-0.5">
+                  <p className="text-[10px] md:text-xs text-slate-500 mt-0.5">
                     {currentUser.equipe && `Equipe: ${currentUser.equipe}`}
                     {currentUser.equipe && currentUser.turno && ' • '}
                     {currentUser.turno && `Turno: ${currentUser.turno}`}
@@ -552,7 +552,7 @@ export default function Layout({ children, currentPageName }) {
         </header>
 
         {/* Page Content */}
-        <div className="p-4 md:p-6">
+        <div className="p-3 md:p-6 pb-20 md:pb-6">
           {children}
         </div>
       </main>
