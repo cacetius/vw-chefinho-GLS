@@ -81,8 +81,14 @@ export default function Layout({ children, currentPageName }) {
           url: createPageUrl("LinhaProducao"),
           icon: Car,
           roles: ["monitor", "lider"],
-          gradient: "from-blue-400 to-cyan-600",
-          badge: "Novo"
+          gradient: "from-blue-400 to-cyan-600"
+        },
+        {
+          title: "Layout das Linhas",
+          url: createPageUrl("LayoutLinhaPage"),
+          icon: Grid,
+          roles: ["monitor", "lider"],
+          gradient: "from-slate-500 to-slate-600"
         },
         {
           title: "Auditoria VDA",
