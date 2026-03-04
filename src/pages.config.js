@@ -70,6 +70,7 @@ import Registro from './pages/Registro';
 import Sugestoes from './pages/Sugestoes';
 import Treinamentos from './pages/Treinamentos';
 import Versatilidade from './pages/Versatilidade';
+import LayoutLinhaPage from './pages/LayoutLinhaPage';
 import __Layout from './Layout.jsx';
 
 
@@ -97,6 +98,7 @@ export const PAGES = {
     "Sugestoes": Sugestoes,
     "Treinamentos": Treinamentos,
     "Versatilidade": Versatilidade,
+    "LayoutLinhaPage": LayoutLinhaPage,
 }
 
 export const pagesConfig = {
