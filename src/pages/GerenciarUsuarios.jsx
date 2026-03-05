@@ -65,9 +65,11 @@ export default function GerenciarUsuarios() {
     try {
       const data = await base44.entities.User.list();
       setUsuarios(data);
-    } catch (error) {
-      setError("Erro ao carregar usuários. Você não tem permissão para visualizar esta página.");
-      setHasAccess(false);
+      setError("");
+    } catch (err) {
+      // Líderes não-admin podem não ter permissão de listar todos os usuários
+      // Tentamos buscar apenas os dados disponíveis
+      setError("Não foi possível carregar todos os usuários. Contate um administrador para conceder permissão.");
     }
     setLoading(false);
   };
