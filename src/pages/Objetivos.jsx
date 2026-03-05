@@ -116,10 +116,10 @@ export default function Objetivos() {
           )}
         </AnimatePresence>
 
-        <Card className="shadow-lg">
+      <Card className="shadow-sm border border-slate-200">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <CardHeader className="border-b bg-gradient-to-r from-green-50 to-white">
-              <TabsList className="grid w-full md:w-96 grid-cols-2">
+            <CardHeader className="border-b bg-slate-50 py-3">
+              <TabsList className="grid w-full grid-cols-2 h-9">
                 <TabsTrigger value="diarios">Objetivos Diários</TabsTrigger>
                 <TabsTrigger value="mensais">Objetivos Mensais</TabsTrigger>
               </TabsList>
@@ -143,8 +143,7 @@ export default function Objetivos() {
               </TabsContent>
             </CardContent>
           </Tabs>
-        </Card>
-      </div>
+      </Card>
     </div>
   );
 }
