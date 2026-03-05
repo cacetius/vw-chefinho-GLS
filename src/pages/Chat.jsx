@@ -293,6 +293,8 @@ export default function Chat() {
             <AnimatePresence initial={false}>
               {filteredMensagens.map((msg) => {
                 const isMe = msg.remetente_id === currentUser?.id;
+                const isLider = currentUser?.cargo === "lider" || 
+                  (currentUser?.cargo_temporario === "lider" && currentUser?.data_cargo_temporario && new Date(currentUser.data_cargo_temporario) >= new Date());
                 const isEditing = editingMsg?.id === msg.id;
                 return (
                   <motion.div key={msg.id}
