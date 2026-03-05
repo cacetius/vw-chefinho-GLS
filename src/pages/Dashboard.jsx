@@ -98,184 +98,91 @@ export default function Dashboard() {
     );
   }
 
+  const STATS = [
+    { label: "Logística", value: stats.atividadesLogistica, icon: Truck, bg: "bg-blue-50", color: "text-[#0066b1]" },
+    { label: "EPI", value: stats.pedidosEPI, icon: ShoppingCart, bg: "bg-green-50", color: "text-green-600" },
+    { label: "Colaboradores", value: stats.versatilidade, icon: Users, bg: "bg-purple-50", color: "text-purple-600" },
+    { label: "Mensagens", value: stats.mensagens, icon: MessageSquare, bg: "bg-orange-50", color: "text-orange-600" },
+    { label: "Objetivos", value: stats.objetivosConcluidos, icon: CheckCircle2, bg: "bg-cyan-50", color: "text-cyan-600" },
+    { label: "Urgentes", value: stats.avisosImportantes, icon: AlertCircle, bg: "bg-red-50", color: "text-red-600" },
+  ];
+
   return (
-    <div className="min-h-screen">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Welcome Banner */}
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-[#001e50] to-[#0066b1] rounded-lg shadow-md p-4 md:p-6 text-white"
-        >
-          <div className="relative z-10">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-              <div>
-                <div>
-                  <h1 className="text-xl md:text-2xl font-semibold mb-1">
-                    Olá, {currentUser?.nome_exibicao || currentUser?.full_name?.split(' ')[0]}
-                  </h1>
-                  <p className="text-blue-100 text-sm md:text-base">
-                    Resumo de atividades e indicadores
-                  </p>
-                </div>
-              </div>
-              <div className="flex flex-wrap items-start gap-2">
-                <Badge className="bg-white/10 text-white border-white/20 px-2 py-0.5 text-xs">
-                  {currentUser?.cargo === 'lider' ? 'Líder' : 'Monitor'} • Chapa {currentUser?.chapa}
-                </Badge>
-                {currentUser?.equipe && (
-                  <Badge className="bg-white/10 text-white border-white/20 px-2 py-0.5 text-xs">
-                    Equipe: {currentUser.equipe}
-                  </Badge>
-                )}
-              </div>
-            </div>
+    <div className="space-y-4 md:space-y-6">
+      {/* Welcome Banner */}
+      <motion.div
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-gradient-to-r from-[#001e50] to-[#0066b1] rounded-xl p-4 text-white"
+      >
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h1 className="text-lg font-bold leading-tight">
+              Olá, {currentUser?.nome_exibicao || currentUser?.full_name?.split(' ')[0]} 👋
+            </h1>
+            <p className="text-blue-200 text-xs mt-0.5">Resumo de atividades</p>
           </div>
-        </motion.div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          <Card className="hover:shadow-md transition-shadow border border-slate-200">
-            <CardContent className="pt-4 pb-4">
-              <div className="flex flex-col items-center text-center">
-                <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-50 rounded-lg mb-2 flex items-center justify-center">
-                  <Truck className="w-5 h-5 md:w-6 md:h-6 text-[#0066b1]" />
-                </div>
-                <div className="text-xl md:text-2xl font-bold text-slate-900 mb-0.5">{stats.atividadesLogistica}</div>
-                <p className="text-[10px] md:text-xs text-slate-600">Logística</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-md transition-shadow border border-slate-200">
-            <CardContent className="pt-4 pb-4">
-              <div className="flex flex-col items-center text-center">
-                <div className="w-10 h-10 md:w-12 md:h-12 bg-green-50 rounded-lg mb-2 flex items-center justify-center">
-                  <ShoppingCart className="w-5 h-5 md:w-6 md:h-6 text-green-600" />
-                </div>
-                <div className="text-xl md:text-2xl font-bold text-slate-900 mb-0.5">{stats.pedidosEPI}</div>
-                <p className="text-[10px] md:text-xs text-slate-600">Pedidos EPI</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-md transition-shadow border border-slate-200">
-            <CardContent className="pt-4 pb-4">
-              <div className="flex flex-col items-center text-center">
-                <div className="w-10 h-10 md:w-12 md:h-12 bg-purple-50 rounded-lg mb-2 flex items-center justify-center">
-                  <Users className="w-5 h-5 md:w-6 md:h-6 text-purple-600" />
-                </div>
-                <div className="text-xl md:text-2xl font-bold text-slate-900 mb-0.5">{stats.versatilidade}</div>
-                <p className="text-[10px] md:text-xs text-slate-600">Colaboradores</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-md transition-shadow border border-slate-200">
-            <CardContent className="pt-4 pb-4">
-              <div className="flex flex-col items-center text-center">
-                <div className="w-10 h-10 md:w-12 md:h-12 bg-orange-50 rounded-lg mb-2 flex items-center justify-center">
-                  <MessageSquare className="w-5 h-5 md:w-6 md:h-6 text-orange-600" />
-                </div>
-                <div className="text-xl md:text-2xl font-bold text-slate-900 mb-0.5">{stats.mensagens}</div>
-                <p className="text-[10px] md:text-xs text-slate-600">Mensagens</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-md transition-shadow border border-slate-200">
-            <CardContent className="pt-4 pb-4">
-              <div className="flex flex-col items-center text-center">
-                <div className="w-10 h-10 md:w-12 md:h-12 bg-cyan-50 rounded-lg mb-2 flex items-center justify-center">
-                  <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-cyan-600" />
-                </div>
-                <div className="text-xl md:text-2xl font-bold text-slate-900 mb-0.5">{stats.objetivosConcluidos}</div>
-                <p className="text-[10px] md:text-xs text-slate-600">Objetivos OK</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-md transition-shadow border border-slate-200">
-            <CardContent className="pt-4 pb-4">
-              <div className="flex flex-col items-center text-center">
-                <div className="w-10 h-10 md:w-12 md:h-12 bg-red-50 rounded-lg mb-2 flex items-center justify-center">
-                  <AlertCircle className="w-5 h-5 md:w-6 md:h-6 text-red-600" />
-                </div>
-                <div className="text-xl md:text-2xl font-bold text-slate-900 mb-0.5">{stats.avisosImportantes}</div>
-                <p className="text-[10px] md:text-xs text-slate-600">Avisos Urgentes</p>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="flex flex-col items-end gap-1">
+            <Badge className="bg-white/15 text-white border-white/20 text-[10px] px-2 py-0.5">
+              {currentUser?.cargo === 'lider' ? 'Líder' : 'Monitor'}
+            </Badge>
+            {currentUser?.equipe && (
+              <Badge className="bg-white/15 text-white border-white/20 text-[10px] px-2 py-0.5">
+                {currentUser.equipe}
+              </Badge>
+            )}
+          </div>
         </div>
+      </motion.div>
 
-        {/* Quick Actions */}
-        <div>
-          <h2 className="text-base md:text-lg font-semibold text-slate-900 mb-3 flex items-center gap-2">
-            <Activity className="w-4 h-4 md:w-5 md:h-5 text-[#0066b1]" />
-            Ações Rápidas
-          </h2>
-          <AtalhosRapidos />
-        </div>
-
-        {/* Recent Activity and Tips */}
-        <div className="grid lg:grid-cols-2 gap-8">
-          <HistoricoAtividades currentUser={currentUser} />
-          
-          <Card className="border border-slate-200">
-            <CardHeader className="border-b bg-slate-50">
-              <CardTitle className="text-lg flex items-center gap-2 font-semibold text-slate-900">
-                <Lightbulb className="w-5 h-5 text-amber-500" />
-                Dicas e Lembretes
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="space-y-4">
-              {[
-                {
-                  icon: CheckCircle2,
-                  title: "Segurança em Primeiro Lugar",
-                  desc: "Sempre verifique se todos estão usando EPIs adequados antes de iniciar qualquer atividade",
-                  gradient: "from-blue-50 to-cyan-50",
-                  border: "border-blue-200",
-                  iconColor: "text-blue-600"
-                },
-                {
-                  icon: TrendingUp,
-                  title: "Acompanhe seus Objetivos",
-                  desc: "Mantenha seus objetivos diários atualizados para melhor produtividade",
-                  gradient: "from-green-50 to-emerald-50",
-                  border: "border-green-200",
-                  iconColor: "text-green-600"
-                },
-                {
-                  icon: Users,
-                  title: "Versatilidade da Equipe",
-                  desc: "Atualize regularmente a matriz de habilidades dos colaboradores",
-                  gradient: "from-purple-50 to-pink-50",
-                  border: "border-purple-200",
-                  iconColor: "text-purple-600"
-                }
-              ].map((tip, index) => (
-                <motion.div
-                  key={tip.title}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.7 + index * 0.1 }}
-                  className={`p-4 bg-gradient-to-r ${tip.gradient} rounded-xl border ${tip.border} hover:shadow-lg transition-all cursor-pointer`}
-                >
-                  <h4 className="font-bold text-gray-900 mb-2 text-sm flex items-center gap-2">
-                    <tip.icon className={`w-4 h-4 ${tip.iconColor}`} />
-                    {tip.title}
-                  </h4>
-                  <p className="text-xs text-gray-700 leading-relaxed">
-                    {tip.desc}
-                  </p>
-                </motion.div>
-              ))}
+      {/* Stats Grid — 3 cols on mobile, 6 on desktop */}
+      <div className="grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-3">
+        {STATS.map(({ label, value, icon: Icon, bg, color }) => (
+          <Card key={label} className="border border-slate-200">
+            <CardContent className="p-3 flex flex-col items-center text-center">
+              <div className={`w-8 h-8 ${bg} rounded-lg mb-1.5 flex items-center justify-center`}>
+                <Icon className={`w-4 h-4 ${color}`} />
               </div>
+              <div className="text-xl font-bold text-slate-900 leading-none">{value}</div>
+              <p className="text-[10px] text-slate-500 mt-0.5 leading-tight">{label}</p>
             </CardContent>
           </Card>
-        </div>
+        ))}
+      </div>
+
+      {/* Quick Actions */}
+      <div>
+        <h2 className="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-1.5">
+          <Activity className="w-4 h-4 text-[#0066b1]" /> Ações Rápidas
+        </h2>
+        <AtalhosRapidos />
+      </div>
+
+      {/* Activity + Tips — stack on mobile */}
+      <div className="grid lg:grid-cols-2 gap-4 md:gap-6">
+        <HistoricoAtividades currentUser={currentUser} />
+
+        <Card className="border border-slate-200">
+          <CardHeader className="border-b bg-slate-50 py-3 px-4">
+            <CardTitle className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+              <Lightbulb className="w-4 h-4 text-amber-500" /> Dicas
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-3 space-y-2">
+            {[
+              { icon: CheckCircle2, title: "Segurança em Primeiro Lugar", desc: "Verifique se todos usam EPIs adequados", gradient: "from-blue-50 to-cyan-50", border: "border-blue-200", iconColor: "text-blue-600" },
+              { icon: TrendingUp, title: "Acompanhe seus Objetivos", desc: "Mantenha objetivos diários atualizados", gradient: "from-green-50 to-emerald-50", border: "border-green-200", iconColor: "text-green-600" },
+              { icon: Users, title: "Versatilidade da Equipe", desc: "Atualize a matriz de habilidades", gradient: "from-purple-50 to-pink-50", border: "border-purple-200", iconColor: "text-purple-600" },
+            ].map((tip) => (
+              <div key={tip.title} className={`p-3 bg-gradient-to-r ${tip.gradient} rounded-lg border ${tip.border}`}>
+                <h4 className="font-semibold text-slate-900 text-xs flex items-center gap-1.5 mb-0.5">
+                  <tip.icon className={`w-3.5 h-3.5 ${tip.iconColor}`} />{tip.title}
+                </h4>
+                <p className="text-[11px] text-slate-600">{tip.desc}</p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

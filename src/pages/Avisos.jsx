@@ -77,92 +77,39 @@ export default function Avisos() {
   };
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header */}
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
-        >
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 flex items-center gap-3">
-              <motion.div 
-                whileHover={{ rotate: [0, -10, 10, -10, 0] }}
-                transition={{ duration: 0.5 }}
-                className="p-3 bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl shadow-2xl"
-              >
-                <Bell className="w-8 h-8 text-white" />
-              </motion.div>
-              Quadro de Avisos
-            </h1>
-            <p className="text-gray-600 mt-2 text-lg flex items-center gap-2">
-              <Sparkles className="w-4 h-4" />
-              Compartilhe informações importantes com a equipe
-            </p>
+    <div className="space-y-4 md:space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl flex items-center justify-center flex-shrink-0">
+            <Bell className="w-5 h-5 text-white" />
           </div>
-          <Button 
-            onClick={() => setShowForm(!showForm)}
-            className="bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all px-6 py-6"
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            Novo Aviso
-          </Button>
-        </motion.div>
-
-        {/* Stats Grid */}
-        <div className="grid md:grid-cols-4 gap-6">
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }} whileHover={{ scale: 1.05, y: -5 }}>
-            <Card className="shadow-2xl border-0 bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
-              <CardHeader>
-                <CardTitle className="text-sm font-medium text-blue-100">Total de Avisos</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-bold">{avisos.length}</div>
-              </CardContent>
-            </Card>
-          </motion.div>
-          
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }} whileHover={{ scale: 1.05, y: -5 }}>
-            <Card className="shadow-2xl border-0 bg-gradient-to-br from-cyan-500 to-blue-600 text-white">
-              <CardHeader>
-                <CardTitle className="text-sm font-medium text-blue-100 flex items-center gap-2">
-                  <Pin className="w-4 h-4" />
-                  Fixados
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-bold">{avisosFixados.length}</div>
-              </CardContent>
-            </Card>
-          </motion.div>
-          
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }} whileHover={{ scale: 1.05, y: -5 }}>
-            <Card className="shadow-2xl border-0 bg-gradient-to-br from-red-500 to-pink-600 text-white">
-              <CardHeader>
-                <CardTitle className="text-sm font-medium text-red-100">Urgentes</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-bold">
-                  {avisos.filter(a => a.prioridade === "urgente").length}
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-          
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 }} whileHover={{ scale: 1.05, y: -5 }}>
-            <Card className="shadow-2xl border-0 bg-gradient-to-br from-orange-500 to-yellow-600 text-white">
-              <CardHeader>
-                <CardTitle className="text-sm font-medium text-orange-100">Importantes</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-bold">
-                  {avisos.filter(a => a.prioridade === "importante").length}
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+          <div>
+            <h1 className="text-base font-bold text-slate-900">Quadro de Avisos</h1>
+            <p className="text-xs text-slate-400 hidden sm:block">Informações importantes da equipe</p>
+          </div>
         </div>
+        <Button onClick={() => setShowForm(!showForm)} className="bg-red-500 hover:bg-red-600 h-9 px-3">
+          <Plus className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline text-sm">Novo Aviso</span>
+        </Button>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-4 gap-2">
+        {[
+          { label: "Total", value: avisos.length, color: "bg-blue-500" },
+          { label: "Fixados", value: avisosFixados.length, color: "bg-cyan-500", Icon: Pin },
+          { label: "Urgentes", value: avisos.filter(a => a.prioridade === "urgente").length, color: "bg-red-500" },
+          { label: "Importantes", value: avisos.filter(a => a.prioridade === "importante").length, color: "bg-orange-500" },
+        ].map(({ label, value, color }) => (
+          <Card key={label} className={`border-0 text-white ${color}`}>
+            <CardContent className="p-3 text-center">
+              <div className="text-2xl font-bold">{value}</div>
+              <p className="text-[10px] opacity-80 leading-tight">{label}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
         <AnimatePresence>
           {showForm && (
@@ -177,20 +124,16 @@ export default function Avisos() {
           )}
         </AnimatePresence>
 
-        <Card className="shadow-2xl border-0">
-          <CardHeader className="border-b bg-gradient-to-r from-red-50 via-pink-50 to-orange-50">
-            <CardTitle>Filtros</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-6">
+        <Card className="border border-slate-200">
+          <CardContent className="pt-4 pb-4 px-4">
             <AvisosFilters onFilterChange={setFilters} />
           </CardContent>
         </Card>
 
         {avisosFixados.length > 0 && (
           <div>
-            <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2 text-gray-900">
-              <Pin className="w-6 h-6 text-blue-600" />
-              Avisos Fixados
+            <h2 className="text-sm font-semibold mb-3 flex items-center gap-1.5 text-slate-700">
+              <Pin className="w-4 h-4 text-blue-600" /> Avisos Fixados
             </h2>
             <AvisosList
               avisos={avisosFixados}
@@ -204,9 +147,7 @@ export default function Avisos() {
         )}
 
         <div>
-          <h2 className="text-2xl font-semibold mb-4 text-gray-900">
-            Todos os Avisos
-          </h2>
+          <h2 className="text-sm font-semibold mb-3 text-slate-700">Todos os Avisos</h2>
           <AvisosList
             avisos={avisosNormais}
             onEdit={handleEdit}
@@ -217,6 +158,5 @@ export default function Avisos() {
           />
         </div>
       </div>
-    </div>
   );
 }

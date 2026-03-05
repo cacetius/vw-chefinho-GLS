@@ -107,36 +107,20 @@ export default function AtalhosRapidos() {
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-3">
       {shortcuts.map((shortcut, index) => (
-        <motion.div
-          key={shortcut.title}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: index * 0.05 }}
-        >
+        <motion.div key={shortcut.title} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: index * 0.03 }}>
           <Link to={shortcut.url}>
-            <Card className="group hover:shadow-2xl transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm overflow-hidden h-full">
-              <CardContent className="p-5">
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="flex flex-col items-center text-center gap-3"
-                >
-                  <div className={`p-4 rounded-2xl bg-gradient-to-br ${shortcut.gradient} shadow-lg group-hover:shadow-xl transition-all`}>
-                    <shortcut.icon className="w-7 h-7 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-gray-900 text-sm mb-1 group-hover:text-[#0066b1] transition-colors">
-                      {shortcut.title}
-                    </h3>
-                    <p className="text-xs text-gray-500 leading-tight">
-                      {shortcut.description}
-                    </p>
-                  </div>
-                </motion.div>
-              </CardContent>
-            </Card>
+            <motion.div whileTap={{ scale: 0.93 }}
+              className="flex flex-col items-center text-center p-2.5 md:p-4 rounded-xl border border-slate-200 bg-white hover:shadow-md active:shadow-sm transition-all gap-1.5 md:gap-2.5">
+              <div className={`p-2.5 md:p-3 rounded-xl bg-gradient-to-br ${shortcut.gradient} shadow-md`}>
+                <shortcut.icon className="w-5 h-5 md:w-6 md:h-6 text-white" />
+              </div>
+              <div>
+                <p className="font-semibold text-slate-800 text-[11px] md:text-xs leading-tight">{shortcut.title}</p>
+                <p className="text-[10px] text-slate-400 leading-tight hidden md:block">{shortcut.description}</p>
+              </div>
+            </motion.div>
           </Link>
         </motion.div>
       ))}
