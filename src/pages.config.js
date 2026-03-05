@@ -59,6 +59,7 @@ import Estoque from './pages/Estoque';
 import Feedback360 from './pages/Feedback360';
 import GerenciarUsuarios from './pages/GerenciarUsuarios';
 import Home from './pages/Home';
+import LayoutLinhaPage from './pages/LayoutLinhaPage';
 import LiderArea from './pages/LiderArea';
 import LinhaProducao from './pages/LinhaProducao';
 import Logistica from './pages/Logistica';
@@ -70,7 +71,6 @@ import Registro from './pages/Registro';
 import Sugestoes from './pages/Sugestoes';
 import Treinamentos from './pages/Treinamentos';
 import Versatilidade from './pages/Versatilidade';
-import LayoutLinhaPage from './pages/LayoutLinhaPage';
 import __Layout from './Layout.jsx';
 
 
@@ -87,6 +87,7 @@ export const PAGES = {
     "Feedback360": Feedback360,
     "GerenciarUsuarios": GerenciarUsuarios,
     "Home": Home,
+    "LayoutLinhaPage": LayoutLinhaPage,
     "LiderArea": LiderArea,
     "LinhaProducao": LinhaProducao,
     "Logistica": Logistica,
@@ -98,7 +99,6 @@ export const PAGES = {
     "Sugestoes": Sugestoes,
     "Treinamentos": Treinamentos,
     "Versatilidade": Versatilidade,
-    "LayoutLinhaPage": LayoutLinhaPage,
 }
 
 export const pagesConfig = {
