@@ -213,89 +213,58 @@ export default function PedidosEPI() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-green-50">
-      <div className="max-w-7xl mx-auto p-4 md:p-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div className="space-y-4 md:space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center flex-shrink-0">
+            <ShoppingCart className="w-5 h-5 text-white" />
+          </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Pedidos de EPI & Gestão de Gastos</h1>
-            <p className="text-gray-600 mt-1">
-              {currentUser?.equipe && `Equipe: ${currentUser.equipe}`}
-              {currentUser?.turno && ` • Turno: ${currentUser.turno}`}
-            </p>
+            <h1 className="text-base font-bold text-slate-900">Pedidos EPI</h1>
+            <p className="text-xs text-slate-400">{[currentUser?.equipe, currentUser?.turno].filter(Boolean).join(' • ')}</p>
           </div>
-          <div className="flex gap-3">
-            {hasLeaderAccess && (
-              <Button 
-                onClick={() => setShowOrcamentoForm(!showOrcamentoForm)}
-                variant="outline"
-                className="border-[#0066b1] text-[#0066b1] hover:bg-blue-50"
-              >
-                <Receipt className="w-4 h-4 mr-2" />
-                Novo Orçamento
-              </Button>
-            )}
-            <Button 
-              onClick={() => setShowForm(!showForm)}
-              className="bg-gradient-to-r from-[#001e50] to-[#0066b1] hover:from-[#001e50] hover:to-[#004d82]"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Novo Pedido
+        </div>
+        <div className="flex gap-1.5">
+          {hasLeaderAccess && (
+            <Button variant="outline" size="sm" className="h-9 border-[#0066b1] text-[#0066b1] hover:bg-blue-50"
+              onClick={() => setShowOrcamentoForm(!showOrcamentoForm)}>
+              <Receipt className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline text-xs">Orçamento</span>
             </Button>
-          </div>
+          )}
+          <Button size="sm" className="h-9 bg-[#0066b1] hover:bg-[#004d82]" onClick={() => setShowForm(!showForm)}>
+            <Plus className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline text-xs">Novo Pedido</span>
+          </Button>
         </div>
+      </div>
 
-        <div className="grid md:grid-cols-4 gap-6 mb-6">
-          <Card className="shadow-lg border-l-4 border-l-green-500">
-            <CardHeader>
-              <CardTitle className="text-sm font-medium text-gray-600">Total de Pedidos</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-gray-900">{pedidos.length}</div>
-            </CardContent>
-          </Card>
-          
-          <Card className="shadow-lg border-l-4 border-l-yellow-500">
-            <CardHeader>
-              <CardTitle className="text-sm font-medium text-gray-600">Pendentes</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-yellow-600">
-                {pedidos.filter(p => p.status === "pendente").length}
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="shadow-lg border-l-4 border-l-blue-500">
-            <CardHeader>
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                <DollarSign className="w-4 h-4" />
-                Gastos Aprovados
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-gray-900">
-                R$ {totalGastos.toFixed(2)}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-lg border-l-4 border-l-purple-500">
-            <CardHeader>
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                <TrendingUp className="w-4 h-4" />
-                Orçamento Disponível
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-purple-600">
-                R$ {(totalOrcamento - totalUtilizado).toFixed(2)}
-              </div>
-              <p className="text-xs text-gray-500 mt-1">
-                De R$ {totalOrcamento.toFixed(2)}
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+      {/* Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <Card className="border border-slate-200">
+          <CardContent className="p-3">
+            <p className="text-[10px] text-slate-500">Total</p>
+            <div className="text-2xl font-bold text-slate-900">{pedidos.length}</div>
+          </CardContent>
+        </Card>
+        <Card className="border border-slate-200">
+          <CardContent className="p-3">
+            <p className="text-[10px] text-slate-500">Pendentes</p>
+            <div className="text-2xl font-bold text-amber-600">{pedidos.filter(p => p.status === "pendente").length}</div>
+          </CardContent>
+        </Card>
+        <Card className="border border-slate-200">
+          <CardContent className="p-3">
+            <p className="text-[10px] text-slate-500 flex items-center gap-1"><DollarSign className="w-3 h-3" />Gastos</p>
+            <div className="text-xl font-bold text-slate-900">R${totalGastos.toFixed(0)}</div>
+          </CardContent>
+        </Card>
+        <Card className="border border-slate-200">
+          <CardContent className="p-3">
+            <p className="text-[10px] text-slate-500 flex items-center gap-1"><TrendingUp className="w-3 h-3" />Disponível</p>
+            <div className="text-xl font-bold text-purple-600">R${(totalOrcamento - totalUtilizado).toFixed(0)}</div>
+          </CardContent>
+        </Card>
+      </div>
 
         <AnimatePresence>
           {showForm && (
@@ -324,8 +293,8 @@ export default function PedidosEPI() {
           )}
         </AnimatePresence>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full md:w-96 grid-cols-3">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          <TabsList className="grid w-full grid-cols-3 h-9">
             <TabsTrigger value="pedidos">Pedidos</TabsTrigger>
             <TabsTrigger value="orcamentos">Orçamentos</TabsTrigger>
             <TabsTrigger value="graficos">Análise</TabsTrigger>
@@ -400,8 +369,7 @@ export default function PedidosEPI() {
               </Card>
             </div>
           </TabsContent>
-        </Tabs>
-      </div>
+      </Tabs>
     </div>
   );
 }

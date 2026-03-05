@@ -65,79 +65,43 @@ export default function Objetivos() {
   const hoje = new Date().toISOString().split('T')[0];
   const objetivosHoje = objetivosDiarios.filter(o => o.data_referencia === hoje);
 
+  const taxaConclusao = objetivosHoje.length > 0 ? Math.round((objetivosHoje.filter(o => o.concluido).length / objetivosHoje.length) * 100) : 0;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-green-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-              <Target className="w-8 h-8 text-green-600" />
-              Objetivos e Metas
-            </h1>
-            <p className="text-gray-600 mt-1">Acompanhe os objetivos diários e mensais da equipe</p>
+    <div className="space-y-4 md:space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 bg-green-600 rounded-xl flex items-center justify-center flex-shrink-0">
+            <Target className="w-5 h-5 text-white" />
           </div>
-          <Button 
-            onClick={() => setShowForm(!showForm)}
-            className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            Novo Objetivo
-          </Button>
+          <div>
+            <h1 className="text-base font-bold text-slate-900">Objetivos e Metas</h1>
+            <p className="text-xs text-slate-400 hidden sm:block">Diários e mensais da equipe</p>
+          </div>
         </div>
+        <Button size="sm" onClick={() => setShowForm(!showForm)} className="h-9 bg-green-600 hover:bg-green-700 px-3">
+          <Plus className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline text-sm">Novo</span>
+        </Button>
+      </div>
 
-        <div className="grid md:grid-cols-4 gap-6 mb-6">
-          <Card className="shadow-lg border-l-4 border-l-green-500">
-            <CardHeader>
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                Objetivos Hoje
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-gray-900">{objetivosHoje.length}</div>
-              <p className="text-sm text-gray-500 mt-1">
-                {objetivosHoje.filter(o => o.concluido).length} concluídos
-              </p>
+      {/* Stats */}
+      <div className="grid grid-cols-4 gap-2">
+        {[
+          { label: "Hoje", value: objetivosHoje.length, sub: `${objetivosHoje.filter(o=>o.concluido).length} ok`, color: "border-l-green-500" },
+          { label: "Diários", value: objetivosDiarios.length, color: "border-l-blue-500" },
+          { label: "Mensais", value: objetivosMensais.length, color: "border-l-purple-500" },
+          { label: "Conclusão", value: `${taxaConclusao}%`, color: "border-l-orange-500" },
+        ].map(({ label, value, sub, color }) => (
+          <Card key={label} className={`shadow-sm border-l-4 ${color}`}>
+            <CardContent className="p-3">
+              <p className="text-[10px] text-slate-500">{label}</p>
+              <div className="text-xl font-bold text-slate-900">{value}</div>
+              {sub && <p className="text-[10px] text-slate-400">{sub}</p>}
             </CardContent>
           </Card>
-
-          <Card className="shadow-lg border-l-4 border-l-blue-500">
-            <CardHeader>
-              <CardTitle className="text-sm font-medium text-gray-600">Objetivos Diários</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-blue-600">{objetivosDiarios.length}</div>
-              <p className="text-sm text-gray-500 mt-1">Total registrados</p>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-lg border-l-4 border-l-purple-500">
-            <CardHeader>
-              <CardTitle className="text-sm font-medium text-gray-600">Objetivos Mensais</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-purple-600">{objetivosMensais.length}</div>
-              <p className="text-sm text-gray-500 mt-1">Total registrados</p>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-lg border-l-4 border-l-orange-500">
-            <CardHeader>
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                <TrendingUp className="w-4 h-4" />
-                Taxa de Conclusão
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-orange-600">
-                {objetivosHoje.length > 0 
-                  ? Math.round((objetivosHoje.filter(o => o.concluido).length / objetivosHoje.length) * 100)
-                  : 0}%
-              </div>
-              <p className="text-sm text-gray-500 mt-1">Hoje</p>
-            </CardContent>
-          </Card>
-        </div>
+        ))}
+      </div>
 
         <AnimatePresence>
           {showForm && (

@@ -80,155 +80,57 @@ export default function Logistica() {
     return statusMatch && prioridadeMatch;
   });
 
+  const statsData = [
+    { label: "Total", value: atividades.length, color: "bg-[#0066b1]" },
+    { label: "Pendentes", value: atividades.filter(a => a.status === "pendente").length, color: "bg-amber-500" },
+    { label: "Andamento", value: atividades.filter(a => a.status === "em_andamento").length, color: "bg-cyan-600" },
+    { label: "Concluídas", value: atividades.filter(a => a.status === "concluida").length, color: "bg-green-600" },
+  ];
+
   return (
-    <div className="min-h-screen">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header */}
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
-        >
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 flex items-center gap-3">
-              <motion.div 
-                whileHover={{ rotate: 360 }}
-                transition={{ duration: 0.5 }}
-                className="p-3 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl shadow-2xl"
-              >
-                <Truck className="w-8 h-8 text-white" />
-              </motion.div>
-              Gestão de Logística
-            </h1>
-            <p className="text-gray-600 mt-2 text-lg flex items-center gap-2">
-              <Sparkles className="w-4 h-4" />
-              Organize e acompanhe suas atividades
-            </p>
+    <div className="space-y-4 md:space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center flex-shrink-0">
+            <Truck className="w-5 h-5 text-white" />
           </div>
-          <Button 
-            onClick={() => setShowForm(!showForm)}
-            className="bg-gradient-to-r from-[#001e50] to-[#0066b1] hover:from-[#001e50] hover:to-[#004d82]"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Nova Atividade
-          </Button>
-        </motion.div>
-
-        {/* Stats Grid */}
-        <div className="grid md:grid-cols-4 gap-6">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.1 }}
-            whileHover={{ scale: 1.05, y: -5 }}
-          >
-            <Card className="shadow-2xl border-0 bg-gradient-to-br from-blue-500 to-indigo-600 text-white hover:shadow-3xl transition-all">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-blue-100">Total</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-bold">{atividades.length}</div>
-                <p className="text-xs text-blue-100 mt-1">Atividades registradas</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            whileHover={{ scale: 1.05, y: -5 }}
-          >
-            <Card className="shadow-2xl border-0 bg-gradient-to-br from-yellow-500 to-orange-600 text-white hover:shadow-3xl transition-all">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-yellow-100 flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  Pendentes
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-bold">
-                  {atividades.filter(a => a.status === "pendente").length}
-                </div>
-                <p className="text-xs text-yellow-100 mt-1">Aguardando início</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3 }}
-            whileHover={{ scale: 1.05, y: -5 }}
-          >
-            <Card className="shadow-2xl border-0 bg-gradient-to-br from-cyan-500 to-blue-600 text-white hover:shadow-3xl transition-all">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-cyan-100">Em Andamento</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-bold">
-                  {atividades.filter(a => a.status === "em_andamento").length}
-                </div>
-                <p className="text-xs text-cyan-100 mt-1">Em execução</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.4 }}
-            whileHover={{ scale: 1.05, y: -5 }}
-          >
-            <Card className="shadow-2xl border-0 bg-gradient-to-br from-green-500 to-emerald-600 text-white hover:shadow-3xl transition-all">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-green-100 flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4" />
-                  Concluídas
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-bold">
-                  {atividades.filter(a => a.status === "concluida").length}
-                </div>
-                <p className="text-xs text-green-100 mt-1">Finalizadas</p>
-              </CardContent>
-            </Card>
-          </motion.div>
+          <div>
+            <h1 className="text-base font-bold text-slate-900">Gestão de Logística</h1>
+            <p className="text-xs text-slate-400 hidden sm:block">Organize e acompanhe atividades</p>
+          </div>
         </div>
-
-        <AnimatePresence>
-          {showForm && (
-            <AtividadeForm
-              atividade={editingAtividade}
-              onSubmit={handleSubmit}
-              onCancel={() => {
-                setShowForm(false);
-                setEditingAtividade(null);
-              }}
-            />
-          )}
-        </AnimatePresence>
-
-        <Card className="shadow-2xl border-0">
-          <CardHeader className="border-b bg-gradient-to-r from-orange-50 via-red-50 to-pink-50">
-            <CardTitle className="flex items-center gap-2">
-              <Filter className="w-5 h-5 text-orange-600" />
-              Filtros
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <AtividadesFilters onFilterChange={setFilters} />
-          </CardContent>
-        </Card>
-
-        <AtividadesList
-          atividades={filteredAtividades}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          currentUser={currentUser}
-        />
+        <Button onClick={() => setShowForm(!showForm)} className="bg-[#0066b1] hover:bg-[#004d82] h-9 px-3">
+          <Plus className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline text-sm">Nova Atividade</span>
+        </Button>
       </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-4 gap-2">
+        {statsData.map(({ label, value, color }) => (
+          <Card key={label} className={`border-0 text-white ${color}`}>
+            <CardContent className="p-3 text-center">
+              <div className="text-2xl font-bold">{value}</div>
+              <p className="text-[10px] opacity-80">{label}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <AnimatePresence>
+        {showForm && (
+          <AtividadeForm atividade={editingAtividade} onSubmit={handleSubmit}
+            onCancel={() => { setShowForm(false); setEditingAtividade(null); }} />
+        )}
+      </AnimatePresence>
+
+      <Card className="border border-slate-200">
+        <CardContent className="pt-4 pb-4 px-4">
+          <AtividadesFilters onFilterChange={setFilters} />
+        </CardContent>
+      </Card>
+
+      <AtividadesList atividades={filteredAtividades} onEdit={handleEdit} onDelete={handleDelete} currentUser={currentUser} />
     </div>
   );
 }
