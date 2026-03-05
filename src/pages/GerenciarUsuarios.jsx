@@ -42,8 +42,8 @@ export default function GerenciarUsuarios() {
       const user = await base44.auth.me();
       setCurrentUser(user);
       
-      // Verifica se é líder (permanente ou temporário)
-      const isLeader = user.cargo === "lider" || 
+      // Verifica se é líder (permanente ou temporário) OU admin do sistema
+      const isLeader = user.role === "admin" || user.cargo === "lider" || 
         (user.cargo_temporario === "lider" && 
          user.data_cargo_temporario && 
          new Date(user.data_cargo_temporario) >= new Date());
