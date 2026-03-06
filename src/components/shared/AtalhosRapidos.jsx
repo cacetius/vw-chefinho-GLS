@@ -107,19 +107,16 @@ export default function AtalhosRapidos() {
   ];
 
   return (
-    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-3">
+    <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-6 gap-2">
       {shortcuts.map((shortcut, index) => (
         <motion.div key={shortcut.title} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: index * 0.03 }}>
           <Link to={shortcut.url}>
-            <motion.div whileTap={{ scale: 0.93 }}
-              className="flex flex-col items-center text-center p-2.5 md:p-4 rounded-xl border border-slate-200 bg-white hover:shadow-md active:shadow-sm transition-all gap-1.5 md:gap-2.5">
-              <div className={`p-2.5 md:p-3 rounded-xl bg-gradient-to-br ${shortcut.gradient} shadow-md`}>
-                <shortcut.icon className="w-5 h-5 md:w-6 md:h-6 text-white" />
+            <motion.div whileTap={{ scale: 0.92 }}
+              className="flex flex-col items-center text-center p-2 md:p-3.5 rounded-2xl border border-slate-200 bg-white hover:shadow-md active:shadow-none transition-all gap-1 md:gap-2 touch-manipulation">
+              <div className={`p-2 md:p-2.5 rounded-xl bg-gradient-to-br ${shortcut.gradient} shadow-sm`}>
+                <shortcut.icon className="w-4 h-4 md:w-5 md:h-5 text-white" />
               </div>
-              <div>
-                <p className="font-semibold text-slate-800 text-[11px] md:text-xs leading-tight">{shortcut.title}</p>
-                <p className="text-[10px] text-slate-400 leading-tight hidden md:block">{shortcut.description}</p>
-              </div>
+              <p className="font-semibold text-slate-700 text-[10px] md:text-[11px] leading-tight">{shortcut.title}</p>
             </motion.div>
           </Link>
         </motion.div>
