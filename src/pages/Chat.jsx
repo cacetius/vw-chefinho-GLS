@@ -347,7 +347,7 @@ export default function Chat() {
                       {!isEditing && (isMe || isLider) && (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <button className="self-center p-1.5 rounded-lg opacity-0 group-hover:opacity-100 active:opacity-100 focus:opacity-100 transition-opacity hover:bg-slate-100 flex-shrink-0 touch-manipulation">
+                            <button className="self-center p-1.5 rounded-lg md:opacity-0 md:group-hover:opacity-100 active:opacity-100 focus:opacity-100 transition-opacity hover:bg-slate-100 flex-shrink-0 touch-manipulation">
                               <MoreVertical className="w-4 h-4 text-slate-400" />
                             </button>
                           </DropdownMenuTrigger>
