@@ -290,27 +290,27 @@ export default function Layout({ children, currentPageName }) {
       {/* ══════════════ MAIN CONTENT ══════════════ */}
       <main className="flex-1 lg:ml-60 flex flex-col min-h-screen">
         {/* Top header */}
-        <header className="sticky top-0 z-20 bg-white border-b border-slate-200 px-3 md:px-5 py-2.5 flex items-center gap-3">
+        <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-slate-200 px-3 md:px-5 py-2 flex items-center gap-2.5">
           <button
-            className="lg:hidden p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+            className="lg:hidden p-2 rounded-xl hover:bg-slate-100 transition-colors active:scale-95"
             onClick={() => setDrawerOpen(true)}
           >
             <Menu className="w-5 h-5 text-slate-700" />
           </button>
           <div className="flex-1 min-w-0">
-            <h1 className="text-sm md:text-base font-semibold text-slate-900 truncate">{currentPageName}</h1>
+            <h1 className="text-sm font-bold text-slate-900 truncate leading-tight">{currentPageName}</h1>
             {(currentUser.equipe || currentUser.turno) && (
-              <p className="text-[10px] text-slate-400 leading-tight hidden sm:block">
-                {[currentUser.equipe && `Equipe: ${currentUser.equipe}`, currentUser.turno && `Turno: ${currentUser.turno}`].filter(Boolean).join(' • ')}
+              <p className="text-[10px] text-slate-400 leading-tight">
+                {[currentUser.equipe, currentUser.turno].filter(Boolean).join(' • ')}
               </p>
             )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             {currentUser.cargo_temporario === "lider" && (
-              <Badge className="bg-amber-500 text-white text-[10px] hidden sm:flex">Líder Temp.</Badge>
+              <Badge className="bg-amber-500 text-white text-[10px] px-1.5 py-0.5">Temp.</Badge>
             )}
-            <Link to={createPageUrl("Perfil")} className="lg:hidden">
-              <Avatar className="w-8 h-8">
+            <Link to={createPageUrl("Perfil")}>
+              <Avatar className="w-8 h-8 ring-2 ring-slate-100 hover:ring-[#0066b1] transition-all">
                 {currentUser.foto_perfil
                   ? <AvatarImage src={currentUser.foto_perfil} />
                   : <AvatarFallback className="bg-[#0066b1] text-white text-xs font-bold">{displayName?.charAt(0)}</AvatarFallback>
