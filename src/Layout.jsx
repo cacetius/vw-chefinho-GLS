@@ -6,7 +6,7 @@ import {
   LayoutDashboard, Truck, ShoppingCart, Users, MessageSquare,
   ClipboardList, Shield, LogOut, Bell, Target, PhoneCall,
   Menu, X, User, FileText, Calendar, Star, Lightbulb,
-  ChevronDown, ChevronRight, Car, Grid, Home, MoreHorizontal
+  ChevronDown, ChevronRight, Car, Grid, Home, MoreHorizontal, BookOpen
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -46,6 +46,7 @@ const NAV_SECTIONS = [
     items: [
       { title: "Calendário", url: "Calendario", icon: Calendar, roles: ["monitor", "lider"] },
       { title: "Documentos", url: "Documentos", icon: FileText, roles: ["monitor", "lider"] },
+      { title: "Diálogos de Segurança", url: "DialogoSeguranca", icon: BookOpen, roles: ["monitor", "lider"] },
       { title: "Emergências", url: "Emergencias", icon: PhoneCall, roles: ["monitor", "lider"] },
     ]
   },
