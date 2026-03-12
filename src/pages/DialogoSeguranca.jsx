@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
@@ -32,7 +32,7 @@ export default function DialogoSeguranca() {
   const [aiError, setAiError] = useState(null);
   const qc = useQueryClient();
 
-  React.useEffect(() => { base44.auth.me().then(setCurrentUser); }, []);
+  useEffect(() => { base44.auth.me().then(setCurrentUser); }, []);
 
   const { data: dialogos = [], isLoading } = useQuery({
     queryKey: ["dialogos"],
