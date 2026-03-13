@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Send, Loader2, Bot, User, Trash2 } from "lucide-react";
+import { Sparkles, Send, Loader2, User, Trash2, RefreshCw } from "lucide-react";
 
 const SUGESTOES = [
   "O que é um DDS e como conduzir?",
@@ -12,15 +12,20 @@ const SUGESTOES = [
   "Como engajar a equipe nos diálogos de segurança?",
   "Quais são os principais riscos em ambiente industrial?",
   "Como fazer uma análise de risco rápida (APR)?",
+  "Explique a NR-12 de forma simples",
+  "Como motivar minha equipe na produção?",
 ];
 
-export default function AssistenteIA() {
-  const [mensagens, setMensagens] = useState([
-    {
-      role: "assistant",
-      texto: "Olá! Sou seu assistente de segurança do trabalho. Posso tirar dúvidas sobre diálogos de segurança, EPIs, procedimentos, legislação NR, análise de riscos e muito mais. Como posso ajudar? 👷",
-    },
-  ]);
+const MENSAGEM_INICIAL = "Olá! Sou o **Chefinho** 👷‍♂️, seu assistente virtual especializado em segurança do trabalho e gestão industrial.\n\nPosso te ajudar com diálogos de segurança, EPIs, normas regulamentadoras (NRs), análise de riscos, gestão de equipes e muito mais. Como posso te ajudar hoje?";
+
+function formatarTexto(texto) {
+  return texto
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br/>');
+}
+
+export default function AssistenteIA({ compact = false }) {
+  const [mensagens, setMensagens] = useState([{ role: "assistant", texto: MENSAGEM_INICIAL }]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef(null);
@@ -31,25 +36,27 @@ export default function AssistenteIA() {
 
   const enviar = async (texto) => {
     const pergunta = texto || input.trim();
-    if (!pergunta) return;
+    if (!pergunta || loading) return;
     setInput("");
     setMensagens(prev => [...prev, { role: "user", texto: pergunta }]);
     setLoading(true);
 
     const historico = mensagens
-      .slice(-6)
-      .map(m => `${m.role === "user" ? "Usuário" : "Assistente"}: ${m.texto}`)
+      .slice(-8)
+      .map(m => `${m.role === "user" ? "Usuário" : "Chefinho"}: ${m.texto}`)
       .join("\n");
 
     const resposta = await base44.integrations.Core.InvokeLLM({
-      prompt: `Você é um especialista em segurança do trabalho industrial, focado em ambiente de fábrica/linha de produção. Responda de forma clara, prática e objetiva em português brasileiro. Use linguagem acessível para operadores e monitores de produção.
+      prompt: `Você é o Chefinho, um assistente virtual simpático, direto e experiente especializado em segurança do trabalho e gestão industrial de linha de produção automotiva (estilo Volkswagen). 
 
-Histórico recente:
+Seu tom é profissional mas acessível, como um líder experiente que orienta a equipe. Use linguagem clara para operadores e monitores. Quando relevante, cite NRs. Use emojis com moderação. Máximo 180 palavras por resposta.
+
+Histórico:
 ${historico}
 
-Nova pergunta: ${pergunta}
+Pergunta: ${pergunta}
 
-Responda de forma direta e útil. Se relevante, cite normas (NR's) ou boas práticas. Máximo 150 palavras.`,
+Responda de forma direta, prática e útil.`,
     });
 
     setMensagens(prev => [...prev, { role: "assistant", texto: resposta }]);
@@ -60,57 +67,64 @@ Responda de forma direta e útil. Se relevante, cite normas (NR's) ou boas prát
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); enviar(); }
   };
 
+  const reiniciar = () => setMensagens([{ role: "assistant", texto: MENSAGEM_INICIAL }]);
+
   return (
-    <div className="flex flex-col h-full bg-white rounded-2xl border border-slate-200 overflow-hidden" style={{ minHeight: 420 }}>
+    <div className={`flex flex-col bg-white rounded-2xl border border-slate-200 overflow-hidden ${compact ? "" : "shadow-sm"}`}
+      style={{ minHeight: compact ? 360 : 480 }}>
+      
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-[#0066b1] to-purple-700 text-white">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-            <Bot className="w-4 h-4" />
+      <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-[#001e50] to-[#0066b1] text-white flex-shrink-0">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 bg-white/15 rounded-xl flex items-center justify-center border border-white/20">
+            <span className="text-xl">👷</span>
           </div>
           <div>
-            <p className="text-sm font-bold">Assistente de Segurança</p>
-            <p className="text-[10px] text-white/70">IA especializada em segurança do trabalho</p>
+            <p className="text-sm font-bold tracking-tight">Chefinho</p>
+            <div className="flex items-center gap-1">
+              <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
+              <p className="text-[10px] text-white/70">Assistente IA · Segurança do Trabalho</p>
+            </div>
           </div>
         </div>
-        <button onClick={() => setMensagens([{ role: "assistant", texto: "Conversa reiniciada! Como posso ajudar? 👷" }])}
-          className="p-1.5 hover:bg-white/10 rounded-lg transition-colors" title="Limpar conversa">
-          <Trash2 className="w-4 h-4 text-white/70" />
+        <button onClick={reiniciar} title="Nova conversa"
+          className="p-1.5 hover:bg-white/10 rounded-lg transition-colors group">
+          <RefreshCw className="w-4 h-4 text-white/60 group-hover:text-white transition-colors" />
         </button>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-3">
+      <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-slate-50/50">
         <AnimatePresence initial={false}>
           {mensagens.map((m, i) => (
             <motion.div key={i}
-              initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}
               className={`flex gap-2 ${m.role === "user" ? "flex-row-reverse" : ""}`}>
-              <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${
-                m.role === "assistant" ? "bg-gradient-to-br from-[#0066b1] to-purple-700" : "bg-slate-200"
+              <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm ${
+                m.role === "assistant"
+                  ? "bg-gradient-to-br from-[#001e50] to-[#0066b1]"
+                  : "bg-slate-300"
               }`}>
-                {m.role === "assistant"
-                  ? <Sparkles className="w-3.5 h-3.5 text-white" />
-                  : <User className="w-3.5 h-3.5 text-slate-600" />}
+                {m.role === "assistant" ? <span className="text-sm">👷</span> : <User className="w-3.5 h-3.5 text-slate-600" />}
               </div>
-              <div className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${
+              <div className={`max-w-[82%] px-3 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm ${
                 m.role === "user"
                   ? "bg-[#0066b1] text-white rounded-tr-sm"
-                  : "bg-slate-100 text-slate-800 rounded-tl-sm"
-              }`}>
-                {m.texto}
-              </div>
+                  : "bg-white text-slate-800 rounded-tl-sm border border-slate-200"
+              }`}
+                dangerouslySetInnerHTML={{ __html: formatarTexto(m.texto) }}
+              />
             </motion.div>
           ))}
           {loading && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-2">
-              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#0066b1] to-purple-700 flex items-center justify-center flex-shrink-0">
-                <Sparkles className="w-3.5 h-3.5 text-white" />
+              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#001e50] to-[#0066b1] flex items-center justify-center flex-shrink-0 shadow-sm">
+                <span className="text-sm">👷</span>
               </div>
-              <div className="bg-slate-100 rounded-2xl rounded-tl-sm px-4 py-3 flex gap-1 items-center">
+              <div className="bg-white rounded-2xl rounded-tl-sm px-4 py-3 flex gap-1 items-center border border-slate-200 shadow-sm">
                 {[0, 1, 2].map(i => (
-                  <motion.div key={i} className="w-1.5 h-1.5 bg-slate-400 rounded-full"
-                    animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 0.7, delay: i * 0.2 }} />
+                  <motion.div key={i} className="w-1.5 h-1.5 bg-[#0066b1] rounded-full"
+                    animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.7, delay: i * 0.18 }} />
                 ))}
               </div>
             </motion.div>
@@ -121,12 +135,12 @@ Responda de forma direta e útil. Se relevante, cite normas (NR's) ou boas prát
 
       {/* Sugestões */}
       {mensagens.length <= 1 && (
-        <div className="px-3 pb-2">
-          <p className="text-[10px] text-slate-400 mb-1.5 font-medium">SUGESTÕES</p>
+        <div className="px-3 py-2 border-t border-slate-100 bg-white flex-shrink-0">
+          <p className="text-[10px] text-slate-400 mb-1.5 font-semibold uppercase tracking-wide">Perguntas frequentes</p>
           <div className="flex flex-wrap gap-1.5">
             {SUGESTOES.map((s, i) => (
               <button key={i} onClick={() => enviar(s)}
-                className="text-[11px] px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full border border-blue-100 hover:bg-blue-100 transition-colors active:scale-95">
+                className="text-[11px] px-2.5 py-1 bg-blue-50 text-[#0066b1] rounded-full border border-blue-100 hover:bg-[#0066b1] hover:text-white transition-all active:scale-95">
                 {s}
               </button>
             ))}
@@ -135,18 +149,18 @@ Responda de forma direta e útil. Se relevante, cite normas (NR's) ou boas prát
       )}
 
       {/* Input */}
-      <div className="p-3 border-t border-slate-100 flex gap-2 items-end">
+      <div className="p-3 border-t border-slate-100 bg-white flex gap-2 items-end flex-shrink-0">
         <Textarea
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Pergunte sobre segurança do trabalho..."
-          className="flex-1 min-h-[40px] max-h-24 text-sm resize-none rounded-xl border-slate-200 focus:border-[#0066b1]"
+          placeholder="Pergunte ao Chefinho..."
+          className="flex-1 min-h-[40px] max-h-28 text-sm resize-none rounded-xl border-slate-200 focus:border-[#0066b1] bg-slate-50"
           rows={1}
           disabled={loading}
         />
         <Button onClick={() => enviar()} disabled={!input.trim() || loading}
-          className="h-10 w-10 p-0 rounded-xl bg-[#0066b1] hover:bg-[#0055a0] flex-shrink-0">
+          className="h-10 w-10 p-0 rounded-xl bg-[#0066b1] hover:bg-[#001e50] flex-shrink-0 shadow-sm transition-all active:scale-95">
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
         </Button>
       </div>
