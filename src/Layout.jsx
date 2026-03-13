@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import ChefinhoFloat from "@/components/shared/ChefinhoFloat";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
