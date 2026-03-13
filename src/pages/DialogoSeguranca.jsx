@@ -116,120 +116,129 @@ O primeiro slide deve ser uma introdução e o último deve ser uma conclusão/c
   return (
     <div className="space-y-4 max-w-2xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-bold text-slate-900">Diálogos de Segurança</h2>
-          <p className="text-xs text-slate-500">Adicione documentos, resuma com IA e apresente com voz</p>
-        </div>
-        <Button onClick={() => { setShowForm(true); setEditing(null); }}
-          className="h-9 text-sm bg-[#0066b1] hover:bg-[#0055a0] shadow-sm">
-          <Plus className="w-4 h-4 mr-1.5" /> Novo
-        </Button>
+      <div>
+        <h2 className="text-lg font-bold text-slate-900">Diálogos de Segurança</h2>
+        <p className="text-xs text-slate-500">Gerencie diálogos, apresente com IA e tire dúvidas</p>
       </div>
 
-      {/* Form */}
-      <AnimatePresence>
-        {(showForm || editing) && (
-          <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
-            <DialogoForm
-              dialogo={editing}
-              currentUser={currentUser}
-              onSave={handleSave}
-              onCancel={() => { setShowForm(false); setEditing(null); }}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <Tabs defaultValue="dialogos">
+        <TabsList className="w-full grid grid-cols-2 mb-2">
+          <TabsTrigger value="dialogos" className="text-sm gap-1.5"><FileText className="w-3.5 h-3.5" />Diálogos</TabsTrigger>
+          <TabsTrigger value="assistente" className="text-sm gap-1.5"><Bot className="w-3.5 h-3.5" />Assistente IA</TabsTrigger>
+        </TabsList>
 
-      {/* AI error */}
-      {aiError && (
-        <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
-          <AlertCircle className="w-4 h-4 flex-shrink-0" /> {aiError}
-        </div>
-      )}
+        {/* ── ABA DIÁLOGOS ── */}
+        <TabsContent value="dialogos" className="space-y-3 mt-0">
+          <div className="flex justify-end">
+            <Button onClick={() => { setShowForm(true); setEditing(null); }}
+              className="h-9 text-sm bg-[#0066b1] hover:bg-[#0055a0] shadow-sm">
+              <Plus className="w-4 h-4 mr-1.5" /> Novo Diálogo
+            </Button>
+          </div>
 
-      {/* List */}
-      {isLoading ? (
-        <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-slate-400" /></div>
-      ) : dialogos.length === 0 ? (
-        <div className="flex flex-col items-center py-16 text-slate-400">
-          <FileText className="w-12 h-12 mb-3 opacity-30" />
-          <p className="text-sm font-medium">Nenhum diálogo cadastrado</p>
-          <p className="text-xs mt-1">Clique em "Novo" para adicionar</p>
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {dialogos.map((d, i) => (
-            <motion.div key={d.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-              <Card className="border border-slate-200 hover:shadow-md transition-all">
-                <CardContent className="p-3">
-                  <div className="flex gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-[#0066b1] to-blue-700 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
-                      <FileText className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <h3 className="font-bold text-sm text-slate-900 leading-tight">{d.titulo}</h3>
-                        <div className="flex gap-1 flex-shrink-0">
-                          <button onClick={() => { setEditing(d); setShowForm(false); }}
-                            className="p-1.5 rounded-lg hover:bg-blue-50 text-slate-400 hover:text-blue-600 active:scale-90 transition-all">
-                            <Pencil className="w-3.5 h-3.5" />
-                          </button>
-                          <button onClick={() => deleteMut.mutate(d.id)}
-                            className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 active:scale-90 transition-all">
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+          <AnimatePresence>
+            {(showForm || editing) && (
+              <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
+                <DialogoForm
+                  dialogo={editing}
+                  currentUser={currentUser}
+                  onSave={handleSave}
+                  onCancel={() => { setShowForm(false); setEditing(null); }}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {aiError && (
+            <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" /> {aiError}
+            </div>
+          )}
+
+          {isLoading ? (
+            <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-slate-400" /></div>
+          ) : dialogos.length === 0 ? (
+            <div className="flex flex-col items-center py-16 text-slate-400">
+              <FileText className="w-12 h-12 mb-3 opacity-30" />
+              <p className="text-sm font-medium">Nenhum diálogo cadastrado</p>
+              <p className="text-xs mt-1">Clique em "Novo Diálogo" para adicionar</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {dialogos.map((d, i) => (
+                <motion.div key={d.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+                  <Card className="border border-slate-200 hover:shadow-md transition-all">
+                    <CardContent className="p-3">
+                      <div className="flex gap-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-[#0066b1] to-blue-700 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
+                          <FileText className="w-5 h-5 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <h3 className="font-bold text-sm text-slate-900 leading-tight">{d.titulo}</h3>
+                            <div className="flex gap-1 flex-shrink-0">
+                              <button onClick={() => { setEditing(d); setShowForm(false); }}
+                                className="p-1.5 rounded-lg hover:bg-blue-50 text-slate-400 hover:text-blue-600 active:scale-90 transition-all">
+                                <Pencil className="w-3.5 h-3.5" />
+                              </button>
+                              <button onClick={() => deleteMut.mutate(d.id)}
+                                className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 active:scale-90 transition-all">
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            <Badge className={`text-[10px] px-1.5 py-0.5 ${TIPO_COLORS[d.tipo]}`}>{TIPO_LABELS[d.tipo]}</Badge>
+                            <Badge className={`text-[10px] px-1.5 py-0.5 ${STATUS_COLORS[d.status]}`}>{d.status}</Badge>
+                            {d.equipe && <Badge variant="outline" className="text-[10px] px-1.5 py-0.5"><Users className="w-2.5 h-2.5 mr-0.5" />{d.equipe}</Badge>}
+                            {d.data_dialogo && <Badge variant="outline" className="text-[10px] px-1.5 py-0.5"><Calendar className="w-2.5 h-2.5 mr-0.5" />{new Date(d.data_dialogo).toLocaleDateString("pt-BR")}</Badge>}
+                          </div>
+                          {d.resumo_ia && (
+                            <p className="text-xs text-slate-500 mt-1.5 line-clamp-2 bg-blue-50 rounded-lg px-2 py-1">
+                              <Sparkles className="w-3 h-3 inline mr-1 text-blue-500" />{d.resumo_ia}
+                            </p>
+                          )}
+                          <div className="flex gap-2 mt-2.5">
+                            {d.status === "rascunho" || !d.slides_ia?.length ? (
+                              <Button size="sm" variant="outline"
+                                disabled={processingId === d.id}
+                                onClick={() => processarComIA(d)}
+                                className="h-7 text-xs border-blue-200 text-blue-700 hover:bg-blue-50 flex-1">
+                                {processingId === d.id
+                                  ? <><Loader2 className="w-3 h-3 mr-1 animate-spin" />Processando IA...</>
+                                  : <><Sparkles className="w-3 h-3 mr-1" />Resumir com IA</>}
+                              </Button>
+                            ) : (
+                              <Button size="sm"
+                                onClick={() => handlePresent(d)}
+                                className="h-7 text-xs bg-gradient-to-r from-[#0066b1] to-purple-600 hover:from-[#0055a0] hover:to-purple-700 text-white flex-1 shadow-sm">
+                                <Play className="w-3 h-3 mr-1" />Apresentar com Voz
+                              </Button>
+                            )}
+                            {d.slides_ia?.length > 0 && (
+                              <Button size="sm" variant="outline"
+                                disabled={processingId === d.id}
+                                onClick={() => processarComIA(d)}
+                                className="h-7 text-xs border-slate-200 text-slate-500 hover:bg-slate-50">
+                                {processingId === d.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </TabsContent>
 
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        <Badge className={`text-[10px] px-1.5 py-0.5 ${TIPO_COLORS[d.tipo]}`}>{TIPO_LABELS[d.tipo]}</Badge>
-                        <Badge className={`text-[10px] px-1.5 py-0.5 ${STATUS_COLORS[d.status]}`}>{d.status}</Badge>
-                        {d.equipe && <Badge variant="outline" className="text-[10px] px-1.5 py-0.5"><Users className="w-2.5 h-2.5 mr-0.5" />{d.equipe}</Badge>}
-                        {d.data_dialogo && <Badge variant="outline" className="text-[10px] px-1.5 py-0.5"><Calendar className="w-2.5 h-2.5 mr-0.5" />{new Date(d.data_dialogo).toLocaleDateString("pt-BR")}</Badge>}
-                      </div>
-
-                      {d.resumo_ia && (
-                        <p className="text-xs text-slate-500 mt-1.5 line-clamp-2 bg-blue-50 rounded-lg px-2 py-1">
-                          <Sparkles className="w-3 h-3 inline mr-1 text-blue-500" />{d.resumo_ia}
-                        </p>
-                      )}
-
-                      {/* Action buttons */}
-                      <div className="flex gap-2 mt-2.5">
-                        {d.status === "rascunho" || !d.slides_ia?.length ? (
-                          <Button size="sm" variant="outline"
-                            disabled={processingId === d.id}
-                            onClick={() => processarComIA(d)}
-                            className="h-7 text-xs border-blue-200 text-blue-700 hover:bg-blue-50 flex-1">
-                            {processingId === d.id
-                              ? <><Loader2 className="w-3 h-3 mr-1 animate-spin" />Processando IA...</>
-                              : <><Sparkles className="w-3 h-3 mr-1" />Resumir com IA</>}
-                          </Button>
-                        ) : (
-                          <Button size="sm"
-                            onClick={() => handlePresent(d)}
-                            className="h-7 text-xs bg-gradient-to-r from-[#0066b1] to-purple-600 hover:from-[#0055a0] hover:to-purple-700 text-white flex-1 shadow-sm">
-                            <Play className="w-3 h-3 mr-1" />Apresentar com Voz
-                          </Button>
-                        )}
-                        {d.slides_ia?.length > 0 && (
-                          <Button size="sm" variant="outline"
-                            disabled={processingId === d.id}
-                            onClick={() => processarComIA(d)}
-                            className="h-7 text-xs border-slate-200 text-slate-500 hover:bg-slate-50">
-                            {processingId === d.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
-      )}
+        {/* ── ABA ASSISTENTE IA ── */}
+        <TabsContent value="assistente" className="mt-0">
+          <AssistenteIA />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
