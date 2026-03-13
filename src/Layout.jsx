@@ -327,9 +327,6 @@ export default function Layout({ children, currentPageName }) {
         </div>
       </main>
 
-      {/* ══════════════ CHEFINHO FLOAT ══════════════ */}
-      <ChefinhoFloat />
-
       {/* ══════════════ MOBILE BOTTOM NAV ══════════════ */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-200 safe-area-inset-bottom">
         <div className="flex items-stretch h-16">
