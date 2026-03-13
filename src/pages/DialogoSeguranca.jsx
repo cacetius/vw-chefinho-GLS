@@ -5,9 +5,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Plus, Sparkles, Play, Pencil, Trash2, FileText, Calendar, Users, Loader2, AlertCircle } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Plus, Sparkles, Play, Pencil, Trash2, FileText, Calendar, Users, Loader2, AlertCircle, Bot } from "lucide-react";
 import DialogoForm from "@/components/dialogo/DialogoForm";
 import DialogoApresentacao from "@/components/dialogo/DialogoApresentacao";
+import AssistenteIA from "@/components/dialogo/AssistenteIA";
 
 const TIPO_LABELS = {
   dds: "DDS", reuniao_seguranca: "Reunião Seg.", treinamento: "Treinamento",
