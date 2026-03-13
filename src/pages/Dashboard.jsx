@@ -113,22 +113,31 @@ export default function Dashboard() {
       <motion.div
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-r from-[#001e50] to-[#0066b1] rounded-xl p-4 text-white"
+        className="bg-gradient-to-r from-[#001e50] to-[#0066b1] rounded-2xl p-4 text-white overflow-hidden relative"
       >
-        <div className="flex items-center justify-between gap-3">
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 text-7xl opacity-10 select-none">👷</div>
+        <div className="flex items-center justify-between gap-3 relative">
           <div>
-            <h1 className="text-lg font-bold leading-tight">
-              Olá, {currentUser?.nome_exibicao || currentUser?.full_name?.split(' ')[0]} 👋
+            <p className="text-blue-200 text-[11px] font-medium">Bem-vindo ao VW Chefinho</p>
+            <h1 className="text-xl font-bold leading-tight mt-0.5">
+              Olá, {currentUser?.nome_exibicao || currentUser?.full_name?.split(' ')[0]}! 👋
             </h1>
-            <p className="text-blue-200 text-xs mt-0.5">Resumo de atividades</p>
+            <p className="text-blue-200 text-xs mt-1 opacity-80">
+              {new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })}
+            </p>
           </div>
-          <div className="flex flex-col items-end gap-1">
+          <div className="flex flex-col items-end gap-1.5">
             <Badge className="bg-white/15 text-white border-white/20 text-[10px] px-2 py-0.5">
-              {currentUser?.cargo === 'lider' ? 'Líder' : 'Monitor'}
+              {currentUser?.cargo === 'lider' ? '👔 Líder' : '👷 Monitor'}
             </Badge>
             {currentUser?.equipe && (
               <Badge className="bg-white/15 text-white border-white/20 text-[10px] px-2 py-0.5">
                 {currentUser.equipe}
+              </Badge>
+            )}
+            {currentUser?.turno && (
+              <Badge className="bg-white/15 text-white border-white/20 text-[10px] px-2 py-0.5">
+                Turno {currentUser.turno}
               </Badge>
             )}
           </div>

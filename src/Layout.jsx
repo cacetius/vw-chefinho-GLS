@@ -8,6 +8,7 @@ import {
   Menu, X, User, FileText, Calendar, Star, Lightbulb,
   ChevronDown, ChevronRight, Car, Grid, Home, MoreHorizontal, BookOpen
 } from "lucide-react";
+import ChefinhoFloat from "@/components/shared/ChefinhoFloat";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
