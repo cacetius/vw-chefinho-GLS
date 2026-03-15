@@ -38,9 +38,16 @@ export default function Dashboard() {
       const user = await base44.auth.me();
       if (!user.cargo) {
         navigate(createPageUrl("Registro"));
+        setLoading(false);
         return;
       }
       setCurrentUser(user);
+      // Mostra tutorial se for primeira visita
+      const tutorialVisto = localStorage.getItem("vw_tutorial_visto");
+      if (!tutorialVisto) {
+        setShowTutorial(true);
+        localStorage.setItem("vw_tutorial_visto", "1");
+      }
     } catch (error) {
       console.error("Erro ao carregar usuário:", error);
       navigate(createPageUrl("Registro"));
