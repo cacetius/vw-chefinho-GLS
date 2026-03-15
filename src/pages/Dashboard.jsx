@@ -20,11 +20,14 @@ import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import AtalhosRapidos from "../components/shared/AtalhosRapidos";
 import HistoricoAtividades from "../components/shared/HistoricoAtividades";
+import TutorialApp from "../components/shared/TutorialApp";
+import { AnimatePresence } from "framer-motion";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showTutorial, setShowTutorial] = useState(false);
 
   useEffect(() => {
     loadUser();
