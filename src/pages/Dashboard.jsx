@@ -2,67 +2,37 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
-  Truck,
-  ShoppingCart,
-  Users,
-  MessageSquare,
-  TrendingUp,
-  CheckCircle2,
-  AlertCircle,
-  Activity,
-  Sparkles,
-  Lightbulb
+  Truck, ShoppingCart, Users, MessageSquare,
+  TrendingUp, CheckCircle2, AlertCircle, Activity,
+  Lightbulb, ArrowRight, Bell, Target, Car
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import AtalhosRapidos from "../components/shared/AtalhosRapidos";
 import HistoricoAtividades from "../components/shared/HistoricoAtividades";
-import TutorialApp from "../components/shared/TutorialApp";
-import { AnimatePresence } from "framer-motion";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showTutorial, setShowTutorial] = useState(false);
 
-  useEffect(() => {
-    loadUser();
-  }, []);
+  useEffect(() => { loadUser(); }, []);
 
   const loadUser = async () => {
     try {
       const user = await base44.auth.me();
-      if (!user.cargo) {
-        navigate(createPageUrl("Registro"));
-        setLoading(false);
-        return;
-      }
+      if (!user.cargo) { navigate(createPageUrl("Registro")); setLoading(false); return; }
       setCurrentUser(user);
-      // Mostra tutorial se for primeira visita
-      const tutorialVisto = localStorage.getItem("vw_tutorial_visto");
-      if (!tutorialVisto) {
-        setShowTutorial(true);
-        localStorage.setItem("vw_tutorial_visto", "1");
-      }
-    } catch (error) {
-      console.error("Erro ao carregar usuário:", error);
+    } catch {
       navigate(createPageUrl("Registro"));
     }
     setLoading(false);
   };
 
-  const { data: stats = {
-    atividadesLogistica: 0,
-    pedidosEPI: 0,
-    versatilidade: 0,
-    mensagens: 0,
-    objetivosConcluidos: 0,
-    avisosImportantes: 0
-  }} = useQuery({
+  const { data: stats = {} } = useQuery({
     queryKey: ["dashboard-stats"],
     queryFn: async () => {
       const [atividades, pedidos, versatilidade, mensagens, objetivos, avisos] = await Promise.all([
@@ -73,14 +43,14 @@ export default function Dashboard() {
         base44.entities.Objetivo.list(),
         base44.entities.Aviso.list()
       ]);
-
       return {
-        atividadesLogistica: atividades.length,
-        pedidosEPI: pedidos.filter(p => p.status === "pendente").length,
-        versatilidade: versatilidade.length,
+        logistica: atividades.filter(a => a.status !== "concluida").length,
+        epiPendentes: pedidos.filter(p => p.status === "pendente").length,
+        colaboradores: versatilidade.length,
         mensagens: mensagens.length,
         objetivosConcluidos: objetivos.filter(o => o.concluido).length,
-        avisosImportantes: avisos.filter(a => a.prioridade === "urgente" || a.prioridade === "importante").length
+        objetivosTotal: objetivos.length,
+        urgentes: avisos.filter(a => a.prioridade === "urgente" || a.prioridade === "importante").length,
       };
     },
     enabled: !!currentUser,
@@ -89,126 +59,157 @@ export default function Dashboard() {
 
   if (loading || !currentUser) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-        <motion.div 
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="flex flex-col items-center gap-4"
-        >
-          <div className="relative">
-            <div className="animate-spin rounded-full h-20 w-20 border-4 border-transparent bg-gradient-to-r from-blue-500 to-purple-600" style={{ borderTopColor: 'transparent' }}></div>
-            <div className="absolute top-2 left-2 rounded-full h-16 w-16 bg-white"></div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-purple-600 animate-pulse" />
-            <p className="text-gray-700 font-semibold text-lg">Carregando dashboard...</p>
-          </div>
-        </motion.div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-3 border-slate-200 border-t-[#0066b1] rounded-full animate-spin border-[3px]"></div>
+          <p className="text-slate-500 text-sm font-medium">Carregando...</p>
+        </div>
       </div>
     );
   }
 
+  const firstName = (currentUser?.nome_exibicao || currentUser?.full_name || "").split(" ")[0];
+
   const STATS = [
-    { label: "Logística", value: stats.atividadesLogistica, icon: Truck, bg: "bg-blue-50", color: "text-[#0066b1]" },
-    { label: "EPI", value: stats.pedidosEPI, icon: ShoppingCart, bg: "bg-green-50", color: "text-green-600" },
-    { label: "Colaboradores", value: stats.versatilidade, icon: Users, bg: "bg-purple-50", color: "text-purple-600" },
-    { label: "Mensagens", value: stats.mensagens, icon: MessageSquare, bg: "bg-orange-50", color: "text-orange-600" },
-    { label: "Objetivos", value: stats.objetivosConcluidos, icon: CheckCircle2, bg: "bg-cyan-50", color: "text-cyan-600" },
-    { label: "Urgentes", value: stats.avisosImportantes, icon: AlertCircle, bg: "bg-red-50", color: "text-red-600" },
+    { label: "Logística ativa", value: stats.logistica ?? 0, icon: Truck, color: "text-blue-600", bg: "bg-blue-50", url: "Logistica" },
+    { label: "EPI pendentes", value: stats.epiPendentes ?? 0, icon: ShoppingCart, color: "text-amber-600", bg: "bg-amber-50", url: "PedidosEPI" },
+    { label: "Colaboradores", value: stats.colaboradores ?? 0, icon: Users, color: "text-purple-600", bg: "bg-purple-50", url: "Versatilidade" },
+    { label: "Mensagens", value: stats.mensagens ?? 0, icon: MessageSquare, color: "text-cyan-600", bg: "bg-cyan-50", url: "Chat" },
+    { label: "Objetivos ok", value: stats.objetivosConcluidos ?? 0, icon: CheckCircle2, color: "text-green-600", bg: "bg-green-50", url: "Objetivos" },
+    { label: "Urgentes", value: stats.urgentes ?? 0, icon: AlertCircle, color: "text-red-600", bg: "bg-red-50", url: "Avisos" },
   ];
 
+  const objetivosPercent = stats.objetivosTotal > 0
+    ? Math.round((stats.objetivosConcluidos / stats.objetivosTotal) * 100)
+    : 0;
+
   return (
-    <div className="space-y-4 md:space-y-6">
-      <AnimatePresence>
-        {showTutorial && <TutorialApp onClose={() => setShowTutorial(false)} />}
-      </AnimatePresence>
+    <div className="space-y-4 md:space-y-5">
 
       {/* Welcome Banner */}
       <motion.div
-        initial={{ opacity: 0, y: -12 }}
+        initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-r from-[#001e50] to-[#0066b1] rounded-2xl p-4 text-white overflow-hidden relative"
+        className="bg-gradient-to-r from-[#001e50] to-[#0066b1] rounded-2xl p-4 md:p-5 text-white overflow-hidden relative"
       >
-        <div className="absolute right-4 top-1/2 -translate-y-1/2 text-7xl opacity-10 select-none">👷</div>
-        <div className="flex items-center justify-between gap-3 relative">
+        <div className="absolute right-0 top-0 bottom-0 w-32 opacity-5 select-none text-[100px] leading-none overflow-hidden">🏭</div>
+        <div className="relative flex items-center justify-between gap-3">
           <div>
-            <p className="text-blue-200 text-[11px] font-medium">Bem-vindo ao VW Chefinho</p>
-            <h1 className="text-xl font-bold leading-tight mt-0.5">
-              Olá, {currentUser?.nome_exibicao || currentUser?.full_name?.split(' ')[0]}! 👋
+            <p className="text-blue-200 text-[11px] font-medium uppercase tracking-wide">VW Chefinho</p>
+            <h1 className="text-xl md:text-2xl font-bold leading-tight mt-0.5">
+              Olá, {firstName}! 👋
             </h1>
-            <p className="text-blue-200 text-xs mt-1 opacity-80">
+            <p className="text-blue-200 text-xs mt-1 capitalize">
               {new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })}
             </p>
           </div>
-          <div className="flex flex-col items-end gap-1.5">
-            <button
-              onClick={() => setShowTutorial(true)}
-              className="text-[10px] font-semibold bg-white/20 hover:bg-white/30 text-white px-2 py-1 rounded-lg transition-colors flex items-center gap-1"
-            >
-              ❓ Tutorial
-            </button>
-            <Badge className="bg-white/15 text-white border-white/20 text-[10px] px-2 py-0.5">
-              {currentUser?.cargo === 'lider' ? '👔 Líder' : '👷 Monitor'}
+          <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+            <Badge className="bg-white/20 text-white border-transparent text-[11px] px-2.5 py-1">
+              {currentUser?.cargo === "lider" ? "👔 Líder" : "👷 Monitor"}
             </Badge>
             {currentUser?.equipe && (
-              <Badge className="bg-white/15 text-white border-white/20 text-[10px] px-2 py-0.5">
+              <Badge className="bg-white/10 text-white/80 border-transparent text-[10px]">
                 {currentUser.equipe}
               </Badge>
             )}
             {currentUser?.turno && (
-              <Badge className="bg-white/15 text-white border-white/20 text-[10px] px-2 py-0.5">
+              <Badge className="bg-white/10 text-white/80 border-transparent text-[10px]">
                 Turno {currentUser.turno}
               </Badge>
             )}
           </div>
         </div>
+
+        {/* Barra de objetivos */}
+        {stats.objetivosTotal > 0 && (
+          <div className="relative mt-3 pt-3 border-t border-white/20">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-white/80 text-[11px] flex items-center gap-1"><Target className="w-3 h-3" /> Objetivos de hoje</span>
+              <span className="text-white font-bold text-[11px]">{objetivosPercent}%</span>
+            </div>
+            <div className="w-full bg-white/20 rounded-full h-1.5">
+              <div className="bg-white rounded-full h-1.5 transition-all" style={{ width: `${objetivosPercent}%` }} />
+            </div>
+          </div>
+        )}
       </motion.div>
 
-      {/* Stats Grid — 3 cols on mobile, 6 on desktop */}
-      <div className="grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-3">
-        {STATS.map(({ label, value, icon: Icon, bg, color }) => (
-          <Card key={label} className="border border-slate-200">
-            <CardContent className="p-3 flex flex-col items-center text-center">
-              <div className={`w-8 h-8 ${bg} rounded-lg mb-1.5 flex items-center justify-center`}>
-                <Icon className={`w-4 h-4 ${color}`} />
-              </div>
-              <div className="text-xl font-bold text-slate-900 leading-none">{value}</div>
-              <p className="text-[10px] text-slate-500 mt-0.5 leading-tight">{label}</p>
-            </CardContent>
-          </Card>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+        {STATS.map(({ label, value, icon: Icon, bg, color, url }, i) => (
+          <motion.div key={label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+            <Link to={createPageUrl(url)}>
+              <Card className="border border-slate-200 hover:shadow-md hover:border-slate-300 transition-all cursor-pointer active:scale-95">
+                <CardContent className="p-3 flex flex-col items-center text-center">
+                  <div className={`w-8 h-8 ${bg} rounded-lg mb-1.5 flex items-center justify-center`}>
+                    <Icon className={`w-4 h-4 ${color}`} />
+                  </div>
+                  <div className="text-xl font-bold text-slate-900 leading-none">{value}</div>
+                  <p className="text-[10px] text-slate-500 mt-0.5 leading-tight">{label}</p>
+                </CardContent>
+              </Card>
+            </Link>
+          </motion.div>
         ))}
       </div>
 
+      {/* Alertas de urgência */}
+      {stats.urgentes > 0 && (
+        <Link to={createPageUrl("Avisos")}>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="bg-red-50 border border-red-200 rounded-xl p-3 flex items-center gap-3 hover:bg-red-100 transition-colors cursor-pointer"
+          >
+            <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Bell className="w-4 h-4 text-red-600" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-red-800">
+                {stats.urgentes} aviso{stats.urgentes > 1 ? "s" : ""} importante{stats.urgentes > 1 ? "s" : ""}
+              </p>
+              <p className="text-xs text-red-600">Clique para ver os comunicados urgentes</p>
+            </div>
+            <ArrowRight className="w-4 h-4 text-red-400 flex-shrink-0" />
+          </motion.div>
+        </Link>
+      )}
+
       {/* Quick Actions */}
       <div>
-        <h2 className="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-1.5">
-          <Activity className="w-4 h-4 text-[#0066b1]" /> Ações Rápidas
+        <h2 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+          <Activity className="w-3.5 h-3.5" /> Ações Rápidas
         </h2>
         <AtalhosRapidos />
       </div>
 
-      {/* Activity + Tips — stack on mobile */}
-      <div className="grid lg:grid-cols-2 gap-4 md:gap-6">
+      {/* Bottom section */}
+      <div className="grid lg:grid-cols-2 gap-4">
         <HistoricoAtividades currentUser={currentUser} />
 
         <Card className="border border-slate-200">
           <CardHeader className="border-b bg-slate-50 py-3 px-4">
             <CardTitle className="text-sm font-semibold text-slate-900 flex items-center gap-2">
-              <Lightbulb className="w-4 h-4 text-amber-500" /> Dicas
+              <Lightbulb className="w-4 h-4 text-amber-500" /> Dicas do Dia
             </CardTitle>
           </CardHeader>
           <CardContent className="p-3 space-y-2">
             {[
-              { icon: CheckCircle2, title: "Segurança em Primeiro Lugar", desc: "Verifique se todos usam EPIs adequados", gradient: "from-blue-50 to-cyan-50", border: "border-blue-200", iconColor: "text-blue-600" },
-              { icon: TrendingUp, title: "Acompanhe seus Objetivos", desc: "Mantenha objetivos diários atualizados", gradient: "from-green-50 to-emerald-50", border: "border-green-200", iconColor: "text-green-600" },
-              { icon: Users, title: "Versatilidade da Equipe", desc: "Atualize a matriz de habilidades", gradient: "from-purple-50 to-pink-50", border: "border-purple-200", iconColor: "text-purple-600" },
+              { icon: CheckCircle2, title: "Segurança em Primeiro Lugar", desc: "Verifique se todos estão usando EPIs adequados antes do início do turno.", iconColor: "text-blue-600", bg: "bg-blue-50", url: "PedidosEPI" },
+              { icon: TrendingUp, title: "Objetivos do Dia", desc: "Atualize o progresso dos seus objetivos diários para manter o time alinhado.", iconColor: "text-green-600", bg: "bg-green-50", url: "Objetivos" },
+              { icon: Users, title: "Versatilidade da Equipe", desc: "Mantenha a matriz de habilidades atualizada para planejar coberturas.", iconColor: "text-purple-600", bg: "bg-purple-50", url: "Versatilidade" },
             ].map((tip) => (
-              <div key={tip.title} className={`p-3 bg-gradient-to-r ${tip.gradient} rounded-lg border ${tip.border}`}>
-                <h4 className="font-semibold text-slate-900 text-xs flex items-center gap-1.5 mb-0.5">
-                  <tip.icon className={`w-3.5 h-3.5 ${tip.iconColor}`} />{tip.title}
-                </h4>
-                <p className="text-[11px] text-slate-600">{tip.desc}</p>
-              </div>
+              <Link key={tip.title} to={createPageUrl(tip.url)}>
+                <div className="p-3 rounded-lg border border-slate-100 hover:border-slate-300 hover:shadow-sm transition-all flex items-start gap-2.5 cursor-pointer">
+                  <div className={`w-7 h-7 ${tip.bg} rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5`}>
+                    <tip.icon className={`w-3.5 h-3.5 ${tip.iconColor}`} />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-slate-800 text-xs">{tip.title}</h4>
+                    <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">{tip.desc}</p>
+                  </div>
+                </div>
+              </Link>
             ))}
           </CardContent>
         </Card>

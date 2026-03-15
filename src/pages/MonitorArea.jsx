@@ -2,332 +2,213 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ClipboardList, CheckCircle, Clock, Plus, TrendingUp, AlertTriangle, Target, Calendar } from "lucide-react";
+import { ClipboardList, CheckCircle2, Clock, Plus, TrendingUp, AlertTriangle, ShoppingCart, Target } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { AnimatePresence, motion } from "framer-motion";
 import TarefaForm from "../components/tarefas/TarefaForm";
 import TarefasList from "../components/tarefas/TarefasList";
 import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 
 export default function MonitorArea() {
   const [tarefas, setTarefas] = useState([]);
   const [objetivos, setObjetivos] = useState([]);
-  const [atividades, setAtividades] = useState([]);
   const [pedidos, setPedidos] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingTarefa, setEditingTarefa] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadUser();
-    loadData();
-  }, []);
-
-  const loadUser = async () => {
-    const user = await base44.auth.me();
-    setCurrentUser(user);
-  };
+  useEffect(() => { loadData(); }, []);
 
   const loadData = async () => {
     const user = await base44.auth.me();
-    
-    const [tarefasData, objetivosData, atividadesData, pedidosData] = await Promise.all([
+    setCurrentUser(user);
+    const [tarefasData, objetivosData, pedidosData] = await Promise.all([
       base44.entities.TarefaMonitor.filter({ tipo_area: "monitor" }, "-created_date"),
       base44.entities.Objetivo.list("-created_date", 10),
-      base44.entities.AtividadeLogistica.list("-created_date", 10),
       base44.entities.PedidoEPI.filter({ solicitante_id: user.id }, "-created_date", 10)
     ]);
-    
     setTarefas(tarefasData.filter(t => !t.monitor_atribuido || t.monitor_atribuido === user.id));
     setObjetivos(objetivosData);
-    setAtividades(atividadesData);
     setPedidos(pedidosData);
     setLoading(false);
   };
 
   const handleSubmit = async (tarefaData) => {
-    if (editingTarefa) {
-      await base44.entities.TarefaMonitor.update(editingTarefa.id, tarefaData);
-    } else {
-      await base44.entities.TarefaMonitor.create({ ...tarefaData, tipo_area: "monitor" });
-    }
-    setShowForm(false);
-    setEditingTarefa(null);
-    loadData();
-  };
-
-  const handleEdit = (tarefa) => {
-    setEditingTarefa(tarefa);
-    setShowForm(true);
+    if (editingTarefa) await base44.entities.TarefaMonitor.update(editingTarefa.id, tarefaData);
+    else await base44.entities.TarefaMonitor.create({ ...tarefaData, tipo_area: "monitor" });
+    setShowForm(false); setEditingTarefa(null);
+    const data = await base44.entities.TarefaMonitor.filter({ tipo_area: "monitor" }, "-created_date");
+    setTarefas(data.filter(t => !t.monitor_atribuido || t.monitor_atribuido === currentUser.id));
   };
 
   const handleDelete = async (id) => {
     await base44.entities.TarefaMonitor.delete(id);
-    loadData();
+    setTarefas(prev => prev.filter(t => t.id !== id));
   };
 
   const handleUpdateStatus = async (id, status) => {
     const tarefa = tarefas.find(t => t.id === id);
     await base44.entities.TarefaMonitor.update(id, { ...tarefa, status });
-    loadData();
+    setTarefas(prev => prev.map(t => t.id === id ? { ...t, status } : t));
   };
 
-  const calcularProdutividade = () => {
-    const total = tarefas.length;
-    const concluidas = tarefas.filter(t => t.status === "concluida").length;
-    return total > 0 ? Math.round((concluidas / total) * 100) : 0;
-  };
+  const produtividade = tarefas.length > 0
+    ? Math.round((tarefas.filter(t => t.status === "concluida").length / tarefas.length) * 100)
+    : 0;
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0066b1]"></div>
-      </div>
-    );
-  }
+  const objetivosConcluidos = objetivos.filter(o => o.concluido).length;
+  const objetivosPercent = objetivos.length > 0 ? Math.round((objetivosConcluidos / objetivos.length) * 100) : 0;
+
+  if (loading) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="w-8 h-8 border-[3px] border-slate-200 border-t-[#0066b1] rounded-full animate-spin"></div>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div className="space-y-5">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-[#001e50] to-[#0066b1] rounded-xl flex items-center justify-center">
+            <ClipboardList className="w-5 h-5 text-white" />
+          </div>
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 flex items-center gap-3">
-              <div className="p-3 bg-gradient-to-br from-[#001e50] to-[#0066b1] rounded-2xl shadow-lg">
-                <ClipboardList className="w-8 h-8 text-white" />
+            <h1 className="text-lg font-bold text-slate-900">Área do Monitor</h1>
+            <p className="text-xs text-slate-500">Acompanhe suas atividades do dia</p>
+          </div>
+        </div>
+        <Button onClick={() => setShowForm(!showForm)} className="bg-[#0066b1] hover:bg-[#004d82] h-9 text-sm">
+          <Plus className="w-4 h-4 mr-1.5" /> Nova Tarefa
+        </Button>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[
+          { label: "Total Tarefas", value: tarefas.length, icon: ClipboardList, color: "text-blue-600", bg: "bg-blue-50" },
+          { label: "Pendentes", value: tarefas.filter(t => t.status === "pendente").length, icon: Clock, color: "text-amber-600", bg: "bg-amber-50" },
+          { label: "Concluídas", value: tarefas.filter(t => t.status === "concluida").length, icon: CheckCircle2, color: "text-green-600", bg: "bg-green-50" },
+          { label: "Meus Pedidos", value: pedidos.length, icon: ShoppingCart, color: "text-purple-600", bg: "bg-purple-50" },
+        ].map(({ label, value, icon: Icon, color, bg }) => (
+          <motion.div key={label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+            <Card className="border border-slate-200">
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className={`w-9 h-9 ${bg} rounded-lg flex items-center justify-center flex-shrink-0`}>
+                  <Icon className={`w-4 h-4 ${color}`} />
+                </div>
+                <div>
+                  <div className="text-xl font-bold text-slate-900">{value}</div>
+                  <p className="text-[10px] text-slate-500">{label}</p>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Form */}
+      <AnimatePresence>
+        {showForm && (
+          <TarefaForm
+            tarefa={editingTarefa}
+            onSubmit={handleSubmit}
+            onCancel={() => { setShowForm(false); setEditingTarefa(null); }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Main content */}
+      <div className="grid lg:grid-cols-3 gap-5">
+        <div className="lg:col-span-2">
+          <Card className="border border-slate-200">
+            <CardHeader className="border-b bg-slate-50 py-3 px-4">
+              <CardTitle className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                <ClipboardList className="w-4 h-4 text-[#0066b1]" /> Minhas Tarefas
+                <Badge variant="secondary" className="ml-auto text-[10px]">{tarefas.length}</Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4">
+              <TarefasList
+                tarefas={tarefas}
+                onEdit={(t) => { setEditingTarefa(t); setShowForm(true); }}
+                onDelete={handleDelete}
+                onUpdateStatus={handleUpdateStatus}
+              />
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="space-y-4">
+          {/* Produtividade */}
+          <Card className="border border-slate-200">
+            <CardHeader className="border-b bg-slate-50 py-3 px-4">
+              <CardTitle className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-purple-600" /> Performance
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 space-y-3">
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-slate-600">Tarefas concluídas</span>
+                  <span className="font-bold text-purple-600">{produtividade}%</span>
+                </div>
+                <Progress value={produtividade} className="h-2" />
               </div>
-              Área do Monitor
-            </h1>
-            <p className="text-gray-600 mt-2 text-lg">Central de controle e acompanhamento das suas atividades</p>
-          </div>
-          <Button 
-            onClick={() => setShowForm(!showForm)}
-            className="bg-gradient-to-r from-[#001e50] to-[#0066b1] hover:from-[#001e50] hover:to-[#004d82] shadow-lg hover:shadow-xl transition-all text-white px-6 py-6 text-base"
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            Nova Tarefa
-          </Button>
-        </div>
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-slate-600">Objetivos do dia</span>
+                  <span className="font-bold text-green-600">{objetivosPercent}%</span>
+                </div>
+                <Progress value={objetivosPercent} className="h-2" />
+              </div>
+              <div className="grid grid-cols-2 gap-2 pt-1">
+                {[
+                  { label: "Finalizadas", val: tarefas.filter(t => t.status === "concluida").length, color: "text-green-600" },
+                  { label: "Em Progresso", val: tarefas.filter(t => t.status === "em_andamento").length, color: "text-blue-600" },
+                ].map(s => (
+                  <div key={s.label} className="text-center p-2 bg-slate-50 rounded-lg">
+                    <p className={`text-lg font-bold ${s.color}`}>{s.val}</p>
+                    <p className="text-[9px] text-slate-500">{s.label}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
-            <Card className="shadow-xl border-0 bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:shadow-2xl transition-all">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
+          {/* Checklist + Lembretes */}
+          <Card className="border border-slate-200">
+            <CardHeader className="border-b bg-slate-50 py-3 px-4">
+              <CardTitle className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-amber-500" /> Lembretes
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-3 space-y-2">
+              {[
+                { emoji: "🛡️", title: "Segurança em Primeiro", desc: "Verifique EPIs antes de iniciar o turno", color: "border-yellow-200 bg-yellow-50" },
+                { emoji: "📢", title: "Comunicação Clara", desc: "Informe o líder sobre qualquer ocorrência", color: "border-blue-200 bg-blue-50" },
+                { emoji: "✅", title: "Qualidade Sempre", desc: "Priorize qualidade sobre velocidade", color: "border-green-200 bg-green-50" },
+              ].map(r => (
+                <div key={r.title} className={`p-3 rounded-lg border ${r.color}`}>
+                  <p className="text-xs font-semibold text-slate-800">{r.emoji} {r.title}</p>
+                  <p className="text-[11px] text-slate-600 mt-0.5">{r.desc}</p>
+                </div>
+              ))}
+
+              <Link to={createPageUrl("Objetivos")}>
+                <div className="mt-1 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors flex items-center gap-2 cursor-pointer">
+                  <Target className="w-4 h-4 text-[#0066b1]" />
                   <div>
-                    <p className="text-blue-100 text-sm font-medium mb-1">Total de Tarefas</p>
-                    <p className="text-4xl font-bold">{tarefas.length}</p>
-                  </div>
-                  <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                    <ClipboardList className="w-8 h-8" />
+                    <p className="text-xs font-semibold text-slate-800">Ver Objetivos do Dia</p>
+                    <p className="text-[11px] text-slate-500">{objetivosConcluidos}/{objetivos.length} concluídos</p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <Card className="shadow-xl border-0 bg-gradient-to-br from-yellow-500 to-amber-600 text-white hover:shadow-2xl transition-all">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-yellow-100 text-sm font-medium mb-1">Pendentes</p>
-                    <p className="text-4xl font-bold">{tarefas.filter(t => t.status === "pendente").length}</p>
-                  </div>
-                  <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                    <Clock className="w-8 h-8" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <Card className="shadow-xl border-0 bg-gradient-to-br from-green-500 to-emerald-600 text-white hover:shadow-2xl transition-all">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-green-100 text-sm font-medium mb-1">Concluídas</p>
-                    <p className="text-4xl font-bold">{tarefas.filter(t => t.status === "concluida").length}</p>
-                  </div>
-                  <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                    <CheckCircle className="w-8 h-8" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <Card className="shadow-xl border-0 bg-gradient-to-br from-purple-500 to-purple-600 text-white hover:shadow-2xl transition-all">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-purple-100 text-sm font-medium mb-1">Produtividade</p>
-                    <p className="text-4xl font-bold">{calcularProdutividade()}%</p>
-                  </div>
-                  <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                    <TrendingUp className="w-8 h-8" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
-
-        {/* Form */}
-        <AnimatePresence>
-          {showForm && (
-            <TarefaForm
-              tarefa={editingTarefa}
-              onSubmit={handleSubmit}
-              onCancel={() => {
-                setShowForm(false);
-                setEditingTarefa(null);
-              }}
-            />
-          )}
-        </AnimatePresence>
-
-        {/* Main Content */}
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Tasks List - 2 columns */}
-          <div className="lg:col-span-2">
-            <Card className="shadow-xl border-0">
-              <CardHeader className="border-b bg-gradient-to-r from-slate-50 to-white">
-                <CardTitle className="text-2xl text-gray-900 flex items-center gap-2">
-                  <ClipboardList className="w-6 h-6 text-[#0066b1]" />
-                  Minhas Tarefas
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <TarefasList
-                  tarefas={tarefas}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  onUpdateStatus={handleUpdateStatus}
-                />
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Sidebar - 1 column */}
-          <div className="space-y-6">
-            {/* Productivity Card */}
-            <Card className="shadow-xl border-0 bg-gradient-to-br from-indigo-50 to-purple-50">
-              <CardHeader className="border-b">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <TrendingUp className="w-5 h-5 text-purple-600" />
-                  Performance Semanal
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-700">Taxa de Conclusão</span>
-                      <span className="text-sm font-bold text-purple-600">{calcularProdutividade()}%</span>
-                    </div>
-                    <Progress value={calcularProdutividade()} className="h-3" />
-                  </div>
-                  <div className="pt-4 border-t grid grid-cols-2 gap-4">
-                    <div className="text-center p-3 bg-white rounded-lg shadow-sm">
-                      <p className="text-2xl font-bold text-green-600">
-                        {tarefas.filter(t => t.status === "concluida").length}
-                      </p>
-                      <p className="text-xs text-gray-600 mt-1">Finalizadas</p>
-                    </div>
-                    <div className="text-center p-3 bg-white rounded-lg shadow-sm">
-                      <p className="text-2xl font-bold text-blue-600">
-                        {tarefas.filter(t => t.status === "em_andamento").length}
-                      </p>
-                      <p className="text-xs text-gray-600 mt-1">Em Progresso</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Quick Actions */}
-            <Card className="shadow-xl border-0">
-              <CardHeader className="bg-gradient-to-r from-blue-50 to-white border-b">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                  Checklist Diário
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <div className="space-y-3">
-                  <label className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                    <input type="checkbox" className="w-5 h-5 accent-[#0066b1] rounded" />
-                    <span className="text-sm font-medium text-gray-700">Verificar EPIs da equipe</span>
-                  </label>
-                  <label className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                    <input type="checkbox" className="w-5 h-5 accent-[#0066b1] rounded" />
-                    <span className="text-sm font-medium text-gray-700">Conferir atividades de logística</span>
-                  </label>
-                  <label className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                    <input type="checkbox" className="w-5 h-5 accent-[#0066b1] rounded" />
-                    <span className="text-sm font-medium text-gray-700">Atualizar versatilidade</span>
-                  </label>
-                  <label className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                    <input type="checkbox" className="w-5 h-5 accent-[#0066b1] rounded" />
-                    <span className="text-sm font-medium text-gray-700">Revisar pedidos pendentes</span>
-                  </label>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Important Reminders */}
-            <Card className="shadow-xl border-0 border-l-4 border-l-yellow-500">
-              <CardHeader className="bg-gradient-to-r from-yellow-50 to-white">
-                <CardTitle className="flex items-center gap-2 text-yellow-800 text-lg">
-                  <AlertTriangle className="w-5 h-5" />
-                  Lembretes Importantes
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <div className="space-y-4">
-                  <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                    <p className="font-semibold text-yellow-900 text-sm mb-1">🛡️ Segurança em Primeiro Lugar</p>
-                    <p className="text-xs text-yellow-800">
-                      Sempre verifique se todos estão usando EPIs adequados
-                    </p>
-                  </div>
-                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <p className="font-semibold text-[#0066b1] text-sm mb-1">📢 Comunicação Clara</p>
-                    <p className="text-xs text-blue-700">
-                      Mantenha o líder informado sobre qualquer situação
-                    </p>
-                  </div>
-                  <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                    <p className="font-semibold text-green-900 text-sm mb-1">✅ Qualidade Sempre</p>
-                    <p className="text-xs text-green-800">
-                      Priorize qualidade sobre velocidade
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+              </Link>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
