@@ -141,6 +141,12 @@ export default function Dashboard() {
             </p>
           </div>
           <div className="flex flex-col items-end gap-1.5">
+            <button
+              onClick={() => setShowTutorial(true)}
+              className="text-[10px] font-semibold bg-white/20 hover:bg-white/30 text-white px-2 py-1 rounded-lg transition-colors flex items-center gap-1"
+            >
+              ❓ Tutorial
+            </button>
             <Badge className="bg-white/15 text-white border-white/20 text-[10px] px-2 py-0.5">
               {currentUser?.cargo === 'lider' ? '👔 Líder' : '👷 Monitor'}
             </Badge>
