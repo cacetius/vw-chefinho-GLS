@@ -119,6 +119,10 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-4 md:space-y-6">
+      <AnimatePresence>
+        {showTutorial && <TutorialApp onClose={() => setShowTutorial(false)} />}
+      </AnimatePresence>
+
       {/* Welcome Banner */}
       <motion.div
         initial={{ opacity: 0, y: -12 }}
