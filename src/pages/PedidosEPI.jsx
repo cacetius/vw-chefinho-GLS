@@ -317,6 +317,7 @@ export default function PedidosEPI() {
               onDelete={handleDelete}
               onUpdateStatus={handleUpdateStatus}
               currentUser={currentUser}
+              orcamentosAtivos={orcamentosComSaldo}
             />
           </TabsContent>
 
