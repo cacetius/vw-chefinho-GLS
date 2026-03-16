@@ -178,13 +178,22 @@ export default function PedidosEPI() {
     .filter(p => p.status === "aprovado" || p.status === "entregue")
     .reduce((sum, p) => sum + (p.valor_total || 0), 0);
 
-  const totalOrcamento = orcamentos
+  // Calcula saldo real de cada orçamento baseado nos pedidos aprovados/entregues
+  const orcamentosComSaldo = orcamentos.map(o => {
+    const utilizado = pedidos
+      .filter(p => (p.status === "aprovado" || p.status === "entregue") &&
+        (!o.equipe || p.equipe === o.equipe) && (o.turno === "todos" || p.turno === o.turno))
+      .reduce((s, p) => s + (p.valor_total || 0), 0);
+    return { ...o, _utilizado: utilizado };
+  });
+
+  const totalOrcamento = orcamentosComSaldo
     .filter(o => o.status === "ativo")
     .reduce((sum, o) => sum + (o.valor_total || 0), 0);
 
-  const totalUtilizado = orcamentos
+  const totalUtilizado = orcamentosComSaldo
     .filter(o => o.status === "ativo")
-    .reduce((sum, o) => sum + (o.valor_utilizado || 0), 0);
+    .reduce((sum, o) => sum + (o._utilizado || 0), 0);
 
   const hasLeaderAccess = currentUser?.cargo === "lider" || 
     (currentUser?.cargo_temporario === "lider" && 
