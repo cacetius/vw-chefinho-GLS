@@ -109,42 +109,38 @@ export default function LinhaProducao() {
   }
 
   return (
-    <div className="max-w-[1600px] mx-auto space-y-6">
+    <div className="space-y-3 md:space-y-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-[#0066b1] rounded-lg flex items-center justify-center">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 bg-[#0066b1] rounded-xl flex items-center justify-center flex-shrink-0">
             <Car className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-900">Linha de Produção</h1>
-            <p className="text-xs text-slate-500 flex items-center gap-1">
-              <Zap className="w-3 h-3" /> Monitoramento em tempo real
+            <h1 className="text-base font-bold text-slate-900 leading-tight">Linha de Produção</h1>
+            <p className="text-[10px] text-slate-400 flex items-center gap-1">
+              <Zap className="w-3 h-3 text-green-500" /> Tempo real
             </p>
           </div>
         </div>
-        <Button onClick={() => setShowForm(!showForm)} className="bg-[#0066b1] hover:bg-[#004d82]">
-          <Plus className="w-4 h-4 mr-2" /> Adicionar Carro
+        <Button onClick={() => setShowForm(!showForm)} size="sm" className="h-9 bg-[#0066b1] hover:bg-[#004d82]">
+          <Plus className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline text-xs">Adicionar Carro</span>
         </Button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-4 gap-2">
         {[
-          { label: "Na Linha", value: carros.length, icon: Car, from: "from-[#001e50]", to: "to-[#0066b1]" },
-          { label: "Em Processo", value: carrosEmProcesso, icon: Clock, from: "from-cyan-600", to: "to-blue-600" },
-          { label: "Com Erro", value: carrosComErro, icon: AlertTriangle, from: "from-red-500", to: "to-red-600" },
-          { label: "Concluídos", value: carrosConcluidos, icon: CheckCircle, from: "from-green-500", to: "to-emerald-600" },
-        ].map(({ label, value, icon: Icon, from, to }) => (
-          <Card key={label} className={`border-0 bg-gradient-to-br ${from} ${to} text-white`}>
-            <CardContent className="pt-4 pb-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-white/70 text-xs font-medium">{label}</p>
-                  <p className="text-3xl font-bold mt-0.5">{value}</p>
-                </div>
-                <Icon className="w-10 h-10 text-white/20" />
-              </div>
+          { label: "Na Linha", value: carros.length, icon: Car, bg: "bg-[#0066b1]" },
+          { label: "Processo", value: carrosEmProcesso, icon: Clock, bg: "bg-cyan-600" },
+          { label: "Erros", value: carrosComErro, icon: AlertTriangle, bg: carrosComErro > 0 ? "bg-red-500" : "bg-slate-400" },
+          { label: "Prontos", value: carrosConcluidos, icon: CheckCircle, bg: "bg-emerald-500" },
+        ].map(({ label, value, icon: Icon, bg }) => (
+          <Card key={label} className={`border-0 ${bg} text-white`}>
+            <CardContent className="p-2.5 flex flex-col items-center text-center">
+              <Icon className="w-4 h-4 text-white/60 mb-0.5" />
+              <p className="text-2xl font-bold leading-none">{value}</p>
+              <p className="text-[9px] text-white/70 mt-0.5 leading-tight">{label}</p>
             </CardContent>
           </Card>
         ))}
@@ -165,18 +161,18 @@ export default function LinhaProducao() {
       {/* Tabs */}
       <Card className="border border-slate-200">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <CardHeader className="border-b bg-slate-50 p-3 md:p-4">
-            <TabsList className="grid w-full grid-cols-4 h-9">
-              <TabsTrigger value="visual" className="text-xs md:text-sm">Linha</TabsTrigger>
-              <TabsTrigger value="lista" className="text-xs md:text-sm">Lista</TabsTrigger>
-              <TabsTrigger value="stats" className="text-xs md:text-sm">Stats</TabsTrigger>
-              <TabsTrigger value="layout" className="text-xs md:text-sm flex items-center gap-1">
-                <Grid className="w-3 h-3" /> Layout
+          <CardHeader className="border-b bg-slate-50 p-2 md:p-3">
+            <TabsList className="grid w-full grid-cols-4 h-8">
+              <TabsTrigger value="visual" className="text-xs">Linha</TabsTrigger>
+              <TabsTrigger value="lista" className="text-xs">Lista</TabsTrigger>
+              <TabsTrigger value="stats" className="text-xs">Stats</TabsTrigger>
+              <TabsTrigger value="layout" className="text-xs flex items-center gap-1">
+                <Grid className="w-3 h-3" /><span className="hidden sm:inline">Layout</span>
               </TabsTrigger>
             </TabsList>
           </CardHeader>
 
-          <CardContent className="pt-4 md:pt-6">
+          <CardContent className="p-3 md:p-4">
             <TabsContent value="visual" className="mt-0">
               <LinhaVisual carros={carros} onEdit={handleEdit} />
             </TabsContent>
