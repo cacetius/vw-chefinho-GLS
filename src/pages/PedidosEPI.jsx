@@ -281,6 +281,7 @@ export default function PedidosEPI() {
               pedido={editingPedido}
               onSubmit={handleSubmit}
               currentUser={currentUser}
+              orcamentosAtivos={orcamentosComSaldo}
               onCancel={() => {
                 setShowForm(false);
                 setEditingPedido(null);
