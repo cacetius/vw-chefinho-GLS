@@ -323,7 +323,7 @@ export default function PedidosEPI() {
 
           <TabsContent value="orcamentos">
             <OrcamentosList
-              orcamentos={orcamentos}
+              orcamentos={orcamentosComSaldo}
               onEdit={handleOrcamentoEdit}
               onDelete={handleOrcamentoDelete}
               currentUser={currentUser}
