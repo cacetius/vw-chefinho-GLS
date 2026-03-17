@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Truck, ShoppingCart, Users, MessageSquare,
   ClipboardList, Shield, LogOut, Bell, Target, PhoneCall,
   Menu, X, User, FileText, Calendar, Star, Lightbulb,
-  ChevronDown, ChevronRight, Car, Grid, Home, MoreHorizontal, BookOpen
+  ChevronDown, ChevronRight, Car, Grid, Home, MoreHorizontal, BookOpen, Activity
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
