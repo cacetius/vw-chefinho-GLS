@@ -77,20 +77,20 @@ export default function Avisos() {
   };
 
   return (
-    <div className="space-y-4 md:space-y-6">
+    <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl flex items-center justify-center flex-shrink-0">
             <Bell className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-slate-900">Quadro de Avisos</h1>
-            <p className="text-xs text-slate-400 hidden sm:block">Informações importantes da equipe</p>
+            <h1 className="text-base font-bold text-slate-900">Avisos</h1>
+            <p className="text-[10px] text-slate-400">{avisos.length} comunicado{avisos.length !== 1 ? "s" : ""}</p>
           </div>
         </div>
-        <Button onClick={() => setShowForm(!showForm)} className="bg-red-500 hover:bg-red-600 h-9 px-3">
-          <Plus className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline text-sm">Novo Aviso</span>
+        <Button onClick={() => setShowForm(!showForm)} size="sm" className="bg-red-500 hover:bg-red-600 h-9 px-3">
+          <Plus className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline text-xs">Novo</span>
         </Button>
       </div>
 
@@ -98,65 +98,50 @@ export default function Avisos() {
       <div className="grid grid-cols-4 gap-2">
         {[
           { label: "Total", value: avisos.length, color: "bg-blue-500" },
-          { label: "Fixados", value: avisosFixados.length, color: "bg-cyan-500", Icon: Pin },
+          { label: "Fixados", value: avisosFixados.length, color: "bg-cyan-500" },
           { label: "Urgentes", value: avisos.filter(a => a.prioridade === "urgente").length, color: "bg-red-500" },
-          { label: "Importantes", value: avisos.filter(a => a.prioridade === "importante").length, color: "bg-orange-500" },
+          { label: "Import.", value: avisos.filter(a => a.prioridade === "importante").length, color: "bg-orange-500" },
         ].map(({ label, value, color }) => (
           <Card key={label} className={`border-0 text-white ${color}`}>
-            <CardContent className="p-3 text-center">
-              <div className="text-2xl font-bold">{value}</div>
-              <p className="text-[10px] opacity-80 leading-tight">{label}</p>
+            <CardContent className="p-2.5 text-center">
+              <div className="text-xl font-bold leading-none">{value}</div>
+              <p className="text-[9px] opacity-80 mt-0.5 leading-tight">{label}</p>
             </CardContent>
           </Card>
         ))}
       </div>
 
-        <AnimatePresence>
-          {showForm && (
-            <AvisoForm
-              aviso={editingAviso}
-              onSubmit={handleSubmit}
-              onCancel={() => {
-                setShowForm(false);
-                setEditingAviso(null);
-              }}
-            />
-          )}
-        </AnimatePresence>
-
-        <Card className="border border-slate-200">
-          <CardContent className="pt-4 pb-4 px-4">
-            <AvisosFilters onFilterChange={setFilters} />
-          </CardContent>
-        </Card>
-
-        {avisosFixados.length > 0 && (
-          <div>
-            <h2 className="text-sm font-semibold mb-3 flex items-center gap-1.5 text-slate-700">
-              <Pin className="w-4 h-4 text-blue-600" /> Avisos Fixados
-            </h2>
-            <AvisosList
-              avisos={avisosFixados}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onToggleFixar={handleToggleFixar}
-              currentUser={currentUser}
-              canEdit={canEdit}
-            />
-          </div>
-        )}
-
-        <div>
-          <h2 className="text-sm font-semibold mb-3 text-slate-700">Todos os Avisos</h2>
-          <AvisosList
-            avisos={avisosNormais}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onToggleFixar={handleToggleFixar}
-            currentUser={currentUser}
-            canEdit={canEdit}
+      <AnimatePresence>
+        {showForm && (
+          <AvisoForm
+            aviso={editingAviso}
+            onSubmit={handleSubmit}
+            onCancel={() => { setShowForm(false); setEditingAviso(null); }}
           />
+        )}
+      </AnimatePresence>
+
+      <Card className="border border-slate-200">
+        <CardContent className="p-3">
+          <AvisosFilters onFilterChange={setFilters} />
+        </CardContent>
+      </Card>
+
+      {avisosFixados.length > 0 && (
+        <div>
+          <h2 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <Pin className="w-3.5 h-3.5 text-blue-600" /> Fixados
+          </h2>
+          <AvisosList avisos={avisosFixados} onEdit={handleEdit} onDelete={handleDelete}
+            onToggleFixar={handleToggleFixar} currentUser={currentUser} canEdit={canEdit} />
         </div>
+      )}
+
+      <div>
+        <h2 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Todos os Avisos</h2>
+        <AvisosList avisos={avisosNormais} onEdit={handleEdit} onDelete={handleDelete}
+          onToggleFixar={handleToggleFixar} currentUser={currentUser} canEdit={canEdit} />
       </div>
+    </div>
   );
 }
