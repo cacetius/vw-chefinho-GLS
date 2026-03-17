@@ -84,9 +84,9 @@ export default function LinhaStats({ carros }) {
           </CardTitle>
         </CardHeader>
         <CardContent className="p-3">
-          <ResponsiveContainer width="100%" height={180}>
+          <ResponsiveContainer width="100%" height={160}>
             <PieChart>
-              <Pie data={statusData} cx="50%" cy="50%" outerRadius={65} dataKey="value" label={({ name, percent }) => percent > 0.08 ? `${(percent*100).toFixed(0)}%` : ""} labelLine={false}>
+              <Pie data={statusData} cx="50%" cy="50%" outerRadius={58} dataKey="value" label={({ name, percent }) => percent > 0.08 ? `${(percent*100).toFixed(0)}%` : ""} labelLine={false}>
                 {statusData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
               </Pie>
               <Tooltip formatter={(v, n) => [v, n]} />
