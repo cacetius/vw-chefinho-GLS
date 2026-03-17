@@ -64,7 +64,9 @@ export default function Objetivos() {
   const hoje = new Date().toISOString().split('T')[0];
   const objetivosHoje = objetivosDiarios.filter(o => o.data_referencia === hoje);
 
-  const taxaConclusao = objetivosHoje.length > 0 ? Math.round((objetivosHoje.filter(o => o.concluido).length / objetivosHoje.length) * 100) : 0;
+  const taxaConclusao = objetivosHoje.length > 0
+    ? Math.round((objetivosHoje.filter(o => o.concluido).length / objetivosHoje.length) * 100)
+    : 0;
 
   return (
     <div className="space-y-4">
@@ -117,10 +119,20 @@ export default function Objetivos() {
           <TabsTrigger value="mensais" className="text-xs">Mensais</TabsTrigger>
         </TabsList>
         <TabsContent value="diarios" className="mt-0">
-          <ObjetivosDiarios objetivos={objetivosDiarios} onEdit={handleEdit} onDelete={handleDelete} onToggleConcluido={handleToggleConcluido} />
+          <ObjetivosDiarios
+            objetivos={objetivosDiarios}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onToggleConcluido={handleToggleConcluido}
+          />
         </TabsContent>
         <TabsContent value="mensais" className="mt-0">
-          <ObjetivosMensais objetivos={objetivosMensais} onEdit={handleEdit} onDelete={handleDelete} onToggleConcluido={handleToggleConcluido} />
+          <ObjetivosMensais
+            objetivos={objetivosMensais}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onToggleConcluido={handleToggleConcluido}
+          />
         </TabsContent>
       </Tabs>
     </div>
