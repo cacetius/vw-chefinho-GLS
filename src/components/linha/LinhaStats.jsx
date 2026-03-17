@@ -1,154 +1,147 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { TrendingUp, Clock, AlertTriangle } from "lucide-react";
+import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { TrendingUp, Clock, AlertTriangle, Car, CheckCircle } from "lucide-react";
+
+const COLORS = ["#0066b1", "#10b981", "#ef4444", "#f59e0b", "#8b5cf6", "#06b6d4"];
+
+const STATUS_LABELS = {
+  aguardando: "Aguardando",
+  em_processo: "Em Processo",
+  ok: "OK",
+  alerta: "Alerta",
+  erro: "Erro",
+  concluido: "Concluído",
+};
 
 export default function LinhaStats({ carros }) {
-  // Carros por estação
-  const estacoes = ["entrada", "chassi", "montagem", "pintura", "acabamento", "qualidade", "saida"];
-  const carrosPorEstacao = estacoes.map(estacao => ({
-    estacao: estacao,
-    quantidade: carros.filter(c => c.estacao_atual === estacao).length
-  }));
-
-  // Carros por status
+  // Status
   const statusCount = carros.reduce((acc, c) => {
     acc[c.status] = (acc[c.status] || 0) + 1;
     return acc;
   }, {});
-
-  const statusData = Object.entries(statusCount).map(([status, count]) => ({
-    status: status.replace('_', ' '),
-    quantidade: count
+  const statusData = Object.entries(statusCount).map(([s, n]) => ({
+    name: STATUS_LABELS[s] || s,
+    value: n,
   }));
 
-  // Carros por modelo
+  // Modelos
   const modeloCount = carros.reduce((acc, c) => {
-    acc[c.modelo] = (acc[c.modelo] || 0) + 1;
+    const m = c.modelo || "Sem modelo";
+    acc[m] = (acc[m] || 0) + 1;
     return acc;
   }, {});
+  const modeloData = Object.entries(modeloCount)
+    .map(([modelo, qtd]) => ({ modelo: modelo.replace("Polo ", "P.").replace("Tera ", "T."), qtd }))
+    .sort((a, b) => b.qtd - a.qtd);
 
-  const modeloData = Object.entries(modeloCount).map(([modelo, count]) => ({
-    modelo,
-    quantidade: count
-  }));
-
-  // Problemas por tipo
+  // Problemas
   const problemasCount = {};
-  carros.forEach(c => {
-    c.problemas?.forEach(p => {
-      problemasCount[p.tipo] = (problemasCount[p.tipo] || 0) + 1;
-    });
-  });
-
-  const problemasData = Object.entries(problemasCount).map(([tipo, count]) => ({
-    tipo,
-    quantidade: count
+  carros.forEach(c => c.problemas?.forEach(p => {
+    problemasCount[p.tipo] = (problemasCount[p.tipo] || 0) + 1;
   }));
+  const problemasData = Object.entries(problemasCount).map(([tipo, qtd]) => ({ tipo, qtd }));
 
-  const COLORS = ['#0066b1', '#00b0f0', '#ef4444', '#f59e0b', '#10b981', '#8b5cf6'];
+  const totalProblemas = carros.reduce((s, c) => s + (c.problemas?.length || 0), 0);
+  const concluidos = carros.filter(c => c.status === "concluido").length;
+  const comErro = carros.filter(c => c.status === "erro").length;
 
   if (carros.length === 0) {
     return (
-      <Card>
-        <CardContent className="pt-12 pb-12 text-center">
-          <TrendingUp className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-          <p className="text-gray-500">Nenhum dado disponível</p>
-        </CardContent>
-      </Card>
+      <div className="flex flex-col items-center justify-center py-16 text-slate-400">
+        <TrendingUp className="w-12 h-12 mb-3 opacity-30" />
+        <p className="text-sm">Nenhum dado disponível</p>
+      </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Carros por Estação */}
-      <Card>
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50">
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-blue-600" />
-            Distribuição por Estação
+    <div className="space-y-4">
+      {/* KPIs */}
+      <div className="grid grid-cols-3 gap-2">
+        <div className="bg-[#0066b1]/10 rounded-xl p-3 text-center">
+          <Car className="w-4 h-4 text-[#0066b1] mx-auto mb-1" />
+          <p className="text-xl font-bold text-[#0066b1]">{carros.length}</p>
+          <p className="text-[9px] text-slate-500">Na Linha</p>
+        </div>
+        <div className="bg-emerald-50 rounded-xl p-3 text-center">
+          <CheckCircle className="w-4 h-4 text-emerald-600 mx-auto mb-1" />
+          <p className="text-xl font-bold text-emerald-600">{concluidos}</p>
+          <p className="text-[9px] text-slate-500">Prontos</p>
+        </div>
+        <div className={`${comErro > 0 ? "bg-red-50" : "bg-slate-50"} rounded-xl p-3 text-center`}>
+          <AlertTriangle className={`w-4 h-4 mx-auto mb-1 ${comErro > 0 ? "text-red-500" : "text-slate-400"}`} />
+          <p className={`text-xl font-bold ${comErro > 0 ? "text-red-600" : "text-slate-500"}`}>{totalProblemas}</p>
+          <p className="text-[9px] text-slate-500">Problemas</p>
+        </div>
+      </div>
+
+      {/* Status Pie */}
+      <Card className="border border-slate-200">
+        <CardHeader className="py-3 px-4 border-b bg-slate-50">
+          <CardTitle className="text-xs font-semibold flex items-center gap-2">
+            <Clock className="w-3.5 h-3.5 text-[#0066b1]" /> Status dos Veículos
           </CardTitle>
         </CardHeader>
-        <CardContent className="pt-6">
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={carrosPorEstacao}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="estacao" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="quantidade" fill="#0066b1" name="Carros" />
-            </BarChart>
+        <CardContent className="p-3">
+          <ResponsiveContainer width="100%" height={180}>
+            <PieChart>
+              <Pie data={statusData} cx="50%" cy="50%" outerRadius={65} dataKey="value" label={({ name, percent }) => percent > 0.08 ? `${(percent*100).toFixed(0)}%` : ""} labelLine={false}>
+                {statusData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+              </Pie>
+              <Tooltip formatter={(v, n) => [v, n]} />
+            </PieChart>
           </ResponsiveContainer>
+          {/* Legenda manual compacta */}
+          <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 justify-center">
+            {statusData.map((d, i) => (
+              <div key={d.name} className="flex items-center gap-1">
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                <span className="text-[9px] text-slate-600">{d.name} ({d.value})</span>
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* Status dos Carros */}
-        <Card>
-          <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50">
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="w-5 h-5 text-purple-600" />
-              Status dos Carros
+      {/* Modelos */}
+      {modeloData.length > 0 && (
+        <Card className="border border-slate-200">
+          <CardHeader className="py-3 px-4 border-b bg-slate-50">
+            <CardTitle className="text-xs font-semibold flex items-center gap-2">
+              <Car className="w-3.5 h-3.5 text-[#0066b1]" /> Modelos na Linha
             </CardTitle>
           </CardHeader>
-          <CardContent className="pt-6">
-            <ResponsiveContainer width="100%" height={250}>
-              <PieChart>
-                <Pie
-                  data={statusData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ status, percent }) => `${status}: ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
-                  dataKey="quantidade"
-                >
-                  {statusData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
+          <CardContent className="p-3">
+            <ResponsiveContainer width="100%" height={Math.max(100, modeloData.length * 32)}>
+              <BarChart data={modeloData} layout="vertical" margin={{ left: 8, right: 16, top: 4, bottom: 4 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                <XAxis type="number" tick={{ fontSize: 10 }} allowDecimals={false} />
+                <YAxis dataKey="modelo" type="category" tick={{ fontSize: 10 }} width={60} />
                 <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        {/* Modelos na Linha */}
-        <Card>
-          <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50">
-            <CardTitle>Modelos na Linha</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={modeloData} layout="horizontal">
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" />
-                <YAxis dataKey="modelo" type="category" />
-                <Tooltip />
-                <Bar dataKey="quantidade" fill="#10b981" name="Quantidade" />
+                <Bar dataKey="qtd" fill="#0066b1" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
-      </div>
+      )}
 
-      {/* Problemas por Tipo */}
+      {/* Problemas */}
       {problemasData.length > 0 && (
-        <Card>
-          <CardHeader className="bg-gradient-to-r from-red-50 to-orange-50">
-            <CardTitle className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-red-600" />
-              Problemas por Tipo
+        <Card className="border border-slate-200">
+          <CardHeader className="py-3 px-4 border-b bg-red-50">
+            <CardTitle className="text-xs font-semibold flex items-center gap-2">
+              <AlertTriangle className="w-3.5 h-3.5 text-red-500" /> Problemas por Tipo
             </CardTitle>
           </CardHeader>
-          <CardContent className="pt-6">
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={problemasData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="tipo" />
-                <YAxis />
+          <CardContent className="p-3">
+            <ResponsiveContainer width="100%" height={Math.max(80, problemasData.length * 32)}>
+              <BarChart data={problemasData} layout="vertical" margin={{ left: 8, right: 16, top: 4, bottom: 4 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                <XAxis type="number" tick={{ fontSize: 10 }} allowDecimals={false} />
+                <YAxis dataKey="tipo" type="category" tick={{ fontSize: 10 }} width={60} />
                 <Tooltip />
-                <Bar dataKey="quantidade" fill="#ef4444" name="Problemas" />
+                <Bar dataKey="qtd" fill="#ef4444" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>

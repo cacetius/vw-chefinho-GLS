@@ -1,355 +1,214 @@
-import React, { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import React, { useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Car, AlertTriangle, CheckCircle, Clock, ArrowRight, Zap } from "lucide-react";
+import { Car, AlertTriangle, CheckCircle, Clock, ChevronDown, ChevronUp, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function LinhaVisual({ carros, onEdit }) {
-  const [carrosAnimados, setCarrosAnimados] = useState(carros);
+const ESTACOES = [
+  { id: "entrada", nome: "Entrada", icon: "🚪", categoria: "Recebimento" },
+  { id: "chaparia_solda", nome: "Solda", icon: "⚡", categoria: "Chaparia" },
+  { id: "chaparia_geometria", nome: "Geometria", icon: "📐", categoria: "Chaparia" },
+  { id: "zp1", nome: "ZP1", icon: "①", categoria: "Montagem" },
+  { id: "zp2", nome: "ZP2", icon: "②", categoria: "Montagem" },
+  { id: "zp3", nome: "ZP3", icon: "③", categoria: "Montagem" },
+  { id: "zp4", nome: "ZP4", icon: "④", categoria: "Montagem" },
+  { id: "zp5", nome: "ZP5", icon: "⑤", categoria: "Montagem" },
+  { id: "zp6", nome: "ZP6", icon: "⑥", categoria: "Montagem" },
+  { id: "zp7", nome: "ZP7", icon: "⑦", categoria: "Montagem" },
+  { id: "zp8", nome: "ZP8", icon: "⑧", categoria: "Montagem" },
+  { id: "celula_parachoque", nome: "Parachoque", icon: "🛡️", categoria: "Montagem" },
+  { id: "dress_up", nome: "Dress Up", icon: "👔", categoria: "Montagem" },
+  { id: "chicotes", nome: "Chicotes", icon: "🔌", categoria: "Montagem" },
+  { id: "vidros", nome: "Vidros", icon: "🪟", categoria: "Montagem" },
+  { id: "doorless", nome: "Doorless", icon: "🚗", categoria: "Montagem" },
+  { id: "bancos", nome: "Bancos", icon: "💺", categoria: "Montagem" },
+  { id: "acabamento_interno", nome: "Acabamento", icon: "✨", categoria: "Montagem" },
+  { id: "capo_tampa", nome: "Capô/Tampa", icon: "📦", categoria: "Montagem" },
+  { id: "pintura_fosfatizacao", nome: "Fosfatização", icon: "🧪", categoria: "Pintura" },
+  { id: "pintura_ecoat", nome: "E-Coat", icon: "🔋", categoria: "Pintura" },
+  { id: "pintura_primer", nome: "Primer", icon: "🖌️", categoria: "Pintura" },
+  { id: "pintura_base", nome: "Base Coat", icon: "🎨", categoria: "Pintura" },
+  { id: "pintura_verniz", nome: "Verniz", icon: "✨", categoria: "Pintura" },
+  { id: "pintura_secagem", nome: "Secagem", icon: "💨", categoria: "Pintura" },
+  { id: "pcp_polimento", nome: "Polimento", icon: "💎", categoria: "PCP" },
+  { id: "pcp_retoque", nome: "Retoque", icon: "🖊️", categoria: "PCP" },
+  { id: "qualidade_auditoria", nome: "Auditoria", icon: "🔍", categoria: "Qualidade" },
+  { id: "qualidade_agua", nome: "Teste Água", icon: "💧", categoria: "Qualidade" },
+  { id: "teste_dinamometro", nome: "Dinamômetro", icon: "📈", categoria: "Testes" },
+  { id: "teste_alinhamento", nome: "Alinhamento", icon: "🎯", categoria: "Testes" },
+  { id: "teste_luz", nome: "Farol", icon: "💡", categoria: "Testes" },
+  { id: "teste_road", nome: "Road Test", icon: "🛣️", categoria: "Testes" },
+  { id: "expedicao_limpeza", nome: "Limpeza", icon: "🧽", categoria: "Expedição" },
+  { id: "expedicao_final", nome: "Expedição", icon: "📦", categoria: "Expedição" },
+  { id: "saida", nome: "Saída", icon: "🏁", categoria: "Expedição" },
+];
 
-  useEffect(() => {
-    setCarrosAnimados(carros);
-  }, [carros]);
+const CAT_COLORS = {
+  Recebimento: "bg-slate-500",
+  Chaparia: "bg-slate-600",
+  Montagem: "bg-blue-600",
+  Pintura: "bg-teal-600",
+  PCP: "bg-amber-600",
+  Qualidade: "bg-lime-600",
+  Testes: "bg-green-600",
+  Expedição: "bg-sky-600",
+};
 
-  const estacoes = [
-    { id: "entrada", nome: "Entrada", icon: "🚪", color: "from-gray-500 to-gray-600", categoria: "Recebimento" },
-    
-    { id: "chaparia_solda", nome: "Chaparia Solda", icon: "⚡", color: "from-slate-400 to-slate-500", categoria: "Chaparia" },
-    { id: "chaparia_geometria", nome: "Geometria", icon: "📐", color: "from-slate-500 to-slate-600", categoria: "Chaparia" },
-    
-    { id: "zp1", nome: "ZP1", icon: "🔲", color: "from-blue-400 to-blue-500", categoria: "Montagem" },
-    { id: "zp2", nome: "ZP2", icon: "🔳", color: "from-blue-500 to-blue-600", categoria: "Montagem" },
-    { id: "zp3", nome: "ZP3", icon: "🏠", color: "from-blue-600 to-indigo-500", categoria: "Montagem" },
-    { id: "zp4", nome: "ZP4", icon: "🚪", color: "from-indigo-500 to-indigo-600", categoria: "Montagem" },
-    { id: "zp5", nome: "ZP5", icon: "🔧", color: "from-indigo-600 to-purple-500", categoria: "Montagem" },
-    { id: "zp6", nome: "ZP6", icon: "⚙️", color: "from-purple-500 to-purple-600", categoria: "Montagem" },
-    { id: "zp7", nome: "ZP7", icon: "🔩", color: "from-purple-600 to-purple-700", categoria: "Montagem" },
-    { id: "zp8", nome: "ZP8", icon: "⭕", color: "from-purple-700 to-violet-600", categoria: "Montagem" },
-    { id: "celula_parachoque", nome: "Célula Parachoque", icon: "🛡️", color: "from-violet-600 to-violet-700", categoria: "Montagem" },
-    { id: "dress_up", nome: "Dress Up", icon: "👔", color: "from-violet-700 to-fuchsia-600", categoria: "Montagem" },
-    { id: "chicotes", nome: "Chicotes", icon: "🔌", color: "from-fuchsia-600 to-fuchsia-700", categoria: "Montagem" },
-    { id: "vidros", nome: "Vidros", icon: "🪟", color: "from-fuchsia-700 to-pink-600", categoria: "Montagem" },
-    { id: "doorless", nome: "Doorless", icon: "🚗", color: "from-pink-600 to-pink-700", categoria: "Montagem" },
-    { id: "bancos", nome: "Bancos", icon: "💺", color: "from-pink-700 to-rose-600", categoria: "Montagem" },
-    { id: "acabamento_interno", nome: "Acabamento", icon: "✨", color: "from-rose-600 to-rose-700", categoria: "Montagem" },
-    { id: "capo_tampa", nome: "Capô/Tampa", icon: "📦", color: "from-rose-700 to-red-600", categoria: "Montagem" },
-    
-    { id: "pintura_fosfatizacao", nome: "Fosfatização", icon: "🧪", color: "from-cyan-400 to-cyan-500", categoria: "Pintura" },
-    { id: "pintura_ecoat", nome: "E-Coat", icon: "🔋", color: "from-cyan-500 to-cyan-600", categoria: "Pintura" },
-    { id: "pintura_primer", nome: "Primer", icon: "🖌️", color: "from-cyan-600 to-teal-500", categoria: "Pintura" },
-    { id: "pintura_base", nome: "Base Coat", icon: "🎨", color: "from-teal-500 to-teal-600", categoria: "Pintura" },
-    { id: "pintura_verniz", nome: "Verniz", icon: "✨", color: "from-teal-600 to-emerald-500", categoria: "Pintura" },
-    { id: "pintura_secagem", nome: "Secagem", icon: "💨", color: "from-emerald-500 to-emerald-600", categoria: "Pintura" },
-    
-    { id: "pcp_polimento", nome: "PCP - Polimento", icon: "💎", color: "from-amber-400 to-amber-500", categoria: "PCP" },
-    { id: "pcp_retoque", nome: "PCP - Retoque", icon: "🖊️", color: "from-amber-500 to-amber-600", categoria: "PCP" },
-    
-    { id: "qualidade_auditoria", nome: "Auditoria 100%", icon: "🔍", color: "from-lime-500 to-lime-600", categoria: "Qualidade" },
-    { id: "qualidade_agua", nome: "Teste Água", icon: "💧", color: "from-lime-600 to-green-500", categoria: "Qualidade" },
-    { id: "teste_dinamometro", nome: "Dinamômetro", icon: "📈", color: "from-green-500 to-green-600", categoria: "Testes" },
-    { id: "teste_alinhamento", nome: "Alinhamento", icon: "🎯", color: "from-green-600 to-emerald-500", categoria: "Testes" },
-    { id: "teste_luz", nome: "Teste Farol", icon: "💡", color: "from-emerald-500 to-emerald-600", categoria: "Testes" },
-    { id: "teste_road", nome: "Road Test", icon: "🛣️", color: "from-emerald-600 to-teal-600", categoria: "Testes" },
-    
-    { id: "expedicao_limpeza", nome: "Limpeza Final", icon: "🧽", color: "from-sky-500 to-sky-600", categoria: "Expedição" },
-    { id: "expedicao_final", nome: "Expedição", icon: "📦", color: "from-sky-600 to-blue-600", categoria: "Expedição" },
-    { id: "saida", nome: "Saída", icon: "🏁", color: "from-emerald-500 to-emerald-600", categoria: "Expedição" }
-  ];
+const STATUS_DOT = {
+  erro: "bg-red-500",
+  alerta: "bg-yellow-500",
+  concluido: "bg-emerald-500",
+  em_processo: "bg-blue-500",
+  ok: "bg-green-400",
+  aguardando: "bg-slate-400",
+};
 
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "erro": return <AlertTriangle className="w-5 h-5 text-red-600" />;
-      case "concluido": return <CheckCircle className="w-5 h-5 text-green-600" />;
-      case "em_processo": return <Clock className="w-5 h-5 text-blue-600" />;
-      case "alerta": return <AlertTriangle className="w-5 h-5 text-yellow-600" />;
-      default: return <Car className="w-5 h-5 text-gray-600" />;
-    }
-  };
+function CarroMiniCard({ carro, onEdit }) {
+  return (
+    <motion.button
+      initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}
+      whileTap={{ scale: 0.93 }}
+      onClick={() => onEdit(carro)}
+      className="flex items-center gap-1.5 px-2 py-1 rounded-lg border bg-white shadow-sm w-full text-left active:bg-slate-50"
+      style={{ borderLeftColor: carro.cor || "#aaa", borderLeftWidth: 3 }}
+    >
+      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${STATUS_DOT[carro.status] || "bg-slate-400"}`} />
+      <span className="text-[10px] font-semibold text-slate-800 truncate flex-1">{carro.modelo?.replace("Polo ", "").replace("Tera ", "") || "—"}</span>
+      <span className="text-[9px] text-slate-400 font-mono">{carro.chassi?.slice(-4)}</span>
+      {carro.problemas?.length > 0 && (
+        <AlertTriangle className="w-2.5 h-2.5 text-red-500 flex-shrink-0" />
+      )}
+    </motion.button>
+  );
+}
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "erro": return "border-red-500 bg-red-50";
-      case "concluido": return "border-green-500 bg-green-50";
-      case "em_processo": return "border-blue-500 bg-blue-50";
-      case "alerta": return "border-yellow-500 bg-yellow-50";
-      default: return "border-gray-300 bg-gray-50";
-    }
-  };
-
-  // Agrupar estações por categoria para visualização melhor
-  const estacoesAgrupadas = estacoes.reduce((acc, estacao) => {
-    if (!acc[estacao.categoria]) {
-      acc[estacao.categoria] = [];
-    }
-    acc[estacao.categoria].push(estacao);
-    return acc;
-  }, {});
+function EstacaoCard({ estacao, carros, onEdit }) {
+  const [expanded, setExpanded] = useState(false);
+  const temErro = carros.some(c => c.status === "erro");
+  const temAlerta = carros.some(c => c.status === "alerta");
+  const catColor = CAT_COLORS[estacao.categoria] || "bg-slate-500";
 
   return (
-    <div className="space-y-8">
-      {/* Diagrama de Fluxo da Linha */}
-      <div className="relative bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl p-4 md:p-8 border-2 border-blue-200">
-        {/* Título do Diagrama */}
-        <div className="flex items-center justify-between mb-4 md:mb-8">
-          <div className="flex items-center gap-2 md:gap-3">
-            <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-              <Zap className="w-5 h-5 md:w-6 md:h-6 text-white" />
-            </div>
-            <div>
-              <h3 className="text-lg md:text-2xl font-bold text-gray-900">Fluxo de Produção</h3>
-              <p className="text-xs md:text-sm text-gray-600">{carrosAnimados.length} veículos • Tempo real</p>
-            </div>
-          </div>
-          <motion.div
-            animate={{ scale: [1, 1.2, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full shadow-lg"
-          />
+    <div className={`rounded-xl border-2 overflow-hidden ${temErro ? "border-red-400" : temAlerta ? "border-yellow-400" : "border-transparent"} bg-white shadow-sm`}>
+      <button
+        onClick={() => setExpanded(e => !e)}
+        className="w-full flex items-center gap-2 p-2 hover:bg-slate-50 active:bg-slate-100 transition-colors"
+      >
+        <div className={`w-8 h-8 ${catColor} rounded-lg flex items-center justify-center flex-shrink-0 text-base shadow-sm relative`}>
+          <span>{estacao.icon}</span>
+          {temErro && (
+            <motion.div animate={{ scale: [1,1.4,1] }} transition={{ repeat: Infinity, duration: 0.7 }}
+              className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border border-white" />
+          )}
         </div>
-
-        {/* Fluxo por Categorias */}
-        <div className="space-y-6">
-          {Object.entries(estacoesAgrupadas).map(([categoria, estacoesCategoria], catIndex) => (
-            <div key={categoria} className="relative">
-              {/* Título da Categoria */}
-              <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent to-gray-300"></div>
-                <h4 className="text-sm md:text-lg font-bold text-gray-700 px-3 md:px-4 py-1.5 md:py-2 bg-white rounded-full shadow-md border-2 border-gray-200 whitespace-nowrap">
-                  {categoria}
-                </h4>
-                <div className="h-px flex-1 bg-gradient-to-l from-transparent to-gray-300"></div>
-              </div>
-
-              {/* Linha de Fluxo da Categoria */}
-              <div className="relative">
-
-                {/* Estações da Categoria */}
-                <div className="relative z-10 grid grid-cols-4 sm:grid-cols-6 md:flex md:justify-start md:items-start gap-2 md:gap-3 pb-2 md:pb-4">
-                  {estacoesCategoria.map((estacao, index) => {
-                    const carrosNaEstacao = carrosAnimados.filter(c => c.estacao_atual === estacao.id);
-                    const temErro = carrosNaEstacao.some(c => c.status === "erro");
-                    const temAlerta = carrosNaEstacao.some(c => c.status === "alerta");
-                    
-                    return (
-                      <React.Fragment key={estacao.id}>
-                        {/* Estação */}
-                        <motion.div
-                          initial={{ scale: 0, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          transition={{ delay: catIndex * 0.1 + index * 0.05, type: "spring" }}
-                          className="flex flex-col items-center"
-                        >
-                          {/* Ícone da Estação */}
-                          <motion.div
-                            whileHover={{ scale: 1.15, rotate: 5 }}
-                            className={`relative w-11 h-11 md:w-14 md:h-14 bg-gradient-to-br ${estacao.color} rounded-lg md:rounded-xl shadow-md md:shadow-xl flex flex-col items-center justify-center cursor-pointer border-2 md:border-3 ${
-                              temErro ? 'border-red-500 animate-pulse' : 
-                              temAlerta ? 'border-yellow-500 animate-pulse' : 
-                              'border-white'
-                            }`}
-                          >
-                            <span className="text-lg md:text-xl">{estacao.icon}</span>
-                            
-                            {/* Contador de Carros */}
-                            {carrosNaEstacao.length > 0 && (
-                              <motion.div
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                className="absolute -top-1.5 -right-1.5 md:-top-2 md:-right-2 w-5 h-5 md:w-6 md:h-6 bg-white rounded-full shadow-xl flex items-center justify-center border-2 border-blue-500"
-                              >
-                                <span className="text-[10px] md:text-xs font-bold text-blue-600">{carrosNaEstacao.length}</span>
-                              </motion.div>
-                            )}
-
-                            {/* Indicador de Problema */}
-                            {temErro && (
-                              <motion.div
-                                animate={{ scale: [1, 1.3, 1] }}
-                                transition={{ duration: 0.6, repeat: Infinity }}
-                                className="absolute -bottom-1.5 -right-1.5 md:-bottom-2 md:-right-2 w-4 h-4 md:w-5 md:h-5 bg-red-500 rounded-full shadow-xl flex items-center justify-center"
-                              >
-                                <AlertTriangle className="w-2 h-2 md:w-3 md:h-3 text-white" />
-                              </motion.div>
-                            )}
-                            
-                            {temAlerta && !temErro && (
-                              <motion.div
-                                animate={{ scale: [1, 1.3, 1] }}
-                                transition={{ duration: 0.8, repeat: Infinity }}
-                                className="absolute -bottom-1.5 -right-1.5 md:-bottom-2 md:-right-2 w-4 h-4 md:w-5 md:h-5 bg-yellow-500 rounded-full shadow-xl flex items-center justify-center"
-                              >
-                                <AlertTriangle className="w-2 h-2 md:w-3 md:h-3 text-white" />
-                              </motion.div>
-                            )}
-                          </motion.div>
-
-                          {/* Nome da Estação */}
-                          <p className="font-semibold text-[9px] md:text-xs text-gray-900 text-center mt-1 md:mt-2 max-w-[55px] md:max-w-[80px] leading-tight truncate">
-                            {estacao.nome}
-                          </p>
-                          
-                          {/* Preview dos Carros - apenas em desktop */}
-                          {carrosNaEstacao.length > 0 && (
-                            <div className="hidden md:flex mt-1.5 gap-1 flex-wrap justify-center max-w-[80px]">
-                              <AnimatePresence>
-                                {carrosNaEstacao.slice(0, 2).map((carro, idx) => (
-                                  <motion.div
-                                    key={carro.id}
-                                    initial={{ scale: 0, y: 10 }}
-                                    animate={{ scale: 1, y: 0 }}
-                                    exit={{ scale: 0, y: -10 }}
-                                    transition={{ delay: idx * 0.1 }}
-                                    whileHover={{ scale: 1.4, zIndex: 10 }}
-                                    onClick={() => onEdit(carro)}
-                                    className="cursor-pointer"
-                                  >
-                                    <div 
-                                      className={`w-4 h-4 rounded shadow-lg border border-white flex items-center justify-center ${
-                                        carro.status === "erro" ? "bg-red-500" :
-                                        carro.status === "alerta" ? "bg-yellow-500" :
-                                        "bg-blue-500"
-                                      }`}
-                                      style={{ backgroundColor: carro.status === "ok" || carro.status === "em_processo" ? carro.cor : undefined }}
-                                    >
-                                      <Car className="w-2 h-2 text-white" />
-                                    </div>
-                                  </motion.div>
-                                ))}
-                              </AnimatePresence>
-                              {carrosNaEstacao.length > 2 && (
-                                <div className="w-4 h-4 rounded bg-gray-300 shadow flex items-center justify-center text-[8px] font-bold">
-                                  +{carrosNaEstacao.length - 2}
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </motion.div>
-
-                        {/* Seta de Fluxo entre estações - apenas desktop */}
-                        {index < estacoesCategoria.length - 1 && (
-                          <motion.div
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: catIndex * 0.1 + index * 0.05 + 0.1 }}
-                            className="hidden md:flex items-center pt-6"
-                          >
-                            <ArrowRight className="w-5 h-5 text-blue-400" />
-                          </motion.div>
-                        )}
-                      </React.Fragment>
-                    );
-                  })}
-                </div>
-              </div>
+        <div className="flex-1 min-w-0 text-left">
+          <p className="text-xs font-bold text-slate-800 leading-tight truncate">{estacao.nome}</p>
+          <p className="text-[9px] text-slate-400">{estacao.categoria}</p>
+        </div>
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          <span className={`text-[11px] font-bold px-1.5 py-0.5 rounded-full text-white ${catColor}`}>{carros.length}</span>
+          {expanded ? <ChevronUp className="w-3 h-3 text-slate-400" /> : <ChevronDown className="w-3 h-3 text-slate-400" />}
+        </div>
+      </button>
+      <AnimatePresence>
+        {expanded && (
+          <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }}
+            className="overflow-hidden border-t border-slate-100">
+            <div className="p-2 space-y-1">
+              {carros.map(c => <CarroMiniCard key={c.id} carro={c} onEdit={onEdit} />)}
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+export default function LinhaVisual({ carros, onEdit }) {
+  const [catFiltro, setCatFiltro] = useState("todas");
+
+  // Agrupa por categoria
+  const categorias = [...new Set(ESTACOES.map(e => e.categoria))];
+
+  // Estações com carros
+  const estacoesComCarros = ESTACOES.map(e => ({
+    ...e,
+    carros: carros.filter(c => c.estacao_atual === e.id)
+  })).filter(e => e.carros.length > 0);
+
+  const filtradas = catFiltro === "todas" ? estacoesComCarros : estacoesComCarros.filter(e => e.categoria === catFiltro);
+
+  const totalComErro = carros.filter(c => c.status === "erro").length;
+  const totalEmProcesso = carros.filter(c => c.status === "em_processo").length;
+
+  if (carros.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-slate-400">
+        <Car className="w-12 h-12 mb-3 opacity-30" />
+        <p className="text-sm">Nenhum veículo na linha</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {/* Resumo rápido */}
+      <div className="flex gap-2 text-xs">
+        <div className="flex items-center gap-1 px-2 py-1 bg-slate-100 rounded-full">
+          <Zap className="w-3 h-3 text-green-500" />
+          <span className="font-medium">{carros.length} veículos</span>
+        </div>
+        {totalComErro > 0 && (
+          <div className="flex items-center gap-1 px-2 py-1 bg-red-100 rounded-full text-red-700">
+            <AlertTriangle className="w-3 h-3" />
+            <span className="font-medium">{totalComErro} erros</span>
+          </div>
+        )}
+        {totalEmProcesso > 0 && (
+          <div className="flex items-center gap-1 px-2 py-1 bg-blue-100 rounded-full text-blue-700">
+            <Clock className="w-3 h-3" />
+            <span className="font-medium">{totalEmProcesso} em processo</span>
+          </div>
+        )}
+      </div>
+
+      {/* Filtro por categoria */}
+      <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+        {["todas", ...categorias].map(cat => (
+          <button key={cat} onClick={() => setCatFiltro(cat)}
+            className={`whitespace-nowrap text-[10px] px-2.5 py-1 rounded-full border font-medium transition-all flex-shrink-0 ${
+              catFiltro === cat ? "bg-[#0066b1] text-white border-[#0066b1]" : "border-slate-200 text-slate-600 bg-white hover:bg-slate-50"
+            }`}>
+            {cat === "todas" ? `Todas (${estacoesComCarros.length})` : cat}
+          </button>
+        ))}
+      </div>
+
+      {/* Estações ativas */}
+      {filtradas.length === 0 ? (
+        <p className="text-center text-sm text-slate-400 py-8">Nenhuma estação com veículos neste filtro</p>
+      ) : (
+        <div className="grid grid-cols-1 gap-2">
+          {filtradas.map(e => (
+            <EstacaoCard key={e.id} estacao={e} carros={e.carros} onEdit={onEdit} />
           ))}
         </div>
-      </div>
+      )}
 
-      {/* Carros Detalhados - Expandível por Estação */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
-        {estacoes.map((estacao, index) => {
-          const carrosNaEstacao = carrosAnimados.filter(c => c.estacao_atual === estacao.id);
-          
-          if (carrosNaEstacao.length === 0) return null;
-          
-          return (
-            <motion.div
-              key={estacao.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <Card className="shadow-xl border-0 hover:shadow-2xl transition-all">
-                <CardContent className="pt-6">
-                  {/* Header da Estação */}
-                  <div className={`mb-4 p-3 rounded-xl bg-gradient-to-br ${estacao.color} text-white text-center`}>
-                    <div className="text-2xl mb-1">{estacao.icon}</div>
-                    <p className="font-bold text-sm">{estacao.nome}</p>
-                  </div>
-
-                  {/* Lista de Carros */}
-                  <div className="space-y-2 max-h-80 overflow-y-auto">
-                    {carrosNaEstacao.map((carro, carroIdx) => (
-                      <motion.div
-                        key={carro.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: carroIdx * 0.05 }}
-                        whileHover={{ scale: 1.03, x: 5 }}
-                        onClick={() => onEdit(carro)}
-                        className={`p-3 rounded-lg border-2 cursor-pointer transition-all ${getStatusColor(carro.status)}`}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <Car className="w-4 h-4" />
-                            <span className="font-bold text-xs">{carro.modelo}</span>
-                          </div>
-                          {getStatusIcon(carro.status)}
-                        </div>
-                        <p className="text-xs text-gray-600 truncate font-mono">
-                          {carro.chassi.slice(-8)}
-                        </p>
-                        <div className="flex items-center gap-1 mt-2">
-                          <div 
-                            className="w-4 h-4 rounded-full border-2 border-white shadow"
-                            style={{ backgroundColor: carro.cor || '#999' }}
-                          ></div>
-                          <span className="text-xs text-gray-600">{carro.cor}</span>
-                        </div>
-                        {carro.problemas && carro.problemas.length > 0 && (
-                          <Badge className="mt-2 bg-red-100 text-red-800 text-xs w-full">
-                            {carro.problemas.length} {carro.problemas.length === 1 ? 'problema' : 'problemas'}
-                          </Badge>
-                        )}
-                      </motion.div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          );
-        })}
-      </div>
-
-      {/* Legenda */}
-      <Card className="shadow-lg">
-        <CardContent className="pt-6">
-          <h3 className="font-semibold mb-4 text-gray-900">Legenda de Status</h3>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg border-2 border-red-500 bg-red-50 flex items-center justify-center">
-                <AlertTriangle className="w-4 h-4 text-red-600" />
-              </div>
-              <span className="text-sm font-medium">Erro</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg border-2 border-yellow-500 bg-yellow-50 flex items-center justify-center">
-                <AlertTriangle className="w-4 h-4 text-yellow-600" />
-              </div>
-              <span className="text-sm font-medium">Alerta</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg border-2 border-blue-500 bg-blue-50 flex items-center justify-center">
-                <Clock className="w-4 h-4 text-blue-600" />
-              </div>
-              <span className="text-sm font-medium">Em Processo</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg border-2 border-green-500 bg-green-50 flex items-center justify-center">
-                <CheckCircle className="w-4 h-4 text-green-600" />
-              </div>
-              <span className="text-sm font-medium">Concluído</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg border-2 border-gray-300 bg-gray-50 flex items-center justify-center">
-                <Car className="w-4 h-4 text-gray-600" />
-              </div>
-              <span className="text-sm font-medium">Aguardando</span>
-            </div>
+      {/* Legenda compacta */}
+      <div className="flex flex-wrap gap-2 pt-1 border-t border-slate-100">
+        {[
+          { label: "Erro", dot: "bg-red-500" },
+          { label: "Alerta", dot: "bg-yellow-500" },
+          { label: "Processo", dot: "bg-blue-500" },
+          { label: "OK", dot: "bg-green-400" },
+          { label: "Aguardando", dot: "bg-slate-400" },
+        ].map(l => (
+          <div key={l.label} className="flex items-center gap-1">
+            <div className={`w-2 h-2 rounded-full ${l.dot}`} />
+            <span className="text-[10px] text-slate-500">{l.label}</span>
           </div>
-        </CardContent>
-      </Card>
+        ))}
+      </div>
     </div>
   );
 }

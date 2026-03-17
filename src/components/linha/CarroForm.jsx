@@ -155,7 +155,7 @@ export default function CarroForm({ carro, onSubmit, currentUser, onCancel }) {
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">Posição na Linha</Label>
-                <Input type="number" min="1" max="50" value={formData.posicao_linha}
+                <Input type="number" min="1" max="999" value={formData.posicao_linha}
                   onChange={e => setFormData(f => ({ ...f, posicao_linha: parseInt(e.target.value) || 1 }))}
                   className="h-9 text-sm" />
               </div>
