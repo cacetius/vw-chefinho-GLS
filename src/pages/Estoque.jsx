@@ -172,7 +172,6 @@ export default function Estoque() {
             <EstoqueChart itens={itens} />
           </TabsContent>
         </Tabs>
-      </div>
     </div>
   );
 }
