@@ -20,6 +20,7 @@ const NAV_SECTIONS = [
     items: [
       { title: "Dashboard", url: "Dashboard", icon: LayoutDashboard, roles: ["monitor", "lider"] },
       { title: "Linha de Produção", url: "LinhaProducao", icon: Car, roles: ["monitor", "lider"] },
+      { title: "Dashboard Produção", url: "DashboardProducao", icon: Activity, roles: ["monitor", "lider"] },
       { title: "Layout das Linhas", url: "LayoutLinhaPage", icon: Grid, roles: ["monitor", "lider"] },
       { title: "Auditoria VDA", url: "AuditoriaVDA", icon: ClipboardList, roles: ["monitor", "lider"] },
       { title: "Objetivos", url: "Objetivos", icon: Target, roles: ["monitor", "lider"] },
