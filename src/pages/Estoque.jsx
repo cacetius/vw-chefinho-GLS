@@ -100,78 +100,71 @@ export default function Estoque() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 bg-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Package className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h1 className="text-base font-bold text-slate-900 leading-tight">Estoque de EPIs</h1>
-              <p className="text-[10px] text-slate-400">Entradas, saídas e alertas de reposição</p>
-            </div>
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 bg-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0">
+            <Package className="w-5 h-5 text-white" />
           </div>
-          {hasLeaderAccess && (
-            <Button size="sm" onClick={() => setShowForm(!showForm)}
-              className="h-9 bg-emerald-600 hover:bg-emerald-700">
-              <Plus className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline text-xs">Novo Item</span>
-            </Button>
-          )}
+          <div>
+            <h1 className="text-base font-bold text-slate-900 leading-tight">Estoque de EPIs</h1>
+            <p className="text-[10px] text-slate-400">Entradas, saídas e alertas de reposição</p>
+          </div>
         </div>
+        {hasLeaderAccess && (
+          <Button size="sm" onClick={() => setShowForm(!showForm)} className="h-9 bg-emerald-600 hover:bg-emerald-700">
+            <Plus className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline text-xs">Novo Item</span>
+          </Button>
+        )}
+      </div>
 
-        {/* KPIs */}
-        <div className="grid grid-cols-3 gap-2">
-          <Card className="border border-slate-200">
-            <CardContent className="p-3 text-center">
-              <p className="text-[10px] text-slate-500">Itens</p>
-              <p className="text-2xl font-bold text-slate-900">{stats.total}</p>
-            </CardContent>
-          </Card>
-          <Card className={`border ${stats.baixoEstoque > 0 ? "border-red-300 bg-red-50/30" : "border-slate-200"}`}>
-            <CardContent className="p-3 text-center">
-              <p className="text-[10px] text-slate-500">Críticos</p>
-              <p className={`text-2xl font-bold ${stats.baixoEstoque > 0 ? "text-red-600" : "text-slate-400"}`}>{stats.baixoEstoque}</p>
-            </CardContent>
-          </Card>
-          <Card className="border border-slate-200">
-            <CardContent className="p-3 text-center">
-              <p className="text-[10px] text-slate-500">Valor</p>
-              <p className="text-sm font-bold text-[#0066b1]">R${stats.valorTotal.toFixed(0)}</p>
-            </CardContent>
-          </Card>
-        </div>
+      <div className="grid grid-cols-3 gap-2">
+        <Card className="border border-slate-200">
+          <CardContent className="p-3 text-center">
+            <p className="text-[10px] text-slate-500">Itens</p>
+            <p className="text-2xl font-bold text-slate-900">{stats.total}</p>
+          </CardContent>
+        </Card>
+        <Card className={`border ${stats.baixoEstoque > 0 ? "border-red-300 bg-red-50/30" : "border-slate-200"}`}>
+          <CardContent className="p-3 text-center">
+            <p className="text-[10px] text-slate-500">Críticos</p>
+            <p className={`text-2xl font-bold ${stats.baixoEstoque > 0 ? "text-red-600" : "text-slate-400"}`}>{stats.baixoEstoque}</p>
+          </CardContent>
+        </Card>
+        <Card className="border border-slate-200">
+          <CardContent className="p-3 text-center">
+            <p className="text-[10px] text-slate-500">Valor</p>
+            <p className="text-sm font-bold text-[#0066b1]">R${stats.valorTotal.toFixed(0)}</p>
+          </CardContent>
+        </Card>
+      </div>
 
-        <AnimatePresence>
-          {showForm && (
-            <EstoqueForm
-              item={editingItem}
-              onSubmit={handleSubmit}
-              onCancel={() => {
-                setShowForm(false);
-                setEditingItem(null);
-              }}
-            />
-          )}
-        </AnimatePresence>
+      <AnimatePresence>
+        {showForm && (
+          <EstoqueForm
+            item={editingItem}
+            onSubmit={handleSubmit}
+            onCancel={() => { setShowForm(false); setEditingItem(null); }}
+          />
+        )}
+      </AnimatePresence>
 
-        <Tabs defaultValue="lista" className="space-y-6">
-          <TabsList className="grid w-full md:w-96 grid-cols-2">
-            <TabsTrigger value="lista">Lista de Itens</TabsTrigger>
-            <TabsTrigger value="analise">Análise de Preços</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="lista">
-            <EstoqueList
-              itens={itens}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onMovimentar={handleMovimentar}
-              hasLeaderAccess={hasLeaderAccess}
-            />
-          </TabsContent>
-
-          <TabsContent value="analise">
-            <EstoqueChart itens={itens} />
-          </TabsContent>
-        </Tabs>
+      <Tabs defaultValue="lista" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-2 h-9">
+          <TabsTrigger value="lista" className="text-xs">Lista de Itens</TabsTrigger>
+          <TabsTrigger value="analise" className="text-xs">Análise</TabsTrigger>
+        </TabsList>
+        <TabsContent value="lista">
+          <EstoqueList
+            itens={itens}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onMovimentar={handleMovimentar}
+            hasLeaderAccess={hasLeaderAccess}
+          />
+        </TabsContent>
+        <TabsContent value="analise">
+          <EstoqueChart itens={itens} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
