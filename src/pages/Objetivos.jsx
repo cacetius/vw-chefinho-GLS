@@ -68,36 +68,35 @@ export default function Objetivos() {
   const taxaConclusao = objetivosHoje.length > 0 ? Math.round((objetivosHoje.filter(o => o.concluido).length / objetivosHoje.length) * 100) : 0;
 
   return (
-    <div className="space-y-4 md:space-y-6">
+    <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 bg-green-600 rounded-xl flex items-center justify-center flex-shrink-0">
             <Target className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-slate-900">Objetivos e Metas</h1>
-            <p className="text-xs text-slate-400 hidden sm:block">Diários e mensais da equipe</p>
+            <h1 className="text-base font-bold text-slate-900">Objetivos</h1>
+            <p className="text-[10px] text-slate-400">{taxaConclusao}% concluídos hoje</p>
           </div>
         </div>
         <Button size="sm" onClick={() => setShowForm(!showForm)} className="h-9 bg-green-600 hover:bg-green-700 px-3">
-          <Plus className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline text-sm">Novo</span>
+          <Plus className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline text-xs">Novo</span>
         </Button>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-4 gap-2">
         {[
-          { label: "Hoje", value: objetivosHoje.length, sub: `${objetivosHoje.filter(o=>o.concluido).length} ok`, color: "border-l-green-500" },
+          { label: "Hoje", value: objetivosHoje.length, color: "border-l-green-500" },
           { label: "Diários", value: objetivosDiarios.length, color: "border-l-blue-500" },
           { label: "Mensais", value: objetivosMensais.length, color: "border-l-purple-500" },
-          { label: "Conclusão", value: `${taxaConclusao}%`, color: "border-l-orange-500" },
-        ].map(({ label, value, sub, color }) => (
+          { label: `${taxaConclusao}%`, value: "✓", color: "border-l-orange-500" },
+        ].map(({ label, value, color }) => (
           <Card key={label} className={`shadow-sm border-l-4 ${color}`}>
-            <CardContent className="p-3">
-              <p className="text-[10px] text-slate-500">{label}</p>
-              <div className="text-xl font-bold text-slate-900">{value}</div>
-              {sub && <p className="text-[10px] text-slate-400">{sub}</p>}
+            <CardContent className="p-2.5">
+              <p className="text-[9px] text-slate-500 leading-tight">{label}</p>
+              <div className="text-xl font-bold text-slate-900 leading-tight">{value}</div>
             </CardContent>
           </Card>
         ))}
