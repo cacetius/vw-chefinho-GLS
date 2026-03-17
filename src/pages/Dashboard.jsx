@@ -135,17 +135,19 @@ export default function Dashboard() {
       </motion.div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+      <div className="grid grid-cols-3 gap-2">
         {STATS.map(({ label, value, icon: Icon, bg, color, url }, i) => (
           <motion.div key={label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
             <Link to={createPageUrl(url)}>
-              <Card className="border border-slate-200 hover:shadow-md hover:border-slate-300 transition-all cursor-pointer active:scale-95">
-                <CardContent className="p-3 flex flex-col items-center text-center">
-                  <div className={`w-8 h-8 ${bg} rounded-lg mb-1.5 flex items-center justify-center`}>
+              <Card className="border border-slate-200 hover:shadow-md transition-all cursor-pointer active:scale-95">
+                <CardContent className="p-2.5 flex items-center gap-2">
+                  <div className={`w-8 h-8 ${bg} rounded-lg flex-shrink-0 flex items-center justify-center`}>
                     <Icon className={`w-4 h-4 ${color}`} />
                   </div>
-                  <div className="text-xl font-bold text-slate-900 leading-none">{value}</div>
-                  <p className="text-[10px] text-slate-500 mt-0.5 leading-tight">{label}</p>
+                  <div className="min-w-0">
+                    <div className="text-lg font-bold text-slate-900 leading-none">{value}</div>
+                    <p className="text-[9px] text-slate-500 leading-tight truncate">{label}</p>
+                  </div>
                 </CardContent>
               </Card>
             </Link>
