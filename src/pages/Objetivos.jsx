@@ -23,20 +23,20 @@ export default function Objetivos() {
   }, []);
 
   const loadUser = async () => {
-    const user = await User.me();
+    const user = await base44.auth.me();
     setCurrentUser(user);
   };
 
   const loadObjetivos = async () => {
-    const data = await Objetivo.list("-data_referencia");
+    const data = await base44.entities.Objetivo.list("-data_referencia");
     setObjetivos(data);
   };
 
   const handleSubmit = async (objetivoData) => {
     if (editingObjetivo) {
-      await Objetivo.update(editingObjetivo.id, objetivoData);
+      await base44.entities.Objetivo.update(editingObjetivo.id, objetivoData);
     } else {
-      await Objetivo.create(objetivoData);
+      await base44.entities.Objetivo.create(objetivoData);
     }
     setShowForm(false);
     setEditingObjetivo(null);
@@ -49,12 +49,12 @@ export default function Objetivos() {
   };
 
   const handleDelete = async (id) => {
-    await Objetivo.delete(id);
+    await base44.entities.Objetivo.delete(id);
     loadObjetivos();
   };
 
   const handleToggleConcluido = async (objetivo) => {
-    await Objetivo.update(objetivo.id, { ...objetivo, concluido: !objetivo.concluido });
+    await base44.entities.Objetivo.update(objetivo.id, { ...objetivo, concluido: !objetivo.concluido });
     loadObjetivos();
   };
 
