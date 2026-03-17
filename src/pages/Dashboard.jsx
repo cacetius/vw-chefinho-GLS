@@ -179,14 +179,14 @@ export default function Dashboard() {
 
       {/* Quick Actions */}
       <div>
-        <h2 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+        <h2 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
           <Activity className="w-3.5 h-3.5" /> Ações Rápidas
         </h2>
         <AtalhosRapidos />
       </div>
 
       {/* Bottom section */}
-      <div className="grid lg:grid-cols-2 gap-4">
+      <div className="grid lg:grid-cols-2 gap-3">
         <HistoricoAtividades currentUser={currentUser} />
 
         <Card className="border border-slate-200">
