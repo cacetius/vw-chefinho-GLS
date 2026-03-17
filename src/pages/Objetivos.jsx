@@ -112,24 +112,18 @@ export default function Objetivos() {
         )}
       </AnimatePresence>
 
-      <Card className="shadow-sm border border-slate-200">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <CardHeader className="border-b bg-slate-50 py-3">
-            <TabsList className="grid w-full grid-cols-2 h-9">
-              <TabsTrigger value="diarios">Objetivos Diários</TabsTrigger>
-              <TabsTrigger value="mensais">Objetivos Mensais</TabsTrigger>
-            </TabsList>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <TabsContent value="diarios" className="mt-0">
-              <ObjetivosDiarios objetivos={objetivosDiarios} onEdit={handleEdit} onDelete={handleDelete} onToggleConcluido={handleToggleConcluido} />
-            </TabsContent>
-            <TabsContent value="mensais" className="mt-0">
-              <ObjetivosMensais objetivos={objetivosMensais} onEdit={handleEdit} onDelete={handleDelete} onToggleConcluido={handleToggleConcluido} />
-            </TabsContent>
-          </CardContent>
-        </Tabs>
-      </Card>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-3">
+        <TabsList className="grid w-full grid-cols-2 h-9">
+          <TabsTrigger value="diarios" className="text-xs">Diários</TabsTrigger>
+          <TabsTrigger value="mensais" className="text-xs">Mensais</TabsTrigger>
+        </TabsList>
+        <TabsContent value="diarios" className="mt-0">
+          <ObjetivosDiarios objetivos={objetivosDiarios} onEdit={handleEdit} onDelete={handleDelete} onToggleConcluido={handleToggleConcluido} />
+        </TabsContent>
+        <TabsContent value="mensais" className="mt-0">
+          <ObjetivosMensais objetivos={objetivosMensais} onEdit={handleEdit} onDelete={handleDelete} onToggleConcluido={handleToggleConcluido} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
