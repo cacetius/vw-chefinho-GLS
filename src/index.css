@@ -156,3 +156,10 @@ button:focus-visible {
     @apply bg-background text-foreground;
   }
 }
+
+/* Hide scrollbar for filter chips */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Better touch tap highlight on mobile */
+* { -webkit-tap-highlight-color: transparent; }
