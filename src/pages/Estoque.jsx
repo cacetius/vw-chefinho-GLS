@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Package, AlertTriangle, TrendingUp, TrendingDown } from "lucide-react";
+import { Plus, Package, AlertTriangle, TrendingUp, ArrowUpDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { AnimatePresence } from "framer-motion";
 import EstoqueForm from "../components/estoque/EstoqueForm";
