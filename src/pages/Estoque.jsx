@@ -84,71 +84,57 @@ export default function Estoque() {
     loadEstoque();
   };
 
+  const handleMovimentar = async (item, mov) => {
+    const novaQtd = mov.tipo === "entrada"
+      ? (item.quantidade_atual || 0) + mov.quantidade
+      : Math.max(0, (item.quantidade_atual || 0) - mov.quantidade);
+    await base44.entities.EstoqueEPI.update(item.id, { quantidade_atual: novaQtd });
+    loadEstoque();
+  };
+
   const hasLeaderAccess = currentUser?.cargo === "lider" || 
     (currentUser?.cargo_temporario === "lider" && 
      currentUser?.data_cargo_temporario && 
      new Date(currentUser.data_cargo_temporario) >= new Date());
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-green-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-              <Package className="w-8 h-8 text-green-600" />
-              Gestão de Estoque de EPIs
-            </h1>
-            <p className="text-gray-600 mt-1">Controle de estoque e histórico de preços</p>
+    <div className="space-y-4">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 bg-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Package className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-base font-bold text-slate-900 leading-tight">Estoque de EPIs</h1>
+              <p className="text-[10px] text-slate-400">Entradas, saídas e alertas de reposição</p>
+            </div>
           </div>
           {hasLeaderAccess && (
-            <Button 
-              onClick={() => setShowForm(!showForm)}
-              className="bg-gradient-to-r from-green-600 to-green-700"
-            >
-              <Plus className="w-5 h-5 mr-2" />
-              Adicionar Item
+            <Button size="sm" onClick={() => setShowForm(!showForm)}
+              className="h-9 bg-emerald-600 hover:bg-emerald-700">
+              <Plus className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline text-xs">Novo Item</span>
             </Button>
           )}
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <Card className="shadow-lg border-l-4 border-l-green-500">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                <Package className="w-4 h-4" />
-                Total de Itens
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-green-600">{stats.total}</div>
+        {/* KPIs */}
+        <div className="grid grid-cols-3 gap-2">
+          <Card className="border border-slate-200">
+            <CardContent className="p-3 text-center">
+              <p className="text-[10px] text-slate-500">Itens</p>
+              <p className="text-2xl font-bold text-slate-900">{stats.total}</p>
             </CardContent>
           </Card>
-
-          <Card className="shadow-lg border-l-4 border-l-red-500">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4" />
-                Estoque Baixo
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-red-600">{stats.baixoEstoque}</div>
-              <p className="text-xs text-gray-500 mt-1">Necessitam reposição</p>
+          <Card className={`border ${stats.baixoEstoque > 0 ? "border-red-300 bg-red-50/30" : "border-slate-200"}`}>
+            <CardContent className="p-3 text-center">
+              <p className="text-[10px] text-slate-500">Críticos</p>
+              <p className={`text-2xl font-bold ${stats.baixoEstoque > 0 ? "text-red-600" : "text-slate-400"}`}>{stats.baixoEstoque}</p>
             </CardContent>
           </Card>
-
-          <Card className="shadow-lg border-l-4 border-l-blue-500">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                <TrendingUp className="w-4 h-4" />
-                Valor Total
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-blue-600">
-                R$ {stats.valorTotal.toFixed(2)}
-              </div>
-              <p className="text-xs text-gray-500 mt-1">Em estoque</p>
+          <Card className="border border-slate-200">
+            <CardContent className="p-3 text-center">
+              <p className="text-[10px] text-slate-500">Valor</p>
+              <p className="text-sm font-bold text-[#0066b1]">R${stats.valorTotal.toFixed(0)}</p>
             </CardContent>
           </Card>
         </div>
@@ -177,6 +163,7 @@ export default function Estoque() {
               itens={itens}
               onEdit={handleEdit}
               onDelete={handleDelete}
+              onMovimentar={handleMovimentar}
               hasLeaderAccess={hasLeaderAccess}
             />
           </TabsContent>
