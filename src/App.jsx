@@ -7,8 +7,10 @@ import NavigationTracker from '@/lib/NavigationTracker'
 import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
-import DialogoSegurancaPage from './pages/DialogoSeguranca';
 import DashboardProducaoPage from './pages/DashboardProducao';
+import OperacoesHubPage from './pages/OperacoesHub';
+import PessoasHubPage from './pages/PessoasHub';
+import SegurancaHubPage from './pages/SegurancaHub';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -62,8 +64,10 @@ const AuthenticatedApp = () => {
           }
         />
       ))}
-      <Route path="/DialogoSeguranca" element={<LayoutWrapper currentPageName="DialogoSeguranca"><DialogoSegurancaPage /></LayoutWrapper>} />
       <Route path="/DashboardProducao" element={<LayoutWrapper currentPageName="DashboardProducao"><DashboardProducaoPage /></LayoutWrapper>} />
+      <Route path="/OperacoesHub" element={<LayoutWrapper currentPageName="Operações"><OperacoesHubPage /></LayoutWrapper>} />
+      <Route path="/PessoasHub" element={<LayoutWrapper currentPageName="Pessoas & Times"><PessoasHubPage /></LayoutWrapper>} />
+      <Route path="/SegurancaHub" element={<LayoutWrapper currentPageName="Segurança & Qualidade"><SegurancaHubPage /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

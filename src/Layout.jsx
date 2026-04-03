@@ -1,73 +1,61 @@
 import React, { useState, useEffect } from "react";
-import ChefinhoFloat from "@/components/shared/ChefinhoFloat";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import {
-  LayoutDashboard, Truck, ShoppingCart, Users, MessageSquare,
-  ClipboardList, Shield, LogOut, Bell, Target, PhoneCall,
-  Menu, X, User, FileText, Calendar, Star, Lightbulb,
-  ChevronDown, ChevronRight, Car, Grid, Home, MoreHorizontal, BookOpen, Activity
+  LayoutDashboard, Truck, Users, Shield, LogOut, Bell,
+  Menu, X, User, Car, Grid, Home, MoreHorizontal, Activity,
+  ClipboardList, ChevronDown, ChevronRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
+import TurnoGuard, { isTurnoAtivo } from "@/components/shared/TurnoGuard";
 
+// As 6 funções principais
 const NAV_SECTIONS = [
   {
     title: "Principal",
     items: [
-      { title: "Dashboard", url: "Dashboard", icon: LayoutDashboard, roles: ["monitor", "lider"] },
-      { title: "Linha de Produção", url: "LinhaProducao", icon: Car, roles: ["monitor", "lider"] },
-      { title: "Dashboard Produção", url: "DashboardProducao", icon: Activity, roles: ["monitor", "lider"] },
-      { title: "Layout das Linhas", url: "LayoutLinhaPage", icon: Grid, roles: ["monitor", "lider"] },
-      { title: "Auditoria VDA", url: "AuditoriaVDA", icon: ClipboardList, roles: ["monitor", "lider"] },
-      { title: "Objetivos", url: "Objetivos", icon: Target, roles: ["monitor", "lider"] },
+      { title: "Dashboard", url: "Dashboard", icon: LayoutDashboard },
+      { title: "Linha de Produção", url: "LinhaProducao", icon: Car },
+      { title: "Dashboard Produção", url: "DashboardProducao", icon: Activity },
     ]
   },
   {
-    title: "Operações",
+    title: "Módulos",
     items: [
-      { title: "Logística", url: "Logistica", icon: Truck, roles: ["monitor", "lider"] },
-      { title: "Pedidos EPI", url: "PedidosEPI", icon: ShoppingCart, roles: ["monitor", "lider"] },
-      { title: "Versatilidade", url: "Versatilidade", icon: Users, roles: ["monitor", "lider"] },
+      { title: "Operações", url: "OperacoesHub", icon: Truck },
+      { title: "Pessoas & Times", url: "PessoasHub", icon: Users },
+      { title: "Segurança & Qualidade", url: "SegurancaHub", icon: Shield },
     ]
   },
   {
-    title: "Comunicação",
+    title: "Ferramentas",
     items: [
-      { title: "Chat", url: "Chat", icon: MessageSquare, roles: ["monitor", "lider"] },
-      { title: "Avisos", url: "Avisos", icon: Bell, roles: ["monitor", "lider"] },
-      { title: "Feedback 360°", url: "Feedback360", icon: Star, roles: ["monitor", "lider"] },
-      { title: "Sugestões", url: "Sugestoes", icon: Lightbulb, roles: ["monitor", "lider"] },
-    ]
-  },
-  {
-    title: "Recursos",
-    items: [
-      { title: "Calendário", url: "Calendario", icon: Calendar, roles: ["monitor", "lider"] },
-      { title: "Documentos", url: "Documentos", icon: FileText, roles: ["monitor", "lider"] },
-      { title: "Diálogos de Segurança", url: "DialogoSeguranca", icon: BookOpen, roles: ["monitor", "lider"] },
-      { title: "Emergências", url: "Emergencias", icon: PhoneCall, roles: ["monitor", "lider"] },
+      { title: "Auditoria VDA", url: "AuditoriaVDA", icon: ClipboardList },
+      { title: "Layout das Linhas", url: "LayoutLinhaPage", icon: Grid },
+      { title: "Estoque EPI", url: "Estoque", icon: Bell },
     ]
   },
   {
     title: "Gestão",
     items: [
-      { title: "Área do Monitor", url: "MonitorArea", icon: ClipboardList, roles: ["monitor", "lider"] },
-      { title: "Área do Líder", url: "LiderArea", icon: Shield, roles: ["lider"] },
+      { title: "Área do Monitor", url: "MonitorArea", icon: ClipboardList },
+      { title: "Área do Líder", url: "LiderArea", icon: Shield, liderOnly: true },
+      { title: "Gerenciar Usuários", url: "GerenciarUsuarios", icon: Users, liderOnly: true },
     ]
   }
 ];
 
-// Bottom nav items (mobile) - atalhos principais
+// Bottom nav — as 6 funções chave
 const BOTTOM_NAV = [
   { title: "Início", url: "Dashboard", icon: Home },
   { title: "Linha", url: "LinhaProducao", icon: Car },
-  { title: "Chat", url: "Chat", icon: MessageSquare },
-  { title: "Avisos", url: "Avisos", icon: Bell },
-  { title: "Menu", url: null, icon: MoreHorizontal }, // abre drawer
+  { title: "Operações", url: "OperacoesHub", icon: Truck },
+  { title: "Pessoas", url: "PessoasHub", icon: Users },
+  { title: "Menu", url: null, icon: MoreHorizontal },
 ];
 
 export default function Layout({ children, currentPageName }) {
@@ -76,19 +64,18 @@ export default function Layout({ children, currentPageName }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [expandedSections, setExpandedSections] = useState({ Principal: true });
+  const [expandedSections, setExpandedSections] = useState({ Principal: true, Módulos: true });
 
   useEffect(() => {
     base44.auth.me().then(u => { setCurrentUser(u); setLoading(false); }).catch(() => setLoading(false));
   }, []);
 
   const handleLogout = async () => { await base44.auth.logout(); };
-
-  const toggleSection = (title) =>
-    setExpandedSections(prev => ({ ...prev, [title]: !prev[title] }));
+  const toggleSection = (title) => setExpandedSections(prev => ({ ...prev, [title]: !prev[title] }));
 
   const hasLeaderAccess = (user) => {
     if (!user) return false;
+    if (user.cargo === "supervisor" || user.role === "admin") return true;
     if (user.cargo === "lider") return true;
     if (user.cargo_temporario === "lider" && user.data_cargo_temporario)
       return new Date(user.data_cargo_temporario) >= new Date();
@@ -98,13 +85,15 @@ export default function Layout({ children, currentPageName }) {
   const filteredSections = currentUser
     ? NAV_SECTIONS.map(s => ({
         ...s,
-        items: s.items.filter(item =>
-          item.roles.includes("lider") ? hasLeaderAccess(currentUser) : item.roles.includes(currentUser.cargo)
-        )
+        items: s.items.filter(item => !item.liderOnly || hasLeaderAccess(currentUser))
       })).filter(s => s.items.length > 0)
     : [];
 
   const isActive = (url) => url && location.pathname === createPageUrl(url);
+
+  // Páginas sem guard de turno (sempre acessíveis)
+  const PAGINAS_LIVRES = ["/Registro", "/Perfil"];
+  const paginaLivre = PAGINAS_LIVRES.some(p => location.pathname.startsWith(p));
 
   if (loading) {
     return (
@@ -119,8 +108,11 @@ export default function Layout({ children, currentPageName }) {
     );
   }
 
-  if (!currentUser) {
-    return <div className="min-h-screen bg-slate-50">{children}</div>;
+  if (!currentUser) return <div className="min-h-screen bg-slate-50">{children}</div>;
+
+  // Verificação de turno (exceto páginas livres e supervisores/admins)
+  if (!paginaLivre && currentUser.turno && !isTurnoAtivo(currentUser.turno, currentUser)) {
+    return <TurnoGuard turno={currentUser.turno}>{children}</TurnoGuard>;
   }
 
   const displayName = currentUser.nome_exibicao || currentUser.full_name;
@@ -128,9 +120,8 @@ export default function Layout({ children, currentPageName }) {
   return (
     <div className="min-h-screen flex bg-slate-50">
 
-      {/* ══════════════ DESKTOP SIDEBAR ══════════════ */}
+      {/* DESKTOP SIDEBAR */}
       <aside className="hidden lg:flex flex-col w-60 bg-white border-r border-slate-200 fixed left-0 top-0 bottom-0 z-30">
-        {/* Logo */}
         <div className="px-4 py-3.5 border-b border-slate-100 flex items-center gap-2.5">
           <div className="w-9 h-9 bg-[#0066b1] rounded-lg flex items-center justify-center flex-shrink-0">
             <span className="text-xl">🏭</span>
@@ -141,7 +132,6 @@ export default function Layout({ children, currentPageName }) {
           </div>
         </div>
 
-        {/* Nav */}
         <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
           {filteredSections.map(section => (
             <div key={section.title} className="mb-1">
@@ -180,7 +170,6 @@ export default function Layout({ children, currentPageName }) {
           ))}
         </nav>
 
-        {/* User */}
         <div className="border-t border-slate-100 p-3">
           <div className="flex items-center gap-2 mb-2.5">
             <Avatar className="w-8 h-8 flex-shrink-0">
@@ -191,7 +180,7 @@ export default function Layout({ children, currentPageName }) {
             </Avatar>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-semibold text-slate-900 truncate">{displayName}</p>
-              <p className="text-[10px] text-slate-400">{currentUser.cargo === 'lider' ? 'Líder' : 'Monitor'}</p>
+              <p className="text-[10px] text-slate-400">{currentUser.cargo === 'supervisor' ? 'Supervisor' : currentUser.cargo === 'lider' ? 'Líder' : 'Monitor'}</p>
             </div>
           </div>
           <div className="flex gap-1.5">
@@ -207,7 +196,7 @@ export default function Layout({ children, currentPageName }) {
         </div>
       </aside>
 
-      {/* ══════════════ MOBILE FULL DRAWER ══════════════ */}
+      {/* MOBILE DRAWER */}
       <AnimatePresence>
         {drawerOpen && (
           <>
@@ -222,7 +211,6 @@ export default function Layout({ children, currentPageName }) {
               className="fixed left-0 top-0 bottom-0 w-72 bg-white z-50 lg:hidden flex flex-col shadow-2xl"
               onClick={e => e.stopPropagation()}
             >
-              {/* Header */}
               <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
                 <div className="flex items-center gap-2.5">
                   <div className="w-9 h-9 bg-[#0066b1] rounded-lg flex items-center justify-center">
@@ -238,7 +226,6 @@ export default function Layout({ children, currentPageName }) {
                 </button>
               </div>
 
-              {/* User info */}
               <div className="px-4 py-3 bg-slate-50 border-b border-slate-100 flex items-center gap-3">
                 <Avatar className="w-10 h-10">
                   {currentUser.foto_perfil
@@ -248,11 +235,15 @@ export default function Layout({ children, currentPageName }) {
                 </Avatar>
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-slate-900 text-sm truncate">{displayName}</p>
-                  <p className="text-xs text-slate-500">{currentUser.cargo === 'lider' ? '👔 Líder' : '👷 Monitor'} • {currentUser.equipe || ''}</p>
+                  <p className="text-xs text-slate-500">{currentUser.cargo === 'supervisor' ? '🎖️ Supervisor' : currentUser.cargo === 'lider' ? '👔 Líder' : '👷 Monitor'} • {currentUser.equipe || ''}</p>
+                  {currentUser.turno && (
+                    <Badge className="mt-1 text-[9px] bg-[#0066b1]/10 text-[#0066b1] border-transparent">
+                      {currentUser.turno === "manha" ? "1º Turno" : currentUser.turno === "tarde" ? "2º Turno" : "3º Turno"}
+                    </Badge>
+                  )}
                 </div>
               </div>
 
-              {/* Navigation */}
               <nav className="flex-1 overflow-y-auto py-3 px-2">
                 {filteredSections.map(section => (
                   <div key={section.title} className="mb-2">
@@ -274,7 +265,6 @@ export default function Layout({ children, currentPageName }) {
                 ))}
               </nav>
 
-              {/* Footer */}
               <div className="border-t border-slate-100 p-3 flex gap-2">
                 <Link to={createPageUrl("Perfil")} onClick={() => setDrawerOpen(false)} className="flex-1">
                   <Button variant="outline" className="w-full text-sm hover:border-[#0066b1] hover:text-[#0066b1]">
@@ -290,9 +280,8 @@ export default function Layout({ children, currentPageName }) {
         )}
       </AnimatePresence>
 
-      {/* ══════════════ MAIN CONTENT ══════════════ */}
+      {/* MAIN CONTENT */}
       <main className="flex-1 lg:ml-60 flex flex-col min-h-screen">
-        {/* Top header */}
         <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-slate-200 px-3 md:px-5 py-2 flex items-center gap-2.5">
           <button
             className="lg:hidden p-2 rounded-xl hover:bg-slate-100 transition-colors active:scale-95"
@@ -304,7 +293,7 @@ export default function Layout({ children, currentPageName }) {
             <h1 className="text-sm font-bold text-slate-900 truncate leading-tight">{currentPageName}</h1>
             {(currentUser.equipe || currentUser.turno) && (
               <p className="text-[10px] text-slate-400 leading-tight">
-                {[currentUser.equipe, currentUser.turno].filter(Boolean).join(' • ')}
+                {[currentUser.equipe, currentUser.turno === "manha" ? "1º Turno" : currentUser.turno === "tarde" ? "2º Turno" : currentUser.turno === "noite" ? "3º Turno" : ""].filter(Boolean).join(' • ')}
               </p>
             )}
           </div>
@@ -323,13 +312,12 @@ export default function Layout({ children, currentPageName }) {
           </div>
         </header>
 
-        {/* Page content */}
         <div className="flex-1 p-3 md:p-5 pb-24 lg:pb-6">
           {children}
         </div>
       </main>
 
-      {/* ══════════════ MOBILE BOTTOM NAV ══════════════ */}
+      {/* MOBILE BOTTOM NAV */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-200 safe-area-inset-bottom">
         <div className="flex items-stretch h-16">
           {BOTTOM_NAV.map(item => {

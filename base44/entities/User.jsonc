@@ -1,0 +1,72 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "celular": {
+      "type": "string",
+      "description": "N\u00famero de celular do colaborador"
+    },
+    "chapa": {
+      "type": "string",
+      "description": "N\u00famero de chapa do colaborador"
+    },
+    "cargo": {
+      "type": "string",
+      "enum": [
+        "monitor",
+        "lider",
+        "supervisor"
+      ],
+      "description": "Cargo do colaborador"
+    },
+    "cargo_temporario": {
+      "type": "string",
+      "enum": [
+        "lider",
+        ""
+      ],
+      "default": "",
+      "description": "Cargo tempor\u00e1rio"
+    },
+    "data_cargo_temporario": {
+      "type": "string",
+      "format": "date",
+      "description": "Data de validade do cargo tempor\u00e1rio"
+    },
+    "foto_perfil": {
+      "type": "string",
+      "description": "URL da foto de perfil"
+    },
+    "nome_exibicao": {
+      "type": "string",
+      "description": "Nome de exibi\u00e7\u00e3o no app"
+    },
+    "equipe": {
+      "type": "string",
+      "description": "Nome da equipe"
+    },
+    "turno": {
+      "type": "string",
+      "enum": [
+        "manha",
+        "tarde",
+        "noite"
+      ],
+      "description": "Turno de trabalho"
+    },
+    "carteirinha_vw_url": {
+      "type": "string",
+      "description": "URL da foto da carteirinha Volkswagen"
+    },
+    "carteirinha_verificada": {
+      "type": "boolean",
+      "default": false,
+      "description": "Se a carteirinha foi verificada"
+    }
+  },
+  "required": [
+    "celular",
+    "chapa",
+    "cargo"
+  ]
+}
