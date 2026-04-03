@@ -29,15 +29,22 @@ export default function SegurancaHub() {
 
   useEffect(() => { base44.auth.me().then(setCurrentUser); }, []);
 
+  const isSupervisor = currentUser?.cargo === "supervisor" || currentUser?.role === "admin";
+
   const { data: objetivos = [] } = useQuery({
-    queryKey: ["objetivos"],
-    queryFn: () => base44.entities.Objetivo.list("-data_referencia"),
+    queryKey: ["objetivos", currentUser?.equipe],
+    queryFn: async () => {
+      const all = await base44.entities.Objetivo.list("-data_referencia");
+      if (isSupervisor || !currentUser?.equipe) return all;
+      return all.filter(o => !o.equipe || o.equipe === currentUser.equipe || o.turno === "todos");
+    },
     enabled: !!currentUser
   });
 
   const { data: avisos = [] } = useQuery({
     queryKey: ["avisos"],
     queryFn: () => base44.entities.Aviso.list("-created_date"),
+    // Avisos são globais — todos veem
     enabled: !!currentUser
   });
 

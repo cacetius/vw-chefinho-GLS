@@ -3,12 +3,13 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Car, AlertTriangle, CheckCircle, Clock, Zap, Grid } from "lucide-react";
+import { Plus, Car, AlertTriangle, CheckCircle, Clock, Zap, Grid, Gauge } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import CarroForm from "../components/linha/CarroForm";
 import LinhaVisual from "../components/linha/LinhaVisual";
 import CarrosList from "../components/linha/CarrosList";
 import LinhaStats from "../components/linha/LinhaStats";
+import VelocidadeLinha from "../components/linha/VelocidadeLinha";
 import LayoutEditor from "../components/linha/LayoutEditor";
 import LayoutsList from "../components/linha/LayoutsList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -26,10 +27,18 @@ export default function LinhaProducao() {
     base44.auth.me().then(setCurrentUser);
   }, []);
 
+  const isSupervisor = currentUser?.cargo === "supervisor" || currentUser?.role === "admin";
+
   const { data: carros = [], isLoading } = useQuery({
-    queryKey: ["carros-linha"],
-    queryFn: () => base44.entities.CarroLinha.list("posicao_linha"),
-    refetchInterval: 5000
+    queryKey: ["carros-linha", currentUser?.equipe],
+    queryFn: async () => {
+      const all = await base44.entities.CarroLinha.list("posicao_linha");
+      // Supervisor/admin vê todos; demais filtram pela equipe responsável
+      if (!currentUser || isSupervisor || !currentUser.equipe) return all;
+      return all.filter(c => !c.equipe_responsavel || c.equipe_responsavel === currentUser.equipe);
+    },
+    refetchInterval: 5000,
+    enabled: !!currentUser
   });
 
   const { data: layouts = [] } = useQuery({
@@ -162,8 +171,11 @@ export default function LinhaProducao() {
       <Card className="border border-slate-200">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <CardHeader className="border-b bg-slate-50 p-2 md:p-3">
-            <TabsList className="grid w-full grid-cols-4 h-8">
+            <TabsList className="grid w-full grid-cols-5 h-8">
               <TabsTrigger value="visual" className="text-xs">Linha</TabsTrigger>
+              <TabsTrigger value="velocidade" className="text-xs flex items-center gap-1">
+                <Gauge className="w-3 h-3" /><span className="hidden sm:inline">Vel.</span>
+              </TabsTrigger>
               <TabsTrigger value="lista" className="text-xs">Lista</TabsTrigger>
               <TabsTrigger value="stats" className="text-xs">Stats</TabsTrigger>
               <TabsTrigger value="layout" className="text-xs flex items-center gap-1">
@@ -175,6 +187,9 @@ export default function LinhaProducao() {
           <CardContent className="p-3 md:p-4">
             <TabsContent value="visual" className="mt-0">
               <LinhaVisual carros={carros} onEdit={handleEdit} />
+            </TabsContent>
+            <TabsContent value="velocidade" className="mt-0">
+              <VelocidadeLinha carros={carros} />
             </TabsContent>
             <TabsContent value="lista" className="mt-0">
               <CarrosList carros={carros} onEdit={handleEdit} onDelete={handleDelete} currentUser={currentUser} />

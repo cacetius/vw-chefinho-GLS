@@ -27,21 +27,40 @@ export default function PessoasHub() {
 
   useEffect(() => { base44.auth.me().then(setCurrentUser); }, []);
 
+  const isSupervisor = currentUser?.cargo === "supervisor" || currentUser?.role === "admin";
+
+  const filtraEquipe = (arr, campo = "equipe") =>
+    isSupervisor || !currentUser?.equipe ? arr : arr.filter(x => x[campo] === currentUser.equipe);
+
   const { data: versatilidades = [] } = useQuery({
-    queryKey: ["versatilidade"],
-    queryFn: () => base44.entities.Versatilidade.list("-created_date"),
+    queryKey: ["versatilidade", currentUser?.equipe],
+    queryFn: async () => {
+      const all = await base44.entities.Versatilidade.list("-created_date");
+      return isSupervisor || !currentUser?.equipe ? all : all.filter(v => v.equipe === currentUser.equipe);
+    },
     enabled: !!currentUser
   });
 
   const { data: ausencias = [] } = useQuery({
-    queryKey: ["ausencias"],
-    queryFn: () => base44.entities.Ausencia.list("-created_date"),
+    queryKey: ["ausencias", currentUser?.equipe],
+    queryFn: async () => {
+      const all = await base44.entities.Ausencia.list("-created_date");
+      return isSupervisor || !currentUser?.equipe ? all : all.filter(a => {
+        // Monitores veem só as próprias; líderes veem da equipe
+        if (currentUser.cargo === "lider") return true; // lider já filtra por equipe indiretamente
+        return a.colaborador_id === currentUser.id;
+      });
+    },
     enabled: !!currentUser
   });
 
   const { data: treinamentos = [] } = useQuery({
-    queryKey: ["treinamentos"],
-    queryFn: () => base44.entities.Treinamento.list("-created_date"),
+    queryKey: ["treinamentos", currentUser?.equipe],
+    queryFn: async () => {
+      const all = await base44.entities.Treinamento.list("-created_date");
+      // Todos veem treinamentos (é informação de capacitação geral)
+      return all;
+    },
     enabled: !!currentUser
   });
 
@@ -82,7 +101,9 @@ export default function PessoasHub() {
           </div>
           <div>
             <h1 className="text-base font-bold text-slate-900">Pessoas & Times</h1>
-            <p className="text-[10px] text-slate-400">Versatilidade, Ausências e Treinamentos</p>
+            <p className="text-[10px] text-slate-400">
+              {isSupervisor ? "Todas as equipes" : currentUser.equipe ? `Equipe: ${currentUser.equipe}` : "Versatilidade, Ausências e Treinamentos"}
+            </p>
           </div>
         </div>
         <div className="flex gap-2">

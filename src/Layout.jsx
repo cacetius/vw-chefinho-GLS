@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import TurnoGuard, { isTurnoAtivo } from "@/components/shared/TurnoGuard";
+import GeoGuard from "@/components/shared/GeoGuard";
 
 // As 6 funções principais
 const NAV_SECTIONS = [
@@ -26,7 +27,7 @@ const NAV_SECTIONS = [
   {
     title: "Módulos",
     items: [
-      { title: "Operações", url: "OperacoesHub", icon: Truck },
+      { title: "EPI & Orçamentos", url: "OperacoesHub", icon: Truck },
       { title: "Pessoas & Times", url: "PessoasHub", icon: Users },
       { title: "Segurança & Qualidade", url: "SegurancaHub", icon: Shield },
     ]
@@ -53,7 +54,7 @@ const NAV_SECTIONS = [
 const BOTTOM_NAV = [
   { title: "Início", url: "Dashboard", icon: Home },
   { title: "Linha", url: "LinhaProducao", icon: Car },
-  { title: "Operações", url: "OperacoesHub", icon: Truck },
+  { title: "EPI & Orçamentos", url: "OperacoesHub", icon: Truck },
   { title: "Pessoas", url: "PessoasHub", icon: Users },
   { title: "Menu", url: null, icon: MoreHorizontal },
 ];
@@ -117,7 +118,7 @@ export default function Layout({ children, currentPageName }) {
 
   const displayName = currentUser.nome_exibicao || currentUser.full_name;
 
-  return (
+  const mainContent = (
     <div className="min-h-screen flex bg-slate-50">
 
       {/* DESKTOP SIDEBAR */}
@@ -346,4 +347,14 @@ export default function Layout({ children, currentPageName }) {
       </nav>
     </div>
   );
+
+  if (!paginaLivre) {
+    return (
+      <GeoGuard userRole={currentUser.role} userCargo={currentUser.cargo}>
+        {mainContent}
+      </GeoGuard>
+    );
+  }
+
+  return mainContent;
 }

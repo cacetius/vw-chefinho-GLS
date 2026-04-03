@@ -5,8 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate, Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
-  Truck, Users, Shield,
-  CheckCircle2, AlertCircle, Activity,
+  Users, Shield,
+  CheckCircle2, Activity,
   ArrowRight, Bell, Target, Car, ClipboardList, TrendingUp
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -31,11 +31,11 @@ export default function Dashboard() {
     setLoading(false);
   };
 
-  const isSupervisor = currentUser?.cargo === "supervisor" || currentUser?.role === "admin";
-
   const { data: stats = {} } = useQuery({
-    queryKey: ["dashboard-stats", currentUser?.equipe, isSupervisor],
+    queryKey: ["dashboard-stats", currentUser?.equipe, currentUser?.cargo],
     queryFn: async () => {
+      const user = await base44.auth.me();
+      const isSup = user?.cargo === "supervisor" || user?.role === "admin";
       const [pedidos, versatilidade, objetivos, avisos] = await Promise.all([
         base44.entities.PedidoEPI.list(),
         base44.entities.Versatilidade.list(),
@@ -43,14 +43,15 @@ export default function Dashboard() {
         base44.entities.Aviso.list()
       ]);
       // Filtra por equipe (supervisor vê tudo)
-      const filtraEquipe = (arr, campo = "equipe") =>
-        isSupervisor || !currentUser?.equipe
+      const filtraEquipe = (arr) =>
+        isSup || !user?.equipe
           ? arr
-          : arr.filter(x => x[campo] === currentUser.equipe);
+          : arr.filter(x => x.equipe === user.equipe);
 
       const pedidosFilt = filtraEquipe(pedidos);
       const colabFilt = filtraEquipe(versatilidade);
       const objetivosFilt = filtraEquipe(objetivos);
+
 
       return {
         epiPendentes: pedidosFilt.filter(p => p.status === "pendente").length,
@@ -75,6 +76,7 @@ export default function Dashboard() {
     );
   }
 
+  const isSupervisor = currentUser?.cargo === "supervisor" || currentUser?.role === "admin";
   const firstName = (currentUser?.nome_exibicao || currentUser?.full_name || "").split(" ")[0];
   const turnoLabel = currentUser?.turno === "manha" ? "1º Turno · Manhã" : currentUser?.turno === "tarde" ? "2º Turno · Tarde" : currentUser?.turno === "noite" ? "3º Turno · Noite" : "";
 

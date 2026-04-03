@@ -180,6 +180,7 @@ export default function Registro() {
                     <SelectContent>
                       <SelectItem value="monitor">Monitor</SelectItem>
                       <SelectItem value="lider">Líder</SelectItem>
+                      <SelectItem value="supervisor">Supervisor</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
