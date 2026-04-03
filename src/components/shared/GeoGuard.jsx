@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 const VW_TAUBATE = {
   lat: -23.0274,
   lng: -45.5569,
-  raioMetros: 1000, // 1km de raio
+  raioMetros: 5000, // 5km de raio
 };
 
 function distanciaMetros(lat1, lng1, lat2, lng2) {
