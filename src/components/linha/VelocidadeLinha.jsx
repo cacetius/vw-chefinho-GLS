@@ -2,8 +2,12 @@ import React, { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Gauge, TrendingUp, Clock, Car, Target } from "lucide-react";
 
-// Duração de cada turno em horas
-const DURACAO_TURNO_HORAS = 8.17; // ~8h10min de produção efetiva
+// Dados reais VW Taubaté 2025
+// 200.000 unidades/ano ÷ 250 dias úteis = ~800/dia ÷ 2 turnos = ~400/turno
+// Turno efetivo: ~8h de produção
+// Takt time real: 8h × 60min ÷ 400 carros ≈ 1,2 min/carro (~72s)
+const DURACAO_TURNO_HORAS = 8.0;
+const META_CARROS_TURNO = 400; // ~800 carros/dia, 2 turnos
 
 export default function VelocidadeLinha({ carros }) {
   const stats = useMemo(() => {
@@ -41,8 +45,8 @@ export default function VelocidadeLinha({ carros }) {
       }
     }
 
-    // Se não temos taxa calculada, usamos referência da VW Taubaté (~34 carros/turno)
-    const taxaReferencia = 34 / DURACAO_TURNO_HORAS; // ~4.16 carros/hora
+    // Se não temos taxa calculada, usamos referência real da VW Taubaté
+    const taxaReferencia = META_CARROS_TURNO / DURACAO_TURNO_HORAS; // ~50 carros/hora
     const taxa = taxaAtualPorHora || taxaReferencia;
 
     // Previsão por turno
@@ -82,8 +86,8 @@ export default function VelocidadeLinha({ carros }) {
     );
   }
 
-  // Barra de velocidade relativa ao alvo (34 carros/turno = 100%)
-  const velocidadePercent = Math.min(100, Math.round((stats.previsaoPorTurno / 34) * 100));
+  // Barra de velocidade relativa ao alvo real (400 carros/turno = 100%)
+  const velocidadePercent = Math.min(100, Math.round((stats.previsaoPorTurno / META_CARROS_TURNO) * 100));
   const corVelocidade = velocidadePercent >= 90 ? "bg-emerald-500" : velocidadePercent >= 70 ? "bg-amber-500" : "bg-red-500";
   const corTextoVel = velocidadePercent >= 90 ? "text-emerald-600" : velocidadePercent >= 70 ? "text-amber-600" : "text-red-600";
 
@@ -110,7 +114,7 @@ export default function VelocidadeLinha({ carros }) {
         {/* Barra de progresso vs meta */}
         <div>
           <div className="flex justify-between text-[10px] text-blue-200 mb-1">
-            <span>Progresso vs meta (34/turno)</span>
+            <span>Progresso vs meta (~400/turno)</span>
             <span className="font-bold text-white">{velocidadePercent}%</span>
           </div>
           <div className="w-full bg-white/20 rounded-full h-2">
@@ -181,21 +185,32 @@ export default function VelocidadeLinha({ carros }) {
         </Card>
       </div>
 
-      {/* Referência VW Taubaté */}
+      {/* Referência real VW Taubaté 2025 */}
       <div className="bg-slate-50 rounded-xl p-3 border border-slate-200">
-        <p className="text-[10px] font-bold text-slate-600 mb-2">📊 Referência VW Taubaté</p>
+        <p className="text-[10px] font-bold text-slate-600 mb-1">📊 VW Taubaté — Dados Reais 2025</p>
+        <p className="text-[9px] text-slate-400 mb-2">Polo Track + Tera · 2 turnos · Av. Automóvel Clube, 1666</p>
         <div className="grid grid-cols-3 gap-2 text-center">
           <div>
-            <p className="text-base font-bold text-[#0066b1]">34</p>
+            <p className="text-base font-bold text-[#0066b1]">~400</p>
             <p className="text-[9px] text-slate-400">carros/turno</p>
           </div>
           <div>
-            <p className="text-base font-bold text-[#0066b1]">~4.2</p>
+            <p className="text-base font-bold text-[#0066b1]">~50</p>
             <p className="text-[9px] text-slate-400">carros/hora</p>
           </div>
           <div>
-            <p className="text-base font-bold text-[#0066b1]">~14min</p>
+            <p className="text-base font-bold text-[#0066b1]">~72s</p>
             <p className="text-[9px] text-slate-400">takt time</p>
+          </div>
+        </div>
+        <div className="mt-2 pt-2 border-t border-slate-200 grid grid-cols-2 gap-2 text-center">
+          <div>
+            <p className="text-sm font-bold text-slate-700">200.000</p>
+            <p className="text-[9px] text-slate-400">unidades/ano</p>
+          </div>
+          <div>
+            <p className="text-sm font-bold text-slate-700">2.900+</p>
+            <p className="text-[9px] text-slate-400">colaboradores</p>
           </div>
         </div>
       </div>

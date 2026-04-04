@@ -9,28 +9,31 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { X, Plus, Trash2, Car, AlertTriangle } from "lucide-react";
 
-// Modelos disponíveis na linha
+// Modelos produzidos na VW Taubaté (Polo Track e Tera)
 const MODELOS = {
   Polo: {
-    label: "Polo",
+    label: "Polo Track",
     emoji: "🚗",
-    versoes: ["Track", "Highline", "Comfortline", "GTS", "Black", "Turbo 200", "Polo"]
+    versoes: ["Track", "Track 1.0 MPI Manual", "Track 1.0 MPI AT"]
   },
   Tera: {
-    label: "T-Tera",
+    label: "Tera",
     emoji: "🚙",
-    versoes: ["Comfort", "Comfortline", "R-Line", "Highline", "VW Play"]
+    versoes: ["Comfort", "Comfort 1.0 TSI", "Highline 1.0 TSI", "Highline TSI AT", "R-Line 1.0 TSI"]
   }
 };
 
+// 8 cores oficiais disponíveis na planta de Taubaté (Polo + Tera compartilham Preto, Branco, Cinza)
+// Tera adiciona: Azul Denim, Prata Lunar, Vermelho Sunset
 const CORES_RAPIDAS = [
-  { nome: "Branco Puro", hex: "#F5F5F5" },
-  { nome: "Prata Tungstênio", hex: "#9E9E9E" },
-  { nome: "Preto Ninja", hex: "#1C1C1C" },
-  { nome: "Cinza Platinum", hex: "#707070" },
-  { nome: "Vermelho Flash", hex: "#C62828" },
-  { nome: "Azul Biarritz", hex: "#1565C0" },
-  { nome: "Bege Savanna", hex: "#C8B89A" },
+  { nome: "Branco Puro", hex: "#F4F4F4" },
+  { nome: "Preto Místico", hex: "#1A1A1A" },
+  { nome: "Cinza Platinado", hex: "#808080" },
+  { nome: "Azul Denim", hex: "#1E4D8C" },
+  { nome: "Prata Lunar", hex: "#B0B8C1" },
+  { nome: "Vermelho Sunset", hex: "#C0392B" },
+  { nome: "Branco Cristal", hex: "#E8E8E8" },
+  { nome: "Cinza Quartzo", hex: "#5A5A5A" },
 ];
 
 export default function CarroForm({ carro, onSubmit, currentUser, onCancel }) {
@@ -193,42 +196,53 @@ export default function CarroForm({ carro, onSubmit, currentUser, onCancel }) {
                 <Select value={formData.estacao_atual} onValueChange={v => setFormData(f => ({ ...f, estacao_atual: v }))}>
                   <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
                   <SelectContent className="max-h-72">
-                    <SelectItem value="entrada">🚪 Entrada</SelectItem>
-                    <SelectItem value="chaparia_solda">⚡ Solda</SelectItem>
-                    <SelectItem value="chaparia_geometria">📐 Geometria</SelectItem>
-                    <SelectItem value="zp1">ZP1</SelectItem>
-                    <SelectItem value="zp2">ZP2</SelectItem>
-                    <SelectItem value="zp3">ZP3</SelectItem>
-                    <SelectItem value="zp4">ZP4</SelectItem>
-                    <SelectItem value="zp5">ZP5</SelectItem>
-                    <SelectItem value="zp6">ZP6</SelectItem>
-                    <SelectItem value="zp7">ZP7</SelectItem>
-                    <SelectItem value="zp8">ZP8</SelectItem>
+                    <SelectItem value="entrada">🚪 Recebimento de Chapa</SelectItem>
+                    <SelectItem value="estamparia_prensa">🔨 Estamparia — Prensas</SelectItem>
+                    <SelectItem value="estamparia_inspeção">📏 Estamparia — Inspeção</SelectItem>
+                    <SelectItem value="chaparia_solda">⚡ Armação — Solda Ponto</SelectItem>
+                    <SelectItem value="armacao_lateral">🤖 Armação — Lateral</SelectItem>
+                    <SelectItem value="armacao_teto">🔆 Armação — Solda Laser Teto</SelectItem>
+                    <SelectItem value="chaparia_geometria">📐 Armação — Geometria</SelectItem>
+                    <SelectItem value="armacao_cera">🛡️ Armação — Cera Anti-Corrosão</SelectItem>
+                    <SelectItem value="pintura_fosfatizacao">🧪 Pintura — Fosfatização</SelectItem>
+                    <SelectItem value="pintura_ecoat">🔋 Pintura — E-Coat (robótico)</SelectItem>
+                    <SelectItem value="pintura_vedacao">🔒 Pintura — Vedação</SelectItem>
+                    <SelectItem value="pintura_primer">🖌️ Pintura — Primer</SelectItem>
+                    <SelectItem value="pintura_base">🎨 Pintura — Base Coat</SelectItem>
+                    <SelectItem value="pintura_bitone">🖤 Pintura — Bi-tone</SelectItem>
+                    <SelectItem value="pintura_verniz">✨ Pintura — Verniz</SelectItem>
+                    <SelectItem value="pintura_secagem">🔥 Pintura — Forno</SelectItem>
+                    <SelectItem value="pintura_inspecao">👁️ Pintura — Inspeção</SelectItem>
+                    <SelectItem value="zp1">① ZP1 — Preparação</SelectItem>
+                    <SelectItem value="zp2">② ZP2 — Chicotes Elétricos</SelectItem>
+                    <SelectItem value="zp3">③ ZP3 — Painel</SelectItem>
+                    <SelectItem value="zp4">④ ZP4 — Motor / Motriz</SelectItem>
+                    <SelectItem value="zp5">⑤ ZP5 — Suspensão Dianteira</SelectItem>
+                    <SelectItem value="zp6">⑥ ZP6 — Suspensão Traseira</SelectItem>
+                    <SelectItem value="zp7">⑦ ZP7 — Vidros</SelectItem>
+                    <SelectItem value="zp8">⑧ ZP8 — Bancos / Interior</SelectItem>
+                    <SelectItem value="doorless">🚪 Doorless</SelectItem>
                     <SelectItem value="celula_parachoque">🛡️ Parachoque</SelectItem>
-                    <SelectItem value="dress_up">👔 Dress Up</SelectItem>
-                    <SelectItem value="chicotes">🔌 Chicotes</SelectItem>
-                    <SelectItem value="vidros">🪟 Vidros</SelectItem>
-                    <SelectItem value="doorless">🚗 Doorless</SelectItem>
-                    <SelectItem value="bancos">💺 Bancos</SelectItem>
-                    <SelectItem value="acabamento_interno">✨ Acabamento</SelectItem>
-                    <SelectItem value="capo_tampa">📦 Capô/Tampa</SelectItem>
-                    <SelectItem value="pintura_fosfatizacao">🧪 Fosfatização</SelectItem>
-                    <SelectItem value="pintura_ecoat">🔋 E-Coat</SelectItem>
-                    <SelectItem value="pintura_primer">🖌️ Primer</SelectItem>
-                    <SelectItem value="pintura_base">🎨 Base Coat</SelectItem>
-                    <SelectItem value="pintura_verniz">✨ Verniz</SelectItem>
-                    <SelectItem value="pintura_secagem">💨 Secagem</SelectItem>
-                    <SelectItem value="pcp_polimento">💎 Polimento</SelectItem>
-                    <SelectItem value="pcp_retoque">🖊️ Retoque</SelectItem>
-                    <SelectItem value="qualidade_auditoria">🔍 Auditoria</SelectItem>
-                    <SelectItem value="qualidade_agua">💧 Teste Água</SelectItem>
-                    <SelectItem value="teste_dinamometro">📈 Dinamômetro</SelectItem>
-                    <SelectItem value="teste_alinhamento">🎯 Alinhamento</SelectItem>
-                    <SelectItem value="teste_luz">💡 Teste Farol</SelectItem>
-                    <SelectItem value="teste_road">🛣️ Road Test</SelectItem>
-                    <SelectItem value="expedicao_limpeza">🧽 Limpeza Final</SelectItem>
-                    <SelectItem value="expedicao_final">📦 Expedição</SelectItem>
-                    <SelectItem value="saida">🏁 Saída</SelectItem>
+                    <SelectItem value="dress_up">✨ Dress Up</SelectItem>
+                    <SelectItem value="acabamento_interno">🪑 Acabamento Interno</SelectItem>
+                    <SelectItem value="capo_tampa">📦 Capô, Portas, Tampa</SelectItem>
+                    <SelectItem value="fluidos">💧 Fluidos</SelectItem>
+                    <SelectItem value="pcp_polimento">💎 Retrabalho — Polimento</SelectItem>
+                    <SelectItem value="pcp_retoque">🖊️ Retrabalho — Retoque Pintura</SelectItem>
+                    <SelectItem value="pcp_retrabalho">🔧 Retrabalho — Montagem</SelectItem>
+                    <SelectItem value="qualidade_auditoria">🔍 Qualidade — Auditoria VDA</SelectItem>
+                    <SelectItem value="qualidade_eletrica">⚡ Qualidade — Teste Elétrico</SelectItem>
+                    <SelectItem value="qualidade_agua">💧 Qualidade — Teste de Água</SelectItem>
+                    <SelectItem value="qualidade_visual">👁️ Qualidade — Inspeção Final</SelectItem>
+                    <SelectItem value="teste_dinamometro">📈 Teste — Dinamômetro</SelectItem>
+                    <SelectItem value="teste_alinhamento">🎯 Teste — Alinhamento</SelectItem>
+                    <SelectItem value="teste_luz">💡 Teste — Faróis</SelectItem>
+                    <SelectItem value="teste_freios">🛑 Teste — Freios</SelectItem>
+                    <SelectItem value="teste_road">🛣️ Teste — Road Test</SelectItem>
+                    <SelectItem value="expedicao_limpeza">🧽 Expedição — Limpeza</SelectItem>
+                    <SelectItem value="expedicao_documentacao">📋 Expedição — Documentação</SelectItem>
+                    <SelectItem value="expedicao_final">🏭 Expedição — Pátio</SelectItem>
+                    <SelectItem value="saida">🚛 Saída — Transportadora</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
