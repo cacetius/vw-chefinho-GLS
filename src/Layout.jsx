@@ -313,13 +313,13 @@ export default function Layout({ children, currentPageName }) {
           </div>
         </header>
 
-        <div className="flex-1 p-3 md:p-5 pb-24 lg:pb-6">
+        <div className="flex-1 p-3 md:p-5 pb-28 lg:pb-6">
           {children}
         </div>
       </main>
 
       {/* MOBILE BOTTOM NAV */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-200 safe-area-inset-bottom">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-200" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="flex items-stretch h-16">
           {BOTTOM_NAV.map(item => {
             const active = item.url ? isActive(item.url) : drawerOpen;
@@ -328,7 +328,7 @@ export default function Layout({ children, currentPageName }) {
               <button
                 key={item.title}
                 onClick={() => isMenu ? setDrawerOpen(d => !d) : navigate(createPageUrl(item.url))}
-                className={`flex-1 flex flex-col items-center justify-center gap-0.5 transition-all active:scale-95 relative ${
+                className={`flex-1 flex flex-col items-center justify-center gap-1 transition-all active:scale-95 relative ${
                   active ? 'text-[#0066b1]' : 'text-slate-400'
                 }`}
               >
@@ -339,7 +339,7 @@ export default function Layout({ children, currentPageName }) {
                   />
                 )}
                 <item.icon className={`w-5 h-5 transition-all ${active ? 'scale-110' : ''}`} />
-                <span className={`text-[9px] font-medium ${active ? 'font-bold' : ''}`}>{item.title}</span>
+                <span className={`text-[10px] font-medium ${active ? 'font-bold text-[#0066b1]' : ''}`}>{item.title}</span>
               </button>
             );
           })}

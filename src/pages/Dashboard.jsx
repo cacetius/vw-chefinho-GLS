@@ -137,36 +137,36 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="space-y-4 md:space-y-5">
+    <div className="space-y-3">
 
       {/* Welcome Banner */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-r from-[#001e50] to-[#0066b1] rounded-2xl p-4 md:p-5 text-white overflow-hidden relative"
+        className="bg-gradient-to-r from-[#001e50] to-[#0066b1] rounded-2xl p-4 text-white overflow-hidden relative"
       >
-        <div className="absolute right-0 top-0 bottom-0 w-32 opacity-5 select-none text-[100px] leading-none overflow-hidden">🏭</div>
-        <div className="relative flex items-center justify-between gap-3">
-          <div>
-            <p className="text-blue-200 text-[11px] font-medium uppercase tracking-wide">VW Chefinho</p>
-            <h1 className="text-xl md:text-2xl font-bold leading-tight mt-0.5">
+        <div className="absolute right-0 top-0 bottom-0 w-24 opacity-5 select-none text-[90px] leading-none overflow-hidden">🏭</div>
+        <div className="relative flex items-start justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <p className="text-blue-200 text-[10px] font-medium uppercase tracking-wide">VW Chefinho</p>
+            <h1 className="text-lg font-bold leading-tight mt-0.5">
               Olá, {firstName}! 👋
             </h1>
-            <p className="text-blue-200 text-xs mt-1 capitalize">
+            <p className="text-blue-200 text-[11px] mt-0.5 capitalize">
               {new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })}
             </p>
           </div>
-          <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-            <Badge className="bg-white/20 text-white border-transparent text-[11px] px-2.5 py-1">
+          <div className="flex flex-col items-end gap-1 flex-shrink-0">
+            <Badge className="bg-white/20 text-white border-transparent text-[10px] px-2 py-0.5">
               {currentUser?.cargo === "supervisor" ? "🎖️ Supervisor" : currentUser?.cargo === "lider" ? "👔 Líder" : "👷 Monitor"}
             </Badge>
             {currentUser?.equipe && (
-              <Badge className="bg-white/10 text-white/80 border-transparent text-[10px]">
+              <Badge className="bg-white/10 text-white/80 border-transparent text-[9px] px-2 py-0.5">
                 {currentUser.equipe}
               </Badge>
             )}
             {turnoLabel && (
-              <Badge className="bg-white/10 text-white/80 border-transparent text-[10px]">
+              <Badge className="bg-white/10 text-white/80 border-transparent text-[9px] px-2 py-0.5">
                 {turnoLabel}
               </Badge>
             )}
@@ -177,8 +177,8 @@ export default function Dashboard() {
         {stats.objetivosTotal > 0 && (
           <div className="relative mt-3 pt-3 border-t border-white/20">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-white/80 text-[11px] flex items-center gap-1"><Target className="w-3 h-3" /> Objetivos de hoje</span>
-              <span className="text-white font-bold text-[11px]">{objetivosPercent}%</span>
+              <span className="text-white/80 text-[10px] flex items-center gap-1"><Target className="w-3 h-3" /> Objetivos de hoje</span>
+              <span className="text-white font-bold text-[10px]">{objetivosPercent}%</span>
             </div>
             <div className="w-full bg-white/20 rounded-full h-1.5">
               <div className="bg-white rounded-full h-1.5 transition-all" style={{ width: `${objetivosPercent}%` }} />
@@ -190,58 +190,47 @@ export default function Dashboard() {
       {/* Alerta urgente */}
       {(stats.urgentes ?? 0) > 0 && (
         <Link to={createPageUrl("SegurancaHub")}>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="bg-red-50 border border-red-200 rounded-xl p-3 flex items-center gap-3 hover:bg-red-100 transition-colors cursor-pointer"
-          >
-            <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+          <div className="bg-red-50 border border-red-200 rounded-xl p-3 flex items-center gap-3 active:bg-red-100 transition-colors cursor-pointer">
+            <div className="w-9 h-9 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
               <Bell className="w-4 h-4 text-red-600" />
             </div>
             <div className="flex-1">
               <p className="text-sm font-semibold text-red-800">
                 {stats.urgentes} aviso{stats.urgentes > 1 ? "s" : ""} importante{stats.urgentes > 1 ? "s" : ""}
               </p>
-              <p className="text-xs text-red-600">Clique para ver em Segurança & Qualidade</p>
+              <p className="text-xs text-red-500">Ver em Segurança & Qualidade</p>
             </div>
             <ArrowRight className="w-4 h-4 text-red-400 flex-shrink-0" />
-          </motion.div>
+          </div>
         </Link>
       )}
 
       {/* 6 Módulos */}
       <div>
-        <h2 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-          <Activity className="w-3.5 h-3.5" /> Módulos do Sistema
+        <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+          <Activity className="w-3.5 h-3.5" /> Módulos
         </h2>
-        <div className="grid grid-cols-2 gap-2.5">
+        <div className="grid grid-cols-2 gap-2">
           {MODULES.map(({ title, desc, icon: Icon, url, gradient, badge }, i) => (
-            <motion.div
-              key={url}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
-            >
-              <Link to={createPageUrl(url)}>
-                <div className={`bg-gradient-to-br ${gradient} rounded-2xl p-4 text-white relative overflow-hidden active:scale-95 transition-all hover:shadow-lg cursor-pointer min-h-[100px] flex flex-col justify-between`}>
-                  <div className="flex items-start justify-between">
-                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                      <Icon className="w-5 h-5 text-white" />
+            <Link key={url} to={createPageUrl(url)}>
+              <div className={`bg-gradient-to-br ${gradient} rounded-2xl p-3.5 text-white relative overflow-hidden active:scale-95 transition-transform cursor-pointer min-h-[96px] flex flex-col justify-between`}>
+                <div className="flex items-start justify-between">
+                  <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
+                    <Icon className="w-4 h-4 text-white" />
+                  </div>
+                  {badge !== null && (
+                    <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                      <span className="text-[9px] font-bold text-white">{badge}</span>
                     </div>
-                    {badge !== null && (
-                      <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center border-2 border-white/30">
-                        <span className="text-[10px] font-bold text-white">{badge}</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="mt-3">
-                    <p className="font-bold text-sm leading-tight">{title}</p>
-                    <p className="text-white/70 text-[10px] mt-0.5 leading-tight">{desc}</p>
-                  </div>
-                  <div className="absolute bottom-0 right-0 w-20 h-20 bg-white/5 rounded-full -mr-8 -mb-8" />
+                  )}
                 </div>
-              </Link>
-            </motion.div>
+                <div className="mt-2">
+                  <p className="font-bold text-[13px] leading-tight">{title}</p>
+                  <p className="text-white/65 text-[10px] mt-0.5 leading-tight">{desc}</p>
+                </div>
+                <div className="absolute bottom-0 right-0 w-16 h-16 bg-white/5 rounded-full -mr-6 -mb-6" />
+              </div>
+            </Link>
           ))}
         </div>
       </div>
