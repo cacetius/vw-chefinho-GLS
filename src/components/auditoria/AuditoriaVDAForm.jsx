@@ -113,21 +113,21 @@ export default function AuditoriaVDAForm({ auditoria, onSubmit, currentUser, onC
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="fixed inset-0 z-50 bg-black/50 flex items-start justify-center overflow-y-auto p-4 lg:p-0 lg:relative lg:bg-transparent"
+      className="fixed inset-0 z-50 bg-black/50 flex items-end justify-center"
     >
-      <Card className="w-full max-w-4xl shadow-lg border border-slate-200 my-4 lg:my-0">
-        <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-white sticky top-0 z-10">
+      <Card className="w-full max-w-2xl shadow-2xl border-0 rounded-t-2xl rounded-b-none" style={{ maxHeight: '92vh', display: 'flex', flexDirection: 'column' }}>
+        <CardHeader className="border-b bg-slate-50 p-4 flex-shrink-0">
           <div className="flex justify-between items-center">
-            <CardTitle className="text-lg md:text-xl text-slate-900">
+            <CardTitle className="text-base text-slate-900">
               {auditoria ? "Editar Auditoria VDA" : "Nova Auditoria VDA"}
             </CardTitle>
-            <Button variant="ghost" size="icon" onClick={onCancel}>
-              <X className="w-5 h-5" />
+            <Button variant="ghost" size="icon" onClick={onCancel} className="w-8 h-8">
+              <X className="w-4 h-4" />
             </Button>
           </div>
         </CardHeader>
 
-        <CardContent className="pt-4 md:pt-6 max-h-[calc(100vh-200px)] overflow-y-auto lg:max-h-none">
+        <CardContent className="p-4 overflow-y-auto flex-1">
           <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
             {/* Informações Gerais */}
             <div className="grid sm:grid-cols-2 gap-3 md:gap-4">
@@ -443,12 +443,12 @@ export default function AuditoriaVDAForm({ auditoria, onSubmit, currentUser, onC
             </div>
 
             {/* Botões */}
-            <div className="flex justify-end gap-3 pt-6 border-t">
-              <Button type="button" variant="outline" onClick={onCancel}>
+            <div className="flex gap-2 pt-4 border-t">
+              <Button type="button" variant="outline" onClick={onCancel} className="flex-1 h-9 text-sm">
                 Cancelar
               </Button>
-              <Button type="submit" className="bg-gradient-to-r from-[#001e50] to-[#0066b1] hover:from-[#001e50] hover:to-[#004d82]">
-                {auditoria ? "Atualizar Auditoria" : "Salvar Auditoria"}
+              <Button type="submit" className="flex-1 h-9 text-sm bg-[#0066b1] hover:bg-[#004d82]">
+                {auditoria ? "Atualizar" : "Salvar Auditoria"}
               </Button>
             </div>
           </form>

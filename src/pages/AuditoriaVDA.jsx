@@ -127,91 +127,73 @@ export default function AuditoriaVDA() {
   }
 
   return (
-    <div className="min-h-screen pb-20 md:pb-0">
-      <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
+    <div className="space-y-3">
+      <div className="max-w-7xl mx-auto space-y-3">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <div className="flex-1">
-            <h1 className="text-xl md:text-2xl font-bold text-slate-900 flex items-center gap-2">
-              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-[#001e50] to-[#0066b1] rounded-lg flex items-center justify-center">
-                <ClipboardCheck className="w-5 h-5 md:w-6 md:h-6 text-white" />
-              </div>
-              Auditoria VDA
-            </h1>
-            <p className="text-slate-600 mt-1 text-xs md:text-sm">Sistema de gestão de qualidade automotiva</p>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 bg-gradient-to-br from-[#001e50] to-[#0066b1] rounded-xl flex items-center justify-center flex-shrink-0">
+              <ClipboardCheck className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-base font-bold text-slate-900">Auditoria VDA</h1>
+              <p className="text-[10px] text-slate-400">Gestão de qualidade automotiva</p>
+            </div>
           </div>
-          <Button 
+          <Button size="sm"
             onClick={() => setShowForm(!showForm)}
-            className="w-full sm:w-auto bg-gradient-to-r from-[#001e50] to-[#0066b1] hover:from-[#001e50] hover:to-[#004d82]"
+            className="h-8 text-xs bg-[#0066b1] hover:bg-[#004d82]"
           >
-            <Plus className="w-4 h-4 mr-2" />
-            Nova Auditoria
+            <Plus className="w-3.5 h-3.5 sm:mr-1" /><span className="hidden sm:inline">Nova Auditoria</span>
           </Button>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-          <Card className="border border-slate-200 hover:shadow-md transition-shadow">
-            <CardContent className="pt-4 pb-4">
-              <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-2">
-                <div className="text-center sm:text-left">
-                  <p className="text-slate-600 text-[10px] sm:text-xs font-medium mb-1">Total</p>
-                  <p className="text-2xl sm:text-3xl font-bold text-[#0066b1]">{auditorias.length}</p>
-                </div>
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center">
-                  <ClipboardCheck className="w-5 h-5 sm:w-6 sm:h-6 text-[#0066b1]" />
-                </div>
+        <div className="grid grid-cols-2 gap-2">
+          <Card className="border border-slate-200">
+            <CardContent className="p-3 flex items-center gap-2">
+              <div className="w-9 h-9 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <ClipboardCheck className="w-4 h-4 text-[#0066b1]" />
+              </div>
+              <div>
+                <p className="text-[9px] text-slate-500">Total</p>
+                <p className="text-xl font-bold text-[#0066b1]">{auditorias.length}</p>
               </div>
             </CardContent>
           </Card>
-
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <Card className="shadow-xl border-0 bg-gradient-to-br from-green-500 to-emerald-600 text-white hover:shadow-2xl transition-all">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-green-100 text-sm font-medium mb-1">Conformidade Média</p>
-                    <p className="text-4xl font-bold">{calcularMediaConformidade()}%</p>
-                  </div>
-                  <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                    <TrendingUp className="w-8 h-8" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-            <Card className="shadow-xl border-0 bg-gradient-to-br from-red-500 to-pink-600 text-white hover:shadow-2xl transition-all">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-red-100 text-sm font-medium mb-1">Não Conformidades</p>
-                    <p className="text-4xl font-bold">{contarNaoConformidades()}</p>
-                  </div>
-                  <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                    <AlertTriangle className="w-8 h-8" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-            <Card className="shadow-xl border-0 bg-gradient-to-br from-purple-500 to-purple-600 text-white hover:shadow-2xl transition-all">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-purple-100 text-sm font-medium mb-1">Planos de Ação</p>
-                    <p className="text-4xl font-bold">{planosAcao.length}</p>
-                  </div>
-                  <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                    <FileText className="w-8 h-8" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+          <Card className="border-0 bg-gradient-to-br from-green-500 to-emerald-600 text-white">
+            <CardContent className="p-3 flex items-center gap-2">
+              <div className="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                <TrendingUp className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-[9px] text-green-100">Conformidade</p>
+                <p className="text-xl font-bold">{calcularMediaConformidade()}%</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-0 bg-gradient-to-br from-red-500 to-pink-600 text-white">
+            <CardContent className="p-3 flex items-center gap-2">
+              <div className="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                <AlertTriangle className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-[9px] text-red-100">Não Conformidades</p>
+                <p className="text-xl font-bold">{contarNaoConformidades()}</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-0 bg-gradient-to-br from-purple-500 to-purple-600 text-white">
+            <CardContent className="p-3 flex items-center gap-2">
+              <div className="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                <FileText className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-[9px] text-purple-100">Planos de Ação</p>
+                <p className="text-xl font-bold">{planosAcao.length}</p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Form */}
@@ -230,41 +212,23 @@ export default function AuditoriaVDA() {
         </AnimatePresence>
 
         {/* Tabs */}
-        <Card className="shadow-md border border-slate-200">
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <CardHeader className="border-b bg-slate-50 p-3 md:p-6">
-              <TabsList className="grid w-full grid-cols-3 h-9">
-                <TabsTrigger value="auditorias" className="text-xs md:text-sm">Auditorias</TabsTrigger>
-                <TabsTrigger value="planos" className="text-xs md:text-sm">Planos</TabsTrigger>
-                <TabsTrigger value="indicadores" className="text-xs md:text-sm">Indicadores</TabsTrigger>
-              </TabsList>
-            </CardHeader>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-3 h-9">
+            <TabsTrigger value="auditorias" className="text-xs">Auditorias</TabsTrigger>
+            <TabsTrigger value="planos" className="text-xs">Planos</TabsTrigger>
+            <TabsTrigger value="indicadores" className="text-xs">Indicadores</TabsTrigger>
+          </TabsList>
 
-            <CardContent className="pt-4 md:pt-6">
-              <TabsContent value="auditorias" className="mt-0">
-                <AuditoriaVDAList
-                  auditorias={auditorias}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  currentUser={currentUser}
-                />
-              </TabsContent>
-
-              <TabsContent value="planos" className="mt-0">
-                <PlanoAcaoList
-                  planosAcao={planosAcao}
-                  auditorias={auditorias}
-                  onRefresh={() => queryClient.invalidateQueries({ queryKey: ["planos-acao"] })}
-                  currentUser={currentUser}
-                />
-              </TabsContent>
-
-              <TabsContent value="indicadores" className="mt-0">
-                <AuditoriaChart auditorias={auditorias} />
-              </TabsContent>
-            </CardContent>
-          </Tabs>
-        </Card>
+          <TabsContent value="auditorias" className="mt-3">
+            <AuditoriaVDAList auditorias={auditorias} onEdit={handleEdit} onDelete={handleDelete} currentUser={currentUser} />
+          </TabsContent>
+          <TabsContent value="planos" className="mt-3">
+            <PlanoAcaoList planosAcao={planosAcao} auditorias={auditorias} onRefresh={() => queryClient.invalidateQueries({ queryKey: ["planos-acao"] })} currentUser={currentUser} />
+          </TabsContent>
+          <TabsContent value="indicadores" className="mt-3">
+            <AuditoriaChart auditorias={auditorias} />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

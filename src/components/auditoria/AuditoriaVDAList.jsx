@@ -44,116 +44,49 @@ export default function AuditoriaVDAList({ auditorias, onEdit, onDelete, current
   }
 
   return (
-    <div className="grid gap-4 md:gap-6">
+    <div className="space-y-3">
       {auditorias.map((auditoria, index) => (
-        <motion.div
-          key={auditoria.id}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: index * 0.1 }}
-        >
-          <Card className="hover:shadow-lg transition-all border-l-4 border-l-[#0066b1]">
-            <CardContent className="pt-4 md:pt-6">
-              <div className="flex flex-col md:flex-row justify-between items-start gap-3 mb-4">
-                <div className="flex-1 w-full">
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
-                    <h3 className="text-lg md:text-xl font-bold text-gray-900">{auditoria.titulo}</h3>
-                    <Badge className={getStatusColor(auditoria.status)}>
-                      {auditoria.status}
-                    </Badge>
+        <motion.div key={auditoria.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>
+          <Card className="border-l-4 border-l-[#0066b1] border border-slate-200">
+            <CardContent className="p-3">
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <h3 className="text-sm font-bold text-gray-900 truncate">{auditoria.titulo}</h3>
+                    <Badge className={`${getStatusColor(auditoria.status)} text-[9px] px-1.5 py-0`}>{auditoria.status}</Badge>
                   </div>
-                  
-                  <div className="flex flex-wrap gap-1.5 md:gap-2 mb-3">
-                    <Badge variant="outline" className="text-indigo-700 border-indigo-300">
-                      {getTipoAuditoriaLabel(auditoria.tipo_auditoria)}
-                    </Badge>
-                    <Badge variant="outline">
-                      📍 {auditoria.area_auditada}
-                    </Badge>
-                    <Badge variant="outline">
-                      📅 {new Date(auditoria.data_auditoria).toLocaleDateString('pt-BR')}
-                    </Badge>
-                    <Badge variant="outline">
-                      🕐 {auditoria.turno}
-                    </Badge>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-2 md:gap-4 mt-4">
-                    <div className="flex flex-col items-center text-center">
-                      <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center mb-1">
-                        <TrendingUp className={`w-4 h-4 md:w-5 md:h-5 ${getConformidadeColor(auditoria.percentual_conformidade || 0)}`} />
-                      </div>
-                      <div>
-                        <p className="text-[10px] md:text-xs text-gray-500">Conformidade</p>
-                        <p className={`text-sm md:text-lg font-bold ${getConformidadeColor(auditoria.percentual_conformidade || 0)}`}>
-                          {auditoria.percentual_conformidade || 0}%
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col items-center text-center">
-                      <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center mb-1">
-                        <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
-                      </div>
-                      <div>
-                        <p className="text-[10px] md:text-xs text-gray-500">Itens</p>
-                        <p className="text-sm md:text-lg font-bold text-gray-900">
-                          {auditoria.itens_checklist?.length || 0}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col items-center text-center">
-                      <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-red-100 to-pink-100 flex items-center justify-center mb-1">
-                        <AlertTriangle className="w-4 h-4 md:w-5 md:h-5 text-red-600" />
-                      </div>
-                      <div>
-                        <p className="text-[10px] md:text-xs text-gray-500">NC</p>
-                        <p className="text-sm md:text-lg font-bold text-red-600">
-                          {auditoria.nao_conformidades?.length || 0}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {auditoria.pontos_fortes && (
-                    <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
-                      <p className="text-xs font-semibold text-green-800 mb-1">✅ Pontos Fortes:</p>
-                      <p className="text-sm text-green-700">{auditoria.pontos_fortes}</p>
-                    </div>
-                  )}
-
-                  {auditoria.oportunidades_melhoria && (
-                    <div className="mt-2 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-                      <p className="text-xs font-semibold text-yellow-800 mb-1">💡 Oportunidades:</p>
-                      <p className="text-sm text-yellow-700">{auditoria.oportunidades_melhoria}</p>
-                    </div>
-                  )}
-
-                  <div className="mt-3 text-xs text-gray-500">
-                    Auditor: <span className="font-semibold">{auditoria.auditor_nome}</span>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    <Badge variant="outline" className="text-[9px] px-1 py-0 text-indigo-700 border-indigo-300">{getTipoAuditoriaLabel(auditoria.tipo_auditoria)}</Badge>
+                    <Badge variant="outline" className="text-[9px] px-1 py-0">📍 {auditoria.area_auditada}</Badge>
+                    <Badge variant="outline" className="text-[9px] px-1 py-0">📅 {new Date(auditoria.data_auditoria).toLocaleDateString('pt-BR')}</Badge>
                   </div>
                 </div>
-
-                <div className="flex md:flex-col gap-2">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => onEdit(auditoria)}
-                    className="hover:bg-blue-50 hover:text-[#0066b1] hover:border-[#0066b1]"
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => onDelete(auditoria.id)}
-                    className="hover:bg-red-50 hover:text-red-700 hover:border-red-300"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                <div className="flex gap-1 flex-shrink-0">
+                  <button onClick={() => onEdit(auditoria)} className="p-1.5 rounded-lg hover:bg-blue-50 text-slate-400 hover:text-[#0066b1] active:scale-90 transition-all">
+                    <Pencil className="w-3.5 h-3.5" />
+                  </button>
+                  <button onClick={() => onDelete(auditoria.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 active:scale-90 transition-all">
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               </div>
+
+              <div className="grid grid-cols-3 gap-2 mt-2">
+                <div className="text-center p-2 bg-green-50 rounded-lg">
+                  <p className={`text-lg font-bold ${getConformidadeColor(auditoria.percentual_conformidade || 0)}`}>{auditoria.percentual_conformidade || 0}%</p>
+                  <p className="text-[9px] text-gray-500">Conformidade</p>
+                </div>
+                <div className="text-center p-2 bg-blue-50 rounded-lg">
+                  <p className="text-lg font-bold text-blue-700">{auditoria.itens_checklist?.length || 0}</p>
+                  <p className="text-[9px] text-gray-500">Itens</p>
+                </div>
+                <div className="text-center p-2 bg-red-50 rounded-lg">
+                  <p className="text-lg font-bold text-red-600">{auditoria.nao_conformidades?.length || 0}</p>
+                  <p className="text-[9px] text-gray-500">NC</p>
+                </div>
+              </div>
+
+              <p className="text-[10px] text-gray-400 mt-2">Auditor: {auditoria.auditor_nome}</p>
             </CardContent>
           </Card>
         </motion.div>

@@ -28,7 +28,7 @@ const nivelLabels = {
 
 export default function VersatilidadeCards({ colaboradores = [], onEdit, onDelete }) {
   return (
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 gap-3">
       <AnimatePresence>
         {colaboradores.map((colaborador) => {
           const treinadas = colaborador.habilidades?.filter(h => h.nivel === "treinado" || h.nivel === "instrutor").length || 0;
@@ -41,87 +41,58 @@ export default function VersatilidadeCards({ colaboradores = [], onEdit, onDelet
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
             >
-              <Card className="shadow-lg hover:shadow-xl transition-all h-full">
-                <CardHeader className="pb-3 border-b bg-gradient-to-r from-purple-50 to-white">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                        {colaborador.colaborador?.charAt(0) || 'C'}
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-lg text-gray-900">
-                          {colaborador.colaborador}
-                        </h3>
-                        <p className="text-sm text-gray-500">Chapa: {colaborador.chapa}</p>
-                      </div>
+              <Card className="border border-slate-200">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
+                      {colaborador.colaborador?.charAt(0) || 'C'}
                     </div>
-                    <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" onClick={() => onEdit(colaborador)}>
-                        <Pencil className="w-4 h-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => onDelete(colaborador.id)}>
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </Button>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-sm text-gray-900 truncate">{colaborador.colaborador}</h3>
+                      <p className="text-[11px] text-gray-500">Chapa: {colaborador.chapa}</p>
+                    </div>
+                    <div className="flex gap-1 flex-shrink-0">
+                      <button onClick={() => onEdit(colaborador)} className="p-1.5 rounded-lg hover:bg-purple-50 text-slate-400 hover:text-purple-600 active:scale-90 transition-all">
+                        <Pencil className="w-3.5 h-3.5" />
+                      </button>
+                      <button onClick={() => onDelete(colaborador.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 active:scale-90 transition-all">
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent className="pt-4 space-y-4">
-                  <div className="grid grid-cols-2 gap-2">
-                    {colaborador.equipe && (
-                      <div>
-                        <p className="text-xs text-gray-500">Equipe</p>
-                        <p className="font-medium text-sm">{colaborador.equipe}</p>
-                      </div>
-                    )}
-                    {colaborador.turno && (
-                      <div>
-                        <p className="text-xs text-gray-500">Turno</p>
-                        <p className="font-medium text-sm capitalize">{colaborador.turno}</p>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="pt-3 border-t">
-                    <Badge className={`${disponibilidadeColors[colaborador.disponibilidade]} border w-full justify-center mb-3`}>
+                  <div className="space-y-2">
+                  <div className="flex flex-wrap gap-1.5 items-center">
+                    <Badge className={`${disponibilidadeColors[colaborador.disponibilidade]} border text-[10px] px-1.5 py-0`}>
                       {colaborador.disponibilidade}
                     </Badge>
+                    {colaborador.equipe && <Badge variant="outline" className="text-[10px] px-1.5 py-0">{colaborador.equipe}</Badge>}
+                    {colaborador.turno && <Badge variant="outline" className="text-[10px] px-1.5 py-0 capitalize">{colaborador.turno}</Badge>}
+                  </div>
 
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="text-center p-3 bg-green-50 rounded-lg">
-                        <p className="text-2xl font-bold text-green-600">{treinadas}</p>
-                        <p className="text-xs text-green-700">Habilidades Treinadas</p>
-                      </div>
-                      <div className="text-center p-3 bg-blue-50 rounded-lg">
-                        <p className="text-2xl font-bold text-blue-600">{instrutor}</p>
-                        <p className="text-xs text-blue-700">Instrutor</p>
-                      </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="text-center p-2 bg-green-50 rounded-lg">
+                      <p className="text-xl font-bold text-green-600">{treinadas}</p>
+                      <p className="text-[9px] text-green-700">Treinadas</p>
+                    </div>
+                    <div className="text-center p-2 bg-blue-50 rounded-lg">
+                      <p className="text-xl font-bold text-blue-600">{instrutor}</p>
+                      <p className="text-[9px] text-blue-700">Instrutor</p>
                     </div>
                   </div>
 
                   {colaborador.habilidades && colaborador.habilidades.length > 0 && (
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <Award className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm font-medium text-gray-600">Principais Habilidades</span>
-                      </div>
-                      <div className="space-y-1 max-h-32 overflow-y-auto">
-                        {colaborador.habilidades.slice(0, 5).map((hab, index) => (
-                          <div key={index} className="flex items-center justify-between text-xs p-2 bg-gray-50 rounded">
-                            <span className="text-gray-700">{hab.numero}. {hab.descricao}</span>
-                            <Badge className={`${nivelColors[hab.nivel]} text-xs`}>
-                              {nivelLabels[hab.nivel]}
-                            </Badge>
-                          </div>
-                        ))}
-                      </div>
+                    <div className="space-y-1">
+                      {colaborador.habilidades.slice(0, 3).map((hab, index) => (
+                        <div key={index} className="flex items-center justify-between text-xs p-1.5 bg-gray-50 rounded gap-2">
+                          <span className="text-gray-700 truncate flex-1">{hab.numero}. {hab.descricao}</span>
+                          <Badge className={`${nivelColors[hab.nivel]} text-[9px] px-1 py-0 flex-shrink-0`}>
+                            {nivelLabels[hab.nivel]}
+                          </Badge>
+                        </div>
+                      ))}
                     </div>
                   )}
-
-                  {colaborador.observacoes && (
-                    <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-                      {colaborador.observacoes}
-                    </div>
-                  )}
+                </div>
                 </CardContent>
               </Card>
             </motion.div>

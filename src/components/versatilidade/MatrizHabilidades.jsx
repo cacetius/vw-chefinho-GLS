@@ -49,61 +49,44 @@ export default function MatrizHabilidades({ colaboradores, onEdit, onDelete }) {
   }
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto -mx-3 px-3">
+      <div style={{ minWidth: Math.max(320, 200 + todasHabilidades.length * 100) + 'px' }}>
       <table className="w-full text-sm">
         <thead className="bg-gradient-to-r from-purple-600 to-purple-700 text-white">
           <tr>
-            <th className="px-4 py-3 text-left font-semibold sticky left-0 bg-purple-600 z-10">Colaborador</th>
-            <th className="px-4 py-3 text-left font-semibold">Chapa</th>
-            <th className="px-4 py-3 text-left font-semibold">Equipe</th>
-            <th className="px-4 py-3 text-left font-semibold">Turno</th>
+            <th className="px-3 py-2 text-left font-semibold sticky left-0 bg-purple-600 z-10 text-xs min-w-[120px]">Colaborador</th>
             {todasHabilidades.map((hab) => (
-              <th key={hab.numero} className="px-2 py-3 text-center font-semibold min-w-[120px]">
+              <th key={hab.numero} className="px-2 py-2 text-center font-semibold min-w-[80px]">
                 <div className="flex flex-col">
-                  <span className="text-lg mb-1">{hab.numero}</span>
-                  <span className="text-xs font-normal">{hab.descricao}</span>
+                  <span className="text-sm font-bold">{hab.numero}</span>
+                  <span className="text-[9px] font-normal leading-tight">{hab.descricao}</span>
                 </div>
               </th>
             ))}
-            <th className="px-4 py-3 text-center font-semibold sticky right-0 bg-purple-600">Ações</th>
           </tr>
         </thead>
         <tbody>
           {colaboradores.map((colaborador, idx) => (
-            <tr key={colaborador.id} className={`border-b ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-purple-50 transition-colors`}>
-              <td className="px-4 py-3 font-medium text-gray-900 sticky left-0 bg-inherit z-10">
-                {colaborador.colaborador}
-              </td>
-              <td className="px-4 py-3 text-gray-700">{colaborador.chapa}</td>
-              <td className="px-4 py-3 text-gray-700">{colaborador.equipe || "-"}</td>
-              <td className="px-4 py-3">
-                <Badge variant="outline" className="text-xs">
-                  {colaborador.turno === "manha" ? "Manhã" : colaborador.turno === "tarde" ? "Tarde" : "Noite"}
-                </Badge>
+            <tr key={colaborador.id} className={`border-b ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+              <td className="px-3 py-2 sticky left-0 bg-inherit z-10">
+                <p className="font-medium text-gray-900 text-xs truncate max-w-[110px]">{colaborador.colaborador}</p>
+                <p className="text-[9px] text-gray-400">{colaborador.chapa}</p>
               </td>
               {todasHabilidades.map((hab) => {
                 const habilidadeColab = colaborador.habilidades?.find(h => h.numero === hab.numero);
                 const nivel = habilidadeColab?.nivel || "nao_treinado";
+                const dot = { nao_treinado: "bg-gray-300", em_treinamento: "bg-yellow-400", treinado: "bg-green-500", instrutor: "bg-blue-500" };
                 return (
-                  <td key={hab.numero} className={`px-2 py-3 text-center ${getNivelColor(nivel)}`}>
-                    {getNivelBadge(nivel)}
+                  <td key={hab.numero} className={`px-2 py-2 text-center ${getNivelColor(nivel)}`}>
+                    <div className={`w-4 h-4 rounded-full mx-auto ${dot[nivel] || "bg-gray-300"}`} />
                   </td>
                 );
               })}
-              <td className="px-4 py-3 text-center sticky right-0 bg-inherit">
-                <div className="flex gap-2 justify-center">
-                  <Button variant="ghost" size="icon" onClick={() => onEdit(colaborador)}>
-                    <Pencil className="w-4 h-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={() => onDelete(colaborador.id)}>
-                    <Trash2 className="w-4 h-4 text-red-500" />
-                  </Button>
-                </div>
-              </td>
             </tr>
           ))}
         </tbody>
       </table>
+      </div>
 
       <div className="p-4 bg-gray-50 border-t">
         <p className="text-xs text-gray-600 font-semibold mb-2">Legenda:</p>
