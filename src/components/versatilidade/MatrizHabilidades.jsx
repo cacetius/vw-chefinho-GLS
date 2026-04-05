@@ -28,7 +28,7 @@ const getNivelColor = (nivel) => {
   }
 };
 
-export default function MatrizHabilidades({ colaboradores, onEdit, onDelete }) {
+export default function MatrizHabilidades({ colaboradores = [], onEdit, onDelete }) {
   // Obter todas as habilidades únicas
   const todasHabilidades = [];
   colaboradores.forEach(colab => {
