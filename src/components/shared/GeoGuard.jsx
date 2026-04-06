@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { MapPin, Loader2, WifiOff, ShieldAlert } from "lucide-react";
+import React, { useState, useEffect, useCallback } from "react";
+import { MapPin, Loader2, ShieldAlert, RefreshCw, Navigation } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-// Coordenadas da VW de Taubaté
+// Coordenadas exatas da Volkswagen Taubaté
 const VW_TAUBATE = {
   lat: -23.0274,
   lng: -45.5569,
-  raioMetros: 5000, // 5km de raio
+  raioMetros: 800, // ~800m — dentro da fábrica
 };
 
 function distanciaMetros(lat1, lng1, lat2, lng2) {
@@ -21,12 +21,13 @@ function distanciaMetros(lat1, lng1, lat2, lng2) {
 }
 
 export default function GeoGuard({ children, userRole, userCargo }) {
-  const [status, setStatus] = useState("verificando"); // verificando | dentro | fora | sem_gps | erro
+  const [status, setStatus] = useState("verificando");
+  const [distancia, setDistancia] = useState(null);
+  const [tentativas, setTentativas] = useState(0);
 
   const isAdmin = userRole === "admin" || userCargo === "supervisor";
 
-  useEffect(() => {
-    // Admins e supervisores não têm restrição geográfica
+  const verificar = useCallback(() => {
     if (isAdmin) { setStatus("dentro"); return; }
 
     if (!navigator.geolocation) {
@@ -34,6 +35,8 @@ export default function GeoGuard({ children, userRole, userCargo }) {
       return;
     }
 
+    setStatus("verificando");
+
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const dist = distanciaMetros(
@@ -42,101 +45,129 @@ export default function GeoGuard({ children, userRole, userCargo }) {
           VW_TAUBATE.lat,
           VW_TAUBATE.lng
         );
+        setDistancia(Math.round(dist));
         setStatus(dist <= VW_TAUBATE.raioMetros ? "dentro" : "fora");
       },
       (err) => {
-        // Se o usuário negou a localização, bloqueia
-        setStatus(err.code === 1 ? "sem_gps" : "erro");
+        setStatus(err.code === 1 ? "negado" : "sem_gps");
       },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 }
     );
   }, [isAdmin]);
 
+  useEffect(() => {
+    verificar();
+  }, [verificar]);
+
   const tentar = () => {
-    setStatus("verificando");
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const dist = distanciaMetros(
-          pos.coords.latitude,
-          pos.coords.longitude,
-          VW_TAUBATE.lat,
-          VW_TAUBATE.lng
-        );
-        setStatus(dist <= VW_TAUBATE.raioMetros ? "dentro" : "fora");
-      },
-      () => setStatus("sem_gps"),
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
+    setTentativas(t => t + 1);
+    verificar();
   };
 
   if (status === "dentro") return <>{children}</>;
 
+  // ── Verificando ──────────────────────────────────────────
   if (status === "verificando") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#001e50] to-[#0066b1]">
-        <div className="text-center text-white p-8">
-          <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Loader2 className="w-8 h-8 animate-spin text-white" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#001e50] via-[#003080] to-[#0066b1]">
+        <div className="text-center text-white p-8 space-y-4">
+          <div className="relative mx-auto w-20 h-20">
+            <div className="absolute inset-0 rounded-full border-4 border-white/20 animate-ping" />
+            <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center border-2 border-white/30">
+              <Navigation className="w-9 h-9 text-white animate-pulse" />
+            </div>
           </div>
-          <p className="font-bold text-lg">Verificando localização...</p>
-          <p className="text-blue-200 text-sm mt-2">Aguarde um momento</p>
+          <div>
+            <p className="font-bold text-xl tracking-tight">Verificando localização</p>
+            <p className="text-blue-200 text-sm mt-1">Aguarde enquanto identificamos sua posição...</p>
+          </div>
+          <div className="flex justify-center gap-1.5 mt-2">
+            {[0, 1, 2].map(i => (
+              <div key={i} className="w-2 h-2 bg-white/50 rounded-full animate-bounce" style={{ animationDelay: `${i * 0.2}s` }} />
+            ))}
+          </div>
         </div>
       </div>
     );
   }
 
+  // ── Fora do perímetro ──────────────────────────────────────────
   if (status === "fora") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#001e50] to-[#0066b1] p-4">
-        <div className="max-w-sm w-full bg-white rounded-3xl p-6 text-center shadow-2xl">
-          <div className="w-20 h-20 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <MapPin className="w-10 h-10 text-red-500" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#001e50] via-[#003080] to-[#0066b1] p-4">
+        <div className="max-w-sm w-full bg-white rounded-3xl shadow-2xl overflow-hidden">
+          <div className="bg-red-500 px-6 py-5 text-white text-center">
+            <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-3">
+              <MapPin className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="text-xl font-black">Fora do Perímetro</h2>
+            <p className="text-red-100 text-sm mt-1">Acesso não autorizado</p>
           </div>
-          <h2 className="text-xl font-black text-slate-900 mb-2">Acesso Restrito</h2>
-          <p className="text-slate-600 text-sm mb-4">
-            Este aplicativo funciona <strong>apenas dentro da Volkswagen de Taubaté</strong>.
-          </p>
-          <div className="bg-slate-50 rounded-xl p-3 mb-4 text-left">
-            <p className="text-xs text-slate-500 font-semibold mb-1">📍 Local autorizado:</p>
-            <p className="text-xs text-slate-700">Volkswagen do Brasil — Taubaté/SP</p>
-            <p className="text-xs text-slate-500 mt-0.5">Av. Automóvel Clube, 1666</p>
+          <div className="p-5 space-y-4">
+            <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+              <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-2">📍 Local Autorizado</p>
+              <p className="text-sm font-bold text-slate-800">Volkswagen do Brasil — Taubaté</p>
+              <p className="text-xs text-slate-500">Av. Automóvel Clube, 1666</p>
+            </div>
+            {distancia && (
+              <div className="bg-red-50 rounded-xl p-3 border border-red-100 text-center">
+                <p className="text-xs text-red-500 font-semibold">Sua distância atual</p>
+                <p className="text-2xl font-black text-red-600">
+                  {distancia >= 1000 ? `${(distancia / 1000).toFixed(1)} km` : `${distancia} m`}
+                </p>
+                <p className="text-[10px] text-red-400">do ponto autorizado</p>
+              </div>
+            )}
+            <p className="text-xs text-slate-500 text-center">
+              Este aplicativo funciona somente <strong>dentro das instalações da VW Taubaté</strong>.
+            </p>
+            <Button onClick={tentar} className="w-full bg-[#0066b1] hover:bg-[#004d82] h-11 font-semibold">
+              <RefreshCw className="w-4 h-4 mr-2" /> Tentar novamente
+            </Button>
           </div>
-          <p className="text-xs text-slate-400 mb-4">
-            Você está fora do perímetro autorizado. Conecte-se à rede da VW ou acesse de dentro da fábrica.
-          </p>
-          <Button onClick={tentar} className="w-full bg-[#0066b1] hover:bg-[#004d82]">
-            <MapPin className="w-4 h-4 mr-2" /> Verificar novamente
-          </Button>
         </div>
       </div>
     );
   }
 
-  if (status === "sem_gps") {
+  // ── Permissão negada ──────────────────────────────────────────
+  if (status === "negado") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#001e50] to-[#0066b1] p-4">
-        <div className="max-w-sm w-full bg-white rounded-3xl p-6 text-center shadow-2xl">
-          <div className="w-20 h-20 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <ShieldAlert className="w-10 h-10 text-amber-500" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#001e50] via-[#003080] to-[#0066b1] p-4">
+        <div className="max-w-sm w-full bg-white rounded-3xl shadow-2xl overflow-hidden">
+          <div className="bg-amber-500 px-6 py-5 text-white text-center">
+            <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-3">
+              <ShieldAlert className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="text-xl font-black">Localização Necessária</h2>
+            <p className="text-amber-100 text-sm mt-1">Permissão não concedida</p>
           </div>
-          <h2 className="text-xl font-black text-slate-900 mb-2">Localização Necessária</h2>
-          <p className="text-slate-600 text-sm mb-4">
-            Para usar o VW Chefinho, você precisa <strong>permitir o acesso à localização</strong> do dispositivo.
-          </p>
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4 text-left">
-            <p className="text-xs font-semibold text-amber-800 mb-1">Como permitir:</p>
-            <p className="text-xs text-amber-700">1. Toque no ícone 🔒 na barra de endereço</p>
-            <p className="text-xs text-amber-700">2. Selecione "Localização" → "Permitir"</p>
-            <p className="text-xs text-amber-700">3. Recarregue a página</p>
+          <div className="p-5 space-y-4">
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+              <p className="text-xs font-bold text-amber-800 mb-2">Como ativar a localização:</p>
+              <div className="space-y-1.5">
+                {[
+                  "Toque no ícone 🔒 na barra de endereço",
+                  'Selecione "Localização"',
+                  'Escolha "Permitir"',
+                  "Recarregue a página",
+                ].map((step, i) => (
+                  <div key={i} className="flex items-start gap-2">
+                    <div className="w-5 h-5 bg-amber-500 text-white rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">{i + 1}</div>
+                    <p className="text-xs text-amber-700">{step}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <Button onClick={() => window.location.reload()} className="w-full bg-amber-500 hover:bg-amber-600 h-11 font-semibold text-white">
+              <RefreshCw className="w-4 h-4 mr-2" /> Recarregar após permitir
+            </Button>
           </div>
-          <Button onClick={tentar} variant="outline" className="w-full border-[#0066b1] text-[#0066b1]">
-            <WifiOff className="w-4 h-4 mr-2" /> Tentar novamente
-          </Button>
         </div>
       </div>
     );
   }
 
-  // erro genérico — deixa passar para não bloquear em falhas de GPS
+  // GPS não disponível — erro genérico, deixa passar
   return <>{children}</>;
 }
