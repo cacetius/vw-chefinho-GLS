@@ -194,17 +194,16 @@ export default function PessoasHub() {
 
         <TabsContent value="versatilidade" className="mt-3 space-y-3">
           <VersatilidadeCards
-            versatilidades={versatilidades}
+            colaboradores={versatilidades}
             onEdit={(v) => { setEditingVers(v); setShowVersForm(true); }}
             onDelete={async (id) => {
               if (!window.confirm("Remover colaborador?")) return;
               await base44.entities.Versatilidade.delete(id);
               queryClient.invalidateQueries({ queryKey: ["versatilidade"] });
             }}
-            currentUser={currentUser}
           />
           {versatilidades.length > 0 && (
-            <MatrizHabilidades versatilidades={versatilidades} />
+            <MatrizHabilidades colaboradores={versatilidades} />
           )}
         </TabsContent>
         <TabsContent value="ausencias" className="mt-3">
