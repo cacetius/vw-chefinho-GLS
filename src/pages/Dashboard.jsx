@@ -12,6 +12,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import HistoricoAtividades from "../components/shared/HistoricoAtividades";
+import PrazoAlertas from "../components/dashboard/PrazoAlertas";
+import GraficosGerais from "../components/dashboard/GraficosGerais";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -233,6 +235,17 @@ export default function Dashboard() {
             </Link>
           ))}
         </div>
+      </div>
+
+      {/* Alertas de prazo */}
+      <PrazoAlertas currentUser={currentUser} />
+
+      {/* Gráficos gerais */}
+      <div>
+        <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+          <Activity className="w-3.5 h-3.5" /> Indicadores
+        </h2>
+        <GraficosGerais currentUser={currentUser} />
       </div>
 
       {/* Histórico */}
