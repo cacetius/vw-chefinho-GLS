@@ -19,6 +19,9 @@ const PRIO_BORDER = {
 
 export default function AvisosList({ avisos, onEdit, onDelete, onToggleFixar, currentUser, canEdit }) {
   const isLider = currentUser?.cargo === "lider";
+  const podeEditar = typeof canEdit === "function"
+    ? canEdit
+    : (aviso) => currentUser?.role === "admin" || currentUser?.cargo === "supervisor" || aviso.created_by === currentUser?.email;
 
   if (avisos.length === 0) {
     return (
@@ -50,7 +53,7 @@ export default function AvisosList({ avisos, onEdit, onDelete, onToggleFixar, cu
                           <Pin className="w-3.5 h-3.5" />
                         </button>
                       )}
-                      {canEdit(aviso) && (
+                      {podeEditar(aviso) && (
                         <>
                           <button onClick={() => onEdit(aviso)}
                             className="p-1.5 rounded-lg hover:bg-blue-50 text-slate-400 hover:text-blue-600 active:scale-90 transition-all">
