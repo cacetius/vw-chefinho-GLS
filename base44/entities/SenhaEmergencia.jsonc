@@ -1,0 +1,23 @@
+{
+  "name": "SenhaEmergencia",
+  "type": "object",
+  "properties": {
+    "data_referencia": {
+      "type": "string",
+      "format": "date",
+      "description": "Data para qual a senha \u00e9 v\u00e1lida (YYYY-MM-DD)"
+    },
+    "senha_hash": {
+      "type": "string",
+      "description": "Senha di\u00e1ria em texto simples (6 d\u00edgitos)"
+    },
+    "criada_por": {
+      "type": "string",
+      "description": "ID do usu\u00e1rio que gerou"
+    }
+  },
+  "required": [
+    "data_referencia",
+    "senha_hash"
+  ]
+}

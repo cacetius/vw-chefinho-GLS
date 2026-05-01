@@ -1,30 +1,30 @@
 import React, { useState, useEffect } from "react";
 import { Clock, Lock, Sun, Sunrise, Moon } from "lucide-react";
+import SenhaEmergenciaModal from "./SenhaEmergenciaModal";
 
-// ─── Definição de Turnos VW Taubaté ────────────────────────────────────────────
+// ─── Turnos VW Taubaté ────────────────────────────────────────────────────────
 // 1º Turno (manha): 06:00 – 14:48
 // 2º Turno (tarde): 14:48 – 23:36
 // 3º Turno (noite): 23:36 – 06:00
 
 export function isSupervisorOuAdmin(user) {
-  return user?.cargo === "supervisor" || user?.role === "admin" || user?.cargo === "lider";
+  return user?.cargo === "supervisor" || user?.role === "admin";
 }
 
 export function isTurnoAtivo(turno, user) {
   if (user && isSupervisorOuAdmin(user)) return true;
   if (!turno) return true;
 
-  const agora = new Date();
-  const h = agora.getHours();
-  const m = agora.getMinutes();
-  const totalMin = h * 60 + m;
+  // Verifica sessão de emergência
+  const valEmerg = sessionStorage.getItem("vw_acesso_emergencia");
+  if (valEmerg === new Date().toDateString()) return true;
 
-  // manha: 06:00 (360) → 14:48 (888)
-  if (turno === "manha") return totalMin >= 360 && totalMin < 888;
-  // tarde: 14:48 (888) → 23:36 (1416)
-  if (turno === "tarde") return totalMin >= 888 && totalMin < 1416;
-  // noite: 23:36 (1416) → 06:00 (360) — atravessa meia-noite
-  if (turno === "noite") return totalMin >= 1416 || totalMin < 360;
+  const agora = new Date();
+  const totalMin = agora.getHours() * 60 + agora.getMinutes();
+
+  if (turno === "manha") return totalMin >= 360 && totalMin < 888;   // 06:00–14:48
+  if (turno === "tarde") return totalMin >= 888 && totalMin < 1416;  // 14:48–23:36
+  if (turno === "noite") return totalMin >= 1416 || totalMin < 360;  // 23:36–06:00
 
   return true;
 }
@@ -50,18 +50,21 @@ function getTurnoInfo(turno) {
   return { icon: Clock, horario: "--:--", cor: "from-slate-600 to-slate-700", iconColor: "text-slate-400" };
 }
 
-export default function TurnoGuard({ turno, children }) {
+export default function TurnoGuard({ turno, children, currentUser }) {
   const [horaAtual, setHoraAtual] = useState(new Date());
-  const [ativo, setAtivo] = useState(() => isTurnoAtivo(turno));
+  const [ativo, setAtivo] = useState(() => isTurnoAtivo(turno, currentUser));
 
   useEffect(() => {
     const tick = setInterval(() => {
-      const agora = new Date();
-      setHoraAtual(agora);
-      setAtivo(isTurnoAtivo(turno));
-    }, 10000); // re-verifica a cada 10s
+      setHoraAtual(new Date());
+      setAtivo(isTurnoAtivo(turno, currentUser));
+    }, 10000);
     return () => clearInterval(tick);
-  }, [turno]);
+  }, [turno, currentUser]);
+
+  const handleLiberado = () => {
+    setAtivo(true);
+  };
 
   if (ativo) return children;
 
@@ -70,21 +73,24 @@ export default function TurnoGuard({ turno, children }) {
   const info = getTurnoInfo(turno);
   const TurnoIcon = info.icon;
 
-  // Calcula tempo restante até o próximo turno
   const [hProx, mProx] = proximoHorario.split(":").map(Number);
-  const agora = horaAtual;
-  const proxDate = new Date(agora);
+  const proxDate = new Date(horaAtual);
   proxDate.setHours(hProx, mProx, 0, 0);
-  if (proxDate <= agora) proxDate.setDate(proxDate.getDate() + 1);
-  const diffMs = proxDate - agora;
+  if (proxDate <= horaAtual) proxDate.setDate(proxDate.getDate() + 1);
+  const diffMs = proxDate - horaAtual;
   const diffH = Math.floor(diffMs / 3600000);
   const diffM = Math.floor((diffMs % 3600000) / 60000);
+
+  const isLiderOuAdmin =
+    currentUser?.role === "admin" ||
+    currentUser?.cargo === "supervisor" ||
+    currentUser?.cargo === "lider";
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-[#001e50] to-slate-900 p-4">
       <div className="max-w-sm w-full space-y-5 text-center">
 
-        {/* Logo VW */}
+        {/* Logo */}
         <div className="flex flex-col items-center gap-2">
           <div className="w-14 h-14 bg-[#0066b1] rounded-2xl flex items-center justify-center shadow-xl">
             <span className="text-2xl">🏭</span>
@@ -92,7 +98,7 @@ export default function TurnoGuard({ turno, children }) {
           <p className="text-white font-bold text-lg tracking-tight">VW Chefinho</p>
         </div>
 
-        {/* Ícone de cadeado */}
+        {/* Cadeado animado */}
         <div className="relative flex justify-center">
           <div className="absolute w-28 h-28 bg-white/5 rounded-full animate-ping" style={{ animationDuration: "3s" }} />
           <div className="w-24 h-24 bg-white/10 border-2 border-white/20 rounded-full flex items-center justify-center">
@@ -100,22 +106,22 @@ export default function TurnoGuard({ turno, children }) {
           </div>
         </div>
 
-        {/* Card de informação */}
-        <div className="bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-white/15 space-y-5">
-          <div>
+        {/* Card */}
+        <div className="bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-white/15 space-y-4 text-left">
+          <div className="text-center">
             <p className="text-white/50 text-xs font-semibold uppercase tracking-widest mb-1">Acesso restrito</p>
             <p className="text-white text-xl font-bold">{label}</p>
             <div className="flex items-center justify-center gap-2 mt-2 text-white/60 text-sm">
               <TurnoIcon className={`w-4 h-4 ${info.iconColor}`} />
-              <span>Horário do turno: <strong className="text-white">{info.horario}</strong></span>
+              <span>Horário: <strong className="text-white">{info.horario}</strong></span>
             </div>
           </div>
 
-          {/* Relógio atual */}
+          {/* Relógio */}
           <div className="bg-white/10 rounded-2xl px-4 py-3 text-center">
             <p className="text-white/40 text-[11px] uppercase tracking-wider mb-0.5">Agora</p>
             <p className="text-white text-4xl font-black tracking-widest tabular-nums">
-              {agora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+              {horaAtual.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
             </p>
           </div>
 
@@ -130,9 +136,14 @@ export default function TurnoGuard({ turno, children }) {
             )}
           </div>
 
-          <p className="text-white/30 text-xs">
+          <p className="text-white/30 text-xs text-center">
             Caso haja erro, entre em contato com seu líder ou supervisor.
           </p>
+
+          {/* Senha de emergência para líderes/admins */}
+          {isLiderOuAdmin && currentUser && (
+            <SenhaEmergenciaModal user={currentUser} onLiberar={handleLiberado} />
+          )}
         </div>
       </div>
     </div>

@@ -113,7 +113,7 @@ export default function Layout({ children, currentPageName }) {
 
   // Verificação de turno (exceto páginas livres e supervisores/admins)
   if (!paginaLivre && currentUser.turno && !isTurnoAtivo(currentUser.turno, currentUser)) {
-    return <TurnoGuard turno={currentUser.turno}>{children}</TurnoGuard>;
+    return <TurnoGuard turno={currentUser.turno} currentUser={currentUser}>{children}</TurnoGuard>;
   }
 
   const displayName = currentUser.nome_exibicao || currentUser.full_name;
@@ -350,7 +350,7 @@ export default function Layout({ children, currentPageName }) {
 
   if (!paginaLivre) {
     return (
-      <GeoGuard userRole={currentUser.role} userCargo={currentUser.cargo}>
+      <GeoGuard userRole={currentUser.role} userCargo={currentUser.cargo} currentUser={currentUser}>
         {mainContent}
       </GeoGuard>
     );
