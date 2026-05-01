@@ -283,7 +283,7 @@ export default function Layout({ children, currentPageName }) {
 
       {/* MAIN CONTENT */}
       <main className="flex-1 lg:ml-60 flex flex-col min-h-screen">
-        <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-slate-200 px-3 md:px-5 py-2 flex items-center gap-2.5">
+        <header className="sticky top-0 z-20 bg-white/98 backdrop-blur-sm border-b border-slate-200 px-3 md:px-5 py-2.5 flex items-center gap-2.5 shadow-sm min-h-[52px]">
           <button
             className="lg:hidden p-2 rounded-xl hover:bg-slate-100 transition-colors active:scale-95"
             onClick={() => setDrawerOpen(true)}
@@ -313,14 +313,14 @@ export default function Layout({ children, currentPageName }) {
           </div>
         </header>
 
-        <div className="flex-1 p-3 md:p-5 pb-28 lg:pb-6">
+        <div className="flex-1 p-3 md:p-5 pb-24 lg:pb-6">
           {children}
         </div>
       </main>
 
       {/* MOBILE BOTTOM NAV */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-200" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        <div className="flex items-stretch h-16">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-200 shadow-[0_-2px_12px_rgba(0,0,0,0.08)]">
+        <div className="flex items-stretch h-[60px]" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
           {BOTTOM_NAV.map(item => {
             const active = item.url ? isActive(item.url) : drawerOpen;
             const isMenu = item.url === null;
@@ -328,18 +328,18 @@ export default function Layout({ children, currentPageName }) {
               <button
                 key={item.title}
                 onClick={() => isMenu ? setDrawerOpen(d => !d) : navigate(createPageUrl(item.url))}
-                className={`flex-1 flex flex-col items-center justify-center gap-1 transition-all active:scale-95 relative ${
+                className={`flex-1 flex flex-col items-center justify-center gap-0.5 transition-all active:opacity-70 relative touch-manipulation ${
                   active ? 'text-[#0066b1]' : 'text-slate-400'
                 }`}
               >
                 {active && (
                   <motion.div
                     layoutId="bottomNavIndicator"
-                    className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-[#0066b1] rounded-full"
+                    className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-0.5 bg-[#0066b1] rounded-full"
                   />
                 )}
-                <item.icon className={`w-5 h-5 transition-all ${active ? 'scale-110' : ''}`} />
-                <span className={`text-[10px] font-medium ${active ? 'font-bold text-[#0066b1]' : ''}`}>{item.title}</span>
+                <item.icon className={`w-[22px] h-[22px] transition-all ${active ? 'scale-110' : ''}`} />
+                <span className={`text-[9px] font-medium leading-tight ${active ? 'font-bold text-[#0066b1]' : ''}`}>{item.title}</span>
               </button>
             );
           })}

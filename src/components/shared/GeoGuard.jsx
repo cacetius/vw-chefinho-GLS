@@ -37,7 +37,7 @@ export default function GeoGuard({ children, userRole, userCargo, currentUser })
 
   const verificar = useCallback(() => {
     // Admin/supervisor: acesso direto sem geo
-    if (isAdmin) { setStatus("dentro"); return; }
+    if (userRole === "admin" || userCargo === "supervisor") { setStatus("dentro"); return; }
     // Sessão de emergência ainda válida
     if (isAcessoEmergenciaAtivo()) { setStatus("dentro"); return; }
 
@@ -60,7 +60,7 @@ export default function GeoGuard({ children, userRole, userCargo, currentUser })
       },
       { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 }
     );
-  }, [isAdmin]);
+  }, [userRole, userCargo]);
 
   useEffect(() => {
     verificar();

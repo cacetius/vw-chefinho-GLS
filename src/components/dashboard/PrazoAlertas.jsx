@@ -77,7 +77,7 @@ export default function PrazoAlertas({ currentUser }) {
         {/* Tarefas */}
         {tarefasAlerta.map(t => (
           <Link key={t.id} to={createPageUrl(t.tipo_area === "lider" ? "LiderArea" : "MonitorArea")}>
-            <div className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer active:scale-[0.98] transition-all ${
+            <div className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer active:opacity-70 transition-all touch-manipulation min-h-[52px] ${
               t.diasRestantes < 0 ? "bg-red-50 border-red-200" : t.diasRestantes === 0 ? "bg-orange-50 border-orange-200" : "bg-yellow-50 border-yellow-200"
             }`}>
               <Clock className={`w-3.5 h-3.5 flex-shrink-0 ${t.diasRestantes < 0 ? "text-red-500" : "text-orange-500"}`} />
@@ -98,7 +98,7 @@ export default function PrazoAlertas({ currentUser }) {
         {/* Pedidos urgentes */}
         {pedidosUrgentes.map(p => (
           <Link key={p.id} to={createPageUrl("OperacoesHub")}>
-            <div className="flex items-center gap-2 p-2 rounded-lg border bg-red-50 border-red-200 cursor-pointer active:scale-[0.98] transition-all">
+            <div className="flex items-center gap-2 p-3 rounded-xl border bg-red-50 border-red-200 cursor-pointer active:opacity-70 transition-all touch-manipulation min-h-[52px]">
               <ShoppingCart className="w-3.5 h-3.5 text-red-500 flex-shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-semibold text-slate-800 truncate">{p.item}</p>
@@ -112,7 +112,7 @@ export default function PrazoAlertas({ currentUser }) {
         {/* Ausências pendentes */}
         {ausenciasPendentes.map(a => (
           <Link key={a.id} to={createPageUrl("PessoasHub")}>
-            <div className="flex items-center gap-2 p-2 rounded-lg border bg-blue-50 border-blue-200 cursor-pointer active:scale-[0.98] transition-all">
+            <div className="flex items-center gap-2 p-3 rounded-xl border bg-blue-50 border-blue-200 cursor-pointer active:opacity-70 transition-all touch-manipulation min-h-[52px]">
               <UserX className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-semibold text-slate-800 truncate">{a.colaborador_nome}</p>
@@ -126,7 +126,7 @@ export default function PrazoAlertas({ currentUser }) {
         {/* Planos VDA */}
         {planosAlerta.map(p => (
           <Link key={p.id} to={createPageUrl("AuditoriaVDA")}>
-            <div className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer active:scale-[0.98] transition-all ${
+            <div className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer active:opacity-70 transition-all touch-manipulation min-h-[52px] ${
               p.diasRestantes < 0 ? "bg-red-50 border-red-200" : "bg-purple-50 border-purple-200"
             }`}>
               <Calendar className={`w-3.5 h-3.5 flex-shrink-0 ${p.diasRestantes < 0 ? "text-red-500" : "text-purple-500"}`} />

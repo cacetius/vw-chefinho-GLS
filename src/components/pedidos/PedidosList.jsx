@@ -49,28 +49,28 @@ function PedidoCard({ pedido, hasLeaderAccess, onEdit, onDelete, onUpdateStatus,
                 {hasLeaderAccess && pedido.status === "pendente" && (
                   <>
                     <button onClick={() => onAprovar(pedido)}
-                      className="p-1.5 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 active:scale-90 transition-all" title="Aprovar">
-                      <Check className="w-3.5 h-3.5" />
+                      className="w-9 h-9 rounded-xl bg-green-50 text-green-600 active:bg-green-200 flex items-center justify-center touch-manipulation" title="Aprovar">
+                      <Check className="w-4 h-4" />
                     </button>
                     <button onClick={() => onUpdateStatus(pedido.id, "reprovado")}
-                      className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 active:scale-90 transition-all" title="Reprovar">
-                      <X className="w-3.5 h-3.5" />
+                      className="w-9 h-9 rounded-xl bg-red-50 text-red-600 active:bg-red-200 flex items-center justify-center touch-manipulation" title="Reprovar">
+                      <X className="w-4 h-4" />
                     </button>
                   </>
                 )}
                 {hasLeaderAccess && pedido.status === "aprovado" && (
                   <button onClick={() => onUpdateStatus(pedido.id, "entregue")}
-                    className="p-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 active:scale-90 transition-all" title="Marcar como entregue">
-                    <Check className="w-3.5 h-3.5" />
+                    className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 active:bg-blue-200 flex items-center justify-center touch-manipulation" title="Marcar como entregue">
+                    <Check className="w-4 h-4" />
                   </button>
                 )}
                 <button onClick={() => onEdit(pedido)}
-                  className="p-1.5 rounded-lg hover:bg-blue-50 text-slate-400 hover:text-blue-600 active:scale-90 transition-all">
-                  <Pencil className="w-3.5 h-3.5" />
+                  className="w-9 h-9 rounded-xl text-slate-400 active:bg-blue-50 active:text-blue-600 flex items-center justify-center touch-manipulation">
+                  <Pencil className="w-4 h-4" />
                 </button>
                 <button onClick={() => onDelete(pedido.id)}
-                  className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 active:scale-90 transition-all">
-                  <Trash2 className="w-3.5 h-3.5" />
+                  className="w-9 h-9 rounded-xl text-slate-400 active:bg-red-50 active:text-red-600 flex items-center justify-center touch-manipulation">
+                  <Trash2 className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -258,14 +258,14 @@ export default function PedidosList({ pedidos, onEdit, onDelete, onUpdateStatus,
 
       <div className="space-y-3">
         {/* Filtros + export */}
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-1.5 flex-wrap">
           <Filter className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-          {Object.entries({ todos: "Todos", pendente: "Pendentes", aprovado: "Aprovados", reprovado: "Reprovados", entregue: "Entregues" }).map(([key, label]) => (
+          {Object.entries({ todos: "Todos", pendente: "Pend.", aprovado: "Aprov.", reprovado: "Reprov.", entregue: "Entreg." }).map(([key, label]) => (
             <button key={key} onClick={() => setFiltroStatus(key)}
-              className={`text-[11px] px-2.5 py-1 rounded-full border transition-all font-medium ${
-                filtroStatus === key ? "bg-[#0066b1] text-white border-[#0066b1]" : "border-slate-200 text-slate-600 hover:bg-slate-50"
+              className={`text-[11px] px-3 py-1.5 rounded-full border transition-all font-medium touch-manipulation min-h-[32px] ${
+                filtroStatus === key ? "bg-[#0066b1] text-white border-[#0066b1]" : "border-slate-200 text-slate-600 bg-white"
               }`}>
-              {label} ({contagens[key] ?? 0})
+              {label} <span className="opacity-70">({contagens[key] ?? 0})</span>
             </button>
           ))}
           <Button onClick={exportarCSV} variant="outline" size="sm"

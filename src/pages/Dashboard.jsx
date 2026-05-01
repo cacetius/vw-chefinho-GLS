@@ -215,7 +215,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-2 gap-2">
           {MODULES.map(({ title, desc, icon: Icon, url, gradient, badge }, i) => (
             <Link key={url} to={createPageUrl(url)}>
-              <div className={`bg-gradient-to-br ${gradient} rounded-2xl p-3.5 text-white relative overflow-hidden active:scale-95 transition-transform cursor-pointer min-h-[96px] flex flex-col justify-between`}>
+              <div className={`bg-gradient-to-br ${gradient} rounded-2xl p-3.5 text-white relative overflow-hidden active:opacity-80 transition-all cursor-pointer min-h-[108px] flex flex-col justify-between touch-manipulation select-none`}>
                 <div className="flex items-start justify-between">
                   <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
                     <Icon className="w-4 h-4 text-white" />
