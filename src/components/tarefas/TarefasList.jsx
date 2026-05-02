@@ -165,23 +165,23 @@ export default function TarefasList({ tarefas, onEdit, onDelete, onUpdateStatus,
 
                           {/* Mudar status */}
                           {tarefa.status !== "concluida" && (
-                            <div className="flex flex-wrap gap-2 pt-1">
+                            <div className="flex flex-col gap-2 pt-1 w-full">
                               {tarefa.status === "pendente" && (
                                 <button
                                   onClick={() => onUpdateStatus(tarefa.id, "em_andamento")}
-                                  className="text-[11px] px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 font-medium touch-manipulation"
+                                  className="w-full min-h-[44px] text-sm px-4 py-2.5 rounded-xl bg-blue-50 text-blue-700 font-semibold touch-manipulation flex items-center justify-center gap-2 active:bg-blue-100"
                                 >
-                                  ▶ Iniciar
+                                  ▶ Iniciar Tarefa
                                 </button>
                               )}
                               {tarefa.status === "em_andamento" && isLiderOuAdmin && (
                                 <button
                                   onClick={() => handleValidarPlano(tarefa)}
                                   disabled={validando === tarefa.id}
-                                  className="text-[11px] px-3 py-1.5 rounded-lg bg-green-500 text-white font-semibold touch-manipulation flex items-center gap-1 disabled:opacity-50"
+                                  className="w-full min-h-[44px] text-sm px-4 py-2.5 rounded-xl bg-green-500 text-white font-bold touch-manipulation flex items-center justify-center gap-2 disabled:opacity-50 active:bg-green-600"
                                 >
-                                  <ShieldCheck className="w-3.5 h-3.5" />
-                                  {validando === tarefa.id ? "Validando..." : "Validar & Concluir"}
+                                  <ShieldCheck className="w-4 h-4" />
+                                  {validando === tarefa.id ? "Validando..." : "✅ Validar & Concluir"}
                                 </button>
                               )}
                             </div>

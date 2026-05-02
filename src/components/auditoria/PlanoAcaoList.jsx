@@ -146,45 +146,45 @@ export default function PlanoAcaoList({ planosAcao, auditorias, onRefresh, curre
                     </div>
 
                     {/* Ações para líderes/admins */}
-                    {isLiderOuAdmin && plano.status !== "concluido" && (
-                      <div className="flex flex-wrap gap-2 mt-3 pt-2 border-t border-slate-100">
-                        {/* Avançar status */}
-                        {plano.status === "aberto" && (
-                          <button
-                            onClick={() => handleUpdateStatus(plano, "em_andamento")}
-                            className="text-[11px] px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 font-medium active:bg-blue-100 touch-manipulation"
-                          >
-                            ▶ Iniciar
-                          </button>
-                        )}
-                        {plano.status === "em_andamento" && (
-                          <button
-                            onClick={() => handleUpdateStatus(plano, "aguardando_verificacao")}
-                            className="text-[11px] px-3 py-1.5 rounded-lg bg-yellow-50 text-yellow-700 font-medium active:bg-yellow-100 touch-manipulation"
-                          >
-                            ⏳ Ag. Verificação
-                          </button>
-                        )}
-                        {/* Validar eficácia */}
-                        {(plano.status === "aguardando_verificacao" || plano.status === "em_andamento") && (
-                          <button
-                            onClick={() => handleValidar(plano)}
-                            disabled={validando === plano.id}
-                            className="text-[11px] px-3 py-1.5 rounded-lg bg-green-500 text-white font-semibold active:bg-green-600 touch-manipulation disabled:opacity-50 flex items-center gap-1"
-                          >
-                            <ShieldCheck className="w-3.5 h-3.5" />
-                            {validando === plano.id ? "Validando..." : "Validar Eficácia"}
-                          </button>
-                        )}
-                        {/* Cancelar */}
-                        <button
-                          onClick={() => handleUpdateStatus(plano, "cancelado")}
-                          className="text-[11px] px-3 py-1.5 rounded-lg bg-red-50 text-red-600 font-medium active:bg-red-100 touch-manipulation ml-auto"
-                        >
-                          Cancelar
-                        </button>
-                      </div>
-                    )}
+                     {isLiderOuAdmin && plano.status !== "concluido" && (
+                       <div className="mt-3 pt-2 border-t border-slate-100 space-y-2">
+                         {/* Avançar status */}
+                         {plano.status === "aberto" && (
+                           <button
+                             onClick={() => handleUpdateStatus(plano, "em_andamento")}
+                             className="w-full min-h-[44px] text-sm px-4 py-2.5 rounded-xl bg-blue-50 text-blue-700 font-semibold active:bg-blue-100 touch-manipulation flex items-center justify-center gap-2"
+                           >
+                             ▶ Iniciar Plano
+                           </button>
+                         )}
+                         {plano.status === "em_andamento" && (
+                           <button
+                             onClick={() => handleUpdateStatus(plano, "aguardando_verificacao")}
+                             className="w-full min-h-[44px] text-sm px-4 py-2.5 rounded-xl bg-yellow-50 text-yellow-700 font-semibold active:bg-yellow-100 touch-manipulation flex items-center justify-center gap-2"
+                           >
+                             ⏳ Enviar para Verificação
+                           </button>
+                         )}
+                         {/* Validar eficácia */}
+                         {(plano.status === "aguardando_verificacao" || plano.status === "em_andamento") && (
+                           <button
+                             onClick={() => handleValidar(plano)}
+                             disabled={validando === plano.id}
+                             className="w-full min-h-[44px] text-sm px-4 py-2.5 rounded-xl bg-green-500 text-white font-bold active:bg-green-600 touch-manipulation disabled:opacity-50 flex items-center justify-center gap-2"
+                           >
+                             <ShieldCheck className="w-4 h-4" />
+                             {validando === plano.id ? "Validando..." : "✅ Validar Eficácia"}
+                           </button>
+                         )}
+                         {/* Cancelar */}
+                         <button
+                           onClick={() => handleUpdateStatus(plano, "cancelado")}
+                           className="w-full min-h-[44px] text-sm px-4 py-2.5 rounded-xl bg-red-50 text-red-600 font-semibold active:bg-red-100 touch-manipulation flex items-center justify-center"
+                         >
+                           Cancelar Plano
+                         </button>
+                       </div>
+                     )}
                   </CardContent>
                 </Card>
               </motion.div>
