@@ -225,6 +225,8 @@ export default function SegurancaHub() {
             avisos={avisos}
             onEdit={(a) => { setEditingAviso(a); setShowAvisoForm(true); }}
             onDelete={async (id) => { await base44.entities.Aviso.delete(id); queryClient.invalidateQueries({ queryKey: ["avisos"] }); }}
+            onToggleFixar={async (a) => { await base44.entities.Aviso.update(a.id, { ...a, fixado: !a.fixado }); queryClient.invalidateQueries({ queryKey: ["avisos"] }); }}
+            canEdit={(a) => isSupervisor || currentUser?.cargo === "lider" || a.created_by === currentUser?.email}
             currentUser={currentUser}
           />
         </TabsContent>
