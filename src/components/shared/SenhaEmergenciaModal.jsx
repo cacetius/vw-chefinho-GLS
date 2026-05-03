@@ -57,15 +57,15 @@ export default function SenhaEmergenciaModal({ user, onLiberar, titulo = "Acesso
   const enviarPorWhatsApp = () => {
     const telefone = formatarWhatsApp(user.telefone || user.celular || user.whatsapp);
     const mensagem = encodeURIComponent(
-      `🔐 *VW Chefinho — Senha de Acesso (${hoje})*\n\nOlá, ${user.full_name || ""}!\n\nSua senha temporária de hoje é:\n\n*${senhaDiaria}*\n\nVálida apenas hoje. Não compartilhe.`
+      `🔐 *VW Chefinho — Senha de Acesso (${hoje})*\n\nOlá, ${user.full_name || ""}!\n\nSua senha temporária de hoje é:\n\n*${senhaDiaria}*\n\nVálida apenas hoje. Não compartilhe.\n\n_Gerado automaticamente pelo VW Chefinho 🏭_`
     );
 
     if (telefone) {
-      // Abre WhatsApp com o número do usuário preenchido
+      // Envia diretamente pro WhatsApp do próprio usuário (pelo número salvo no perfil)
       window.open(`https://wa.me/55${telefone}?text=${mensagem}`, "_blank");
     } else {
-      // Abre WhatsApp sem número (usuário escolhe o contato)
-      window.open(`https://wa.me/?text=${mensagem}`, "_blank");
+      // Sem número cadastrado: abre WhatsApp para o usuário escolher
+      window.open(`https://api.whatsapp.com/send?text=${mensagem}`, "_blank");
     }
     setPasso("aguardando");
   };
@@ -167,7 +167,7 @@ export default function SenhaEmergenciaModal({ user, onLiberar, titulo = "Acesso
             }
             <p className="text-green-300 text-xs">
               {canal === "whatsapp"
-                ? "Senha enviada via WhatsApp. Digite o código recebido."
+                ? <>Senha enviada para o seu WhatsApp{user.celular ? <> (<strong>{user.celular}</strong>)</> : ""}. Digite o código abaixo.</>
                 : <>Senha enviada para <strong>{user.email}</strong></>
               }
             </p>
