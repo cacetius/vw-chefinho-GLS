@@ -14,6 +14,7 @@ import { motion } from "framer-motion";
 import HistoricoAtividades from "../components/shared/HistoricoAtividades";
 import PrazoAlertas from "../components/dashboard/PrazoAlertas";
 import GraficosGerais from "../components/dashboard/GraficosGerais";
+import ExportarDados from "../components/dashboard/ExportarDados";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -247,6 +248,9 @@ export default function Dashboard() {
         </h2>
         <GraficosGerais currentUser={currentUser} />
       </div>
+
+      {/* Exportar dados — só admin/supervisor */}
+      {isSupervisor && <ExportarDados currentUser={currentUser} />}
 
       {/* Histórico */}
       <HistoricoAtividades currentUser={currentUser} />
