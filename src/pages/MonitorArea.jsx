@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { ClipboardList, Clock, CheckCircle2, Truck, Plus, Target, Grid, Calendar } from "lucide-react";
+import { ClipboardList, Clock, CheckCircle2, Truck, Plus, Target, Grid, Calendar, BarChart2 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -14,6 +14,7 @@ import TarefasList from "../components/tarefas/TarefasList";
 import KanbanLogistica from "../components/monitorarea/KanbanLogistica";
 import TrainingMatrix from "../components/monitorarea/TrainingMatrix";
 import RotationPlanning from "../components/monitorarea/RotationPlanning";
+import MonthlyGoals from "../components/monitorarea/MonthlyGoals";
 
 const POSTOS_INICIAIS = [
   { numero: 1,  codigo: "F361", descricao: "Raku raku montagem mangueira do AC",                       lado: "Centro", criticidade: "normal",  operadores_necessarios: 1 },
@@ -125,15 +126,18 @@ export default function MonitorArea() {
 
       {/* Abas principais */}
       <Tabs value={mainTab} onValueChange={setMainTab}>
-        <TabsList className="grid w-full grid-cols-3 h-9">
-          <TabsTrigger value="operacoes" className="text-xs flex items-center gap-1">
-            <ClipboardList className="w-3.5 h-3.5" /> Operações
+        <TabsList className="grid w-full grid-cols-4 h-9">
+          <TabsTrigger value="operacoes" className="text-[10px] flex items-center gap-1">
+            <ClipboardList className="w-3 h-3" /> Operações
           </TabsTrigger>
-          <TabsTrigger value="matriz" className="text-xs flex items-center gap-1">
-            <Grid className="w-3.5 h-3.5" /> Matriz
+          <TabsTrigger value="matriz" className="text-[10px] flex items-center gap-1">
+            <Grid className="w-3 h-3" /> Matriz
           </TabsTrigger>
-          <TabsTrigger value="rotatividade" className="text-xs flex items-center gap-1">
-            <Calendar className="w-3.5 h-3.5" /> Rotatividade
+          <TabsTrigger value="rotatividade" className="text-[10px] flex items-center gap-1">
+            <Calendar className="w-3 h-3" /> Rotatividade
+          </TabsTrigger>
+          <TabsTrigger value="objetivos" className="text-[10px] flex items-center gap-1">
+            <BarChart2 className="w-3 h-3" /> Objetivos
           </TabsTrigger>
         </TabsList>
 
@@ -280,6 +284,12 @@ export default function MonitorArea() {
         <TabsContent value="rotatividade" className="mt-3">
           <p className="text-xs text-slate-500 mb-3">Escala mensal de rotatividade dos operadores nos postos</p>
           <RotationPlanning currentUser={currentUser} />
+        </TabsContent>
+
+        {/* =============== ABA: OBJETIVOS DO MÊS =============== */}
+        <TabsContent value="objetivos" className="mt-3">
+          <p className="text-xs text-slate-500 mb-3">Acompanhamento de metas diárias e semanais da célula</p>
+          <MonthlyGoals currentUser={currentUser} />
         </TabsContent>
       </Tabs>
     </div>
