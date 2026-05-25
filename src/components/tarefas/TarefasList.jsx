@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, Trash2, CheckCircle, Clock, User, ChevronDown, ChevronUp, ShieldCheck } from "lucide-react";
+import { Pencil, Trash2, CheckCircle, Clock, User, ChevronDown, ChevronUp, ShieldCheck, PackageX } from "lucide-react";
 import { format } from "date-fns";
 import { base44 } from "@/api/base44Client";
+import EstoqueFaltaModal from "@/components/monitorarea/EstoqueFaltaModal";
 
 const PRIO_COLORS = {
   baixa: "bg-gray-100 text-gray-700",
@@ -22,6 +23,7 @@ const STATUS_CONFIG = {
 export default function TarefasList({ tarefas, onEdit, onDelete, onUpdateStatus, monitores = [], currentUser }) {
   const [expandedId, setExpandedId] = useState(null);
   const [validando, setValidando] = useState(null);
+  const [estoqueFaltaTarefa, setEstoqueFaltaTarefa] = useState(null);
 
   const isLiderOuAdmin =
     currentUser?.role === "admin" ||
@@ -66,6 +68,7 @@ export default function TarefasList({ tarefas, onEdit, onDelete, onUpdateStatus,
   }
 
   return (
+    <>
     <div className="space-y-2">
       <AnimatePresence>
         {tarefas.map((tarefa, i) => {
@@ -184,6 +187,14 @@ export default function TarefasList({ tarefas, onEdit, onDelete, onUpdateStatus,
                                   {validando === tarefa.id ? "Validando..." : "✅ Validar & Concluir"}
                                 </button>
                               )}
+                              {/* Ação rápida: item em falta no estoque */}
+                              <button
+                                onClick={() => setEstoqueFaltaTarefa(tarefa)}
+                                className="w-full min-h-[44px] text-sm px-4 py-2.5 rounded-xl bg-red-50 text-red-700 font-semibold touch-manipulation flex items-center justify-center gap-2 active:bg-red-100 border border-red-100"
+                              >
+                                <PackageX className="w-4 h-4" />
+                                Item em Falta no Estoque
+                              </button>
                             </div>
                           )}
                         </div>
@@ -197,5 +208,14 @@ export default function TarefasList({ tarefas, onEdit, onDelete, onUpdateStatus,
         })}
       </AnimatePresence>
     </div>
+
+    {/* Modal: Item em Falta */}
+    {estoqueFaltaTarefa && (
+      <EstoqueFaltaModal
+        tarefa={estoqueFaltaTarefa}
+        onClose={() => setEstoqueFaltaTarefa(null)}
+      />
+    )}
+    </>
   );
 }

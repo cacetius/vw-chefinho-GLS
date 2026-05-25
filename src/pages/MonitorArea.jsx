@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ClipboardList, CheckCircle2, Clock, Plus, ShoppingCart, Target, Truck } from "lucide-react";
+import { ClipboardList, CheckCircle2, Clock, Plus, Target, Truck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { AnimatePresence, motion } from "framer-motion";
 import TarefaForm from "../components/tarefas/TarefaForm";
@@ -81,43 +81,34 @@ export default function MonitorArea() {
   );
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 max-w-lg mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between gap-2 flex-wrap">
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 bg-gradient-to-br from-[#001e50] to-[#0066b1] rounded-xl flex items-center justify-center flex-shrink-0">
-            <ClipboardList className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h1 className="text-base font-bold text-slate-900">Área do Monitor</h1>
-            <p className="text-[10px] text-slate-400">Acompanhe suas atividades do dia</p>
-          </div>
+      <div className="flex items-center justify-between gap-2">
+        <div>
+          <h1 className="text-base font-bold text-slate-900 leading-tight">Área do Monitor</h1>
+          <p className="text-[10px] text-slate-400">Atividades do dia</p>
         </div>
-        <Button onClick={() => setShowForm(!showForm)} size="sm" className="bg-[#0066b1] hover:bg-[#004d82] h-8 text-xs flex-shrink-0">
+        <Button onClick={() => setShowForm(!showForm)} size="sm" className="bg-[#0066b1] hover:bg-[#004d82] h-9 text-xs px-3 flex-shrink-0">
           <Plus className="w-3.5 h-3.5 mr-1" /> Nova Tarefa
         </Button>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 gap-2">
+      {/* Stats — 4 colunas compactas */}
+      <div className="grid grid-cols-4 gap-1.5">
         {[
-          { label: "Total Tarefas", value: tarefas.length, icon: ClipboardList, color: "text-blue-600", bg: "bg-blue-50" },
+          { label: "Total", value: tarefas.length, icon: ClipboardList, color: "text-blue-600", bg: "bg-blue-50" },
           { label: "Pendentes", value: tarefas.filter(t => t.status === "pendente").length, icon: Clock, color: "text-amber-600", bg: "bg-amber-50" },
           { label: "Concluídas", value: tarefas.filter(t => t.status === "concluida").length, icon: CheckCircle2, color: "text-green-600", bg: "bg-green-50" },
           { label: "Logística", value: atividades.length, icon: Truck, color: "text-purple-600", bg: "bg-purple-50" },
         ].map(({ label, value, icon: Icon, color, bg }) => (
-          <motion.div key={label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-            <Card className="border border-slate-200">
-              <CardContent className="p-3 flex items-center gap-2.5">
-                <div className={`w-8 h-8 ${bg} rounded-lg flex items-center justify-center flex-shrink-0`}>
-                  <Icon className={`w-4 h-4 ${color}`} />
-                </div>
-                <div className="min-w-0">
-                  <div className="text-lg font-bold text-slate-900 leading-tight">{value}</div>
-                  <p className="text-[9px] text-slate-500 truncate">{label}</p>
-                </div>
-              </CardContent>
-            </Card>
+          <motion.div key={label} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>
+            <div className="bg-white border border-slate-200 rounded-xl p-2.5 flex flex-col items-center gap-1">
+              <div className={`w-7 h-7 ${bg} rounded-lg flex items-center justify-center`}>
+                <Icon className={`w-3.5 h-3.5 ${color}`} />
+              </div>
+              <span className="text-base font-bold text-slate-900 leading-none">{value}</span>
+              <span className="text-[8px] text-slate-400 text-center leading-tight">{label}</span>
+            </div>
           </motion.div>
         ))}
       </div>
