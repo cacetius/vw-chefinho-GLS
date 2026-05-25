@@ -1,0 +1,82 @@
+{
+  "name": "MonitorRotationPlan",
+  "type": "object",
+  "properties": {
+    "nome": {
+      "type": "string",
+      "description": "Nome do planejamento"
+    },
+    "celula": {
+      "type": "string"
+    },
+    "mes_referencia": {
+      "type": "string",
+      "description": "YYYY-MM"
+    },
+    "turno": {
+      "type": "string",
+      "enum": [
+        "manha",
+        "tarde",
+        "noite"
+      ]
+    },
+    "responsavel": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "rascunho",
+        "ativo",
+        "arquivado"
+      ],
+      "default": "rascunho"
+    },
+    "schedule": {
+      "type": "array",
+      "description": "Array de {operator_id, dia, workstation_numero, status_dia, observacao}",
+      "items": {
+        "type": "object",
+        "properties": {
+          "operator_id": {
+            "type": "string"
+          },
+          "dia": {
+            "type": "number"
+          },
+          "workstation_numero": {
+            "type": "number"
+          },
+          "status_dia": {
+            "type": "string",
+            "enum": [
+              "normal",
+              "folga",
+              "ferias",
+              "afastado",
+              "treinamento",
+              "emprestado",
+              "bloqueado"
+            ],
+            "default": "normal"
+          },
+          "observacao": {
+            "type": "string"
+          },
+          "turno": {
+            "type": "string"
+          },
+          "responsavel_alteracao": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "nome",
+    "celula",
+    "mes_referencia"
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "name": "MonitorOperator",
+  "type": "object",
+  "properties": {
+    "nome": {
+      "type": "string",
+      "description": "Nome do operador"
+    },
+    "chapa": {
+      "type": "string",
+      "description": "Chapa/matr\u00edcula"
+    },
+    "equipe": {
+      "type": "string"
+    },
+    "turno": {
+      "type": "string",
+      "enum": [
+        "manha",
+        "tarde",
+        "noite"
+      ]
+    },
+    "celula": {
+      "type": "string",
+      "description": "C\u00e9lula de trabalho"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ativo",
+        "ferias",
+        "afastado",
+        "emprestado"
+      ],
+      "default": "ativo"
+    },
+    "ativo": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "nome",
+    "chapa"
+  ]
+}
