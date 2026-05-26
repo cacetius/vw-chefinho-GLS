@@ -28,6 +28,8 @@ function isAcessoEmergenciaAtivo() {
 }
 
 export default function GeoGuard({ children, userRole, userCargo, currentUser }) {
+  return <>{children}</>;
+
   const [status, setStatus] = useState("verificando");
   const [distancia, setDistancia] = useState(null);
   const [liberado, setLiberado] = useState(false);
