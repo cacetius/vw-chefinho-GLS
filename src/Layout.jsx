@@ -113,10 +113,7 @@ export default function Layout({ children, currentPageName }) {
 
   if (!currentUser) return <div className="min-h-screen bg-slate-50">{children}</div>;
 
-  // Verificação de turno (exceto páginas livres e supervisores/admins)
-  if (!paginaLivre && currentUser.turno && !isTurnoAtivo(currentUser.turno, currentUser)) {
-    return <TurnoGuard turno={currentUser.turno} currentUser={currentUser}>{children}</TurnoGuard>;
-  }
+  // Verificação de turno desativada
 
   const displayName = currentUser.nome_exibicao || currentUser.full_name;
 
@@ -349,14 +346,6 @@ export default function Layout({ children, currentPageName }) {
       </nav>
     </div>
   );
-
-  if (!paginaLivre) {
-    return (
-      <GeoGuard userRole={currentUser.role} userCargo={currentUser.cargo} currentUser={currentUser}>
-        {mainContent}
-      </GeoGuard>
-    );
-  }
 
   return mainContent;
 }
