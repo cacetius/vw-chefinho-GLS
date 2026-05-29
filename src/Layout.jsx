@@ -44,6 +44,7 @@ const NAV_SECTIONS = [
     title: "Gestão",
     items: [
       { title: "Objetivos do Mês", url: "ObjetivosMes", icon: Target },
+      { title: "Rotatividade", url: "PlanejamentoRotatividade", icon: Grid },
       { title: "Área do Monitor", url: "MonitorArea", icon: ClipboardList },
       { title: "Área do Líder", url: "LiderArea", icon: Shield, liderOnly: true },
       { title: "Gerenciar Usuários", url: "GerenciarUsuarios", icon: Users, liderOnly: true },
