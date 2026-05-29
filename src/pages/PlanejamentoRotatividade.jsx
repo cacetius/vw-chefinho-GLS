@@ -177,44 +177,65 @@ export default function PlanejamentoRotatividade() {
   // ── Export PDF ────────────────────────────────────────────────────────────
   const exportarPDF = () => {
     const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a3" });
-    doc.setFontSize(14);
+    const pageW = doc.internal.pageSize.width;
+
+    doc.setFontSize(13);
     doc.setTextColor(13, 45, 107);
-    doc.text("Planejamento de Rotatividade", doc.internal.pageSize.width / 2, 15, { align: "center" });
-    doc.setFontSize(9);
+    doc.text("Planejamento de Rotatividade", pageW / 2, 14, { align: "center" });
+    doc.setFontSize(8);
     doc.setTextColor(100);
-    doc.text(format(mesAtual, "MMMM 'de' yyyy", { locale: ptBR }), doc.internal.pageSize.width / 2, 21, { align: "center" });
+    doc.text(format(mesAtual, "MMMM 'de' yyyy", { locale: ptBR }), pageW / 2, 20, { align: "center" });
 
-    const head = [["Colaborador / Chapa", ...diasArray.map(d => {
-      const ds = getDiaSemana(d);
-      return `${DIAS_SEMANA_ABREV[ds][0]}\n${d}`;
-    })]];
+    const colNomeW = 30;
+    const cellW = (pageW - colNomeW - 20) / diasArray.length;
+    const cellH = 6;
+    let startX = 10;
+    let startY = 26;
 
-    const body = colaboradores.map(colab => [
-      `${colab.nome}\n${colab.chapa}`,
-      ...diasArray.map(dia => {
+    // Header row
+    doc.setFillColor(13, 45, 107);
+    doc.setTextColor(255);
+    doc.setFontSize(5.5);
+    doc.rect(startX, startY, colNomeW, cellH, "F");
+    doc.text("Colaborador", startX + 1, startY + 4);
+
+    diasArray.forEach((dia, i) => {
+      const ds = getDiaSemana(dia);
+      const fds = ds === 0 || ds === 6;
+      const x = startX + colNomeW + i * cellW;
+      if (fds) doc.setFillColor(180, 180, 180);
+      else doc.setFillColor(13, 45, 107);
+      doc.rect(x, startY, cellW, cellH, "F");
+      doc.setTextColor(255);
+      doc.text(`${DIAS_SEMANA_ABREV[ds][0]}${dia}`, x + cellW / 2, startY + 4, { align: "center" });
+    });
+
+    // Body rows
+    colaboradores.forEach((colab, ri) => {
+      const y = startY + cellH + ri * cellH;
+      const bg = ri % 2 === 0 ? [255, 255, 255] : [245, 247, 250];
+      doc.setFillColor(...bg);
+      doc.rect(startX, y, colNomeW, cellH, "F");
+      doc.setTextColor(30, 30, 30);
+      doc.setFontSize(5);
+      doc.text(`${colab.nome} (${colab.chapa})`, startX + 1, y + 4);
+
+      diasArray.forEach((dia, i) => {
         const ds = getDiaSemana(dia);
-        if (ds === 0 || ds === 6) return "-";
-        return grade[`${colab.id}-${dia}`] || "";
-      })
-    ]);
-
-    doc.autoTable({
-      head,
-      body,
-      startY: 26,
-      styles: { fontSize: 6, cellPadding: 1, halign: "center" },
-      headStyles: { fillColor: [13, 45, 107], textColor: 255, fontSize: 6 },
-      columnStyles: { 0: { halign: "left", cellWidth: 28 } },
-      didDrawCell: (data) => {
-        if (data.section === "body" && data.column.index > 0) {
-          const dia = data.column.index;
-          const ds = getDiaSemana(dia);
-          if (ds === 0 || ds === 6) {
-            doc.setFillColor(220, 220, 220);
-            doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height, "F");
-          }
+        const fds = ds === 0 || ds === 6;
+        const x = startX + colNomeW + i * cellW;
+        if (fds) doc.setFillColor(220, 220, 220);
+        else doc.setFillColor(...bg);
+        doc.rect(x, y, cellW, cellH, "F");
+        doc.setDrawColor(200);
+        doc.rect(x, y, cellW, cellH, "S");
+        const val = !fds ? grade[`${colab.id}-${dia}`] : "";
+        if (val) {
+          doc.setTextColor(0, 120, 50);
+          doc.setFontSize(5.5);
+          doc.text(String(val), x + cellW / 2, y + 4, { align: "center" });
         }
-      }
+      });
     });
 
     doc.save(`rotatividade-${format(mesAtual, "yyyy-MM")}.pdf`);
