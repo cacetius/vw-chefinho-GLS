@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Plus, Trash2, Save, Edit2 } from "lucide-react";
+import { Plus, Trash2, Save, Download, FileSpreadsheet, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import jsPDF from "jspdf";
 
-// Postos de trabalho padrão (conforme legenda do documento)
+// Postos de trabalho padrão
 const POSTOS_DEFAULT = [
   { num: 1, desc: "F361 Raku raku montagem mangueira do AC" },
   { num: 2, desc: "F123 Mtg PCH+a diant. LE" },
@@ -29,48 +31,75 @@ export default function PlanejamentoRotatividade() {
   const [currentUser, setCurrentUser] = useState(null);
   const [mesAtual] = useState(new Date());
   const [colaboradores, setColaboradores] = useState([]);
-  const [grade, setGrade] = useState({}); // { "colab_id-dia": postoNum }
-  const [postos, setPostos] = useState(POSTOS_DEFAULT);
+  const [grade, setGrade] = useState({});
+  const [postosFixos, setPostosFixos] = useState({}); // { postoNum: true } = tem operador fixo
+  const [postos] = useState(POSTOS_DEFAULT);
   const [novoColab, setNovoColab] = useState({ chapa: "", nome: "" });
   const [adicionando, setAdicionando] = useState(false);
   const [editingCell, setEditingCell] = useState(null);
+  const [salvando, setSalvando] = useState(false);
+  const tableRef = useRef(null);
 
   const diasNoMes = new Date(mesAtual.getFullYear(), mesAtual.getMonth() + 1, 0).getDate();
   const diasArray = Array.from({ length: diasNoMes }, (_, i) => i + 1);
+  const diasUteis = diasArray.filter(d => { const ds = getDiaSemana(d); return ds !== 0 && ds !== 6; });
 
   useEffect(() => {
     base44.auth.me().then(u => setCurrentUser(u));
     carregarDados();
   }, []);
 
+  function getDiaSemana(dia) {
+    const d = new Date(mesAtual.getFullYear(), mesAtual.getMonth(), dia);
+    return d.getDay();
+  }
+
   const carregarDados = async () => {
     const versatilidades = await base44.entities.Versatilidade.list();
     setColaboradores(versatilidades.map(v => ({ id: v.id, chapa: v.chapa, nome: v.colaborador, equipe: v.equipe })));
 
-    // Carregar grade do mês atual via AtividadeLogistica como registro
     const atividades = await base44.entities.AtividadeLogistica.filter({ setor: "rotatividade" });
     const gradeMap = {};
+    let fixosMap = {};
     atividades.forEach(a => {
       if (a.descricao) {
         try {
           const d = JSON.parse(a.descricao);
-          Object.assign(gradeMap, d);
+          if (d._postosFixos) fixosMap = d._postosFixos;
+          else Object.assign(gradeMap, d);
         } catch {}
       }
     });
     setGrade(gradeMap);
+    setPostosFixos(fixosMap);
   };
 
-  const salvarGrade = async (novaGrade) => {
-    // Persiste a grade como JSON em um registro de AtividadeLogistica
+  const salvarGrade = async (novaGrade, novosFixos) => {
+    setSalvando(true);
     const mesKey = format(mesAtual, "yyyy-MM");
     const existentes = await base44.entities.AtividadeLogistica.filter({ setor: "rotatividade", titulo: mesKey });
-    const payload = { titulo: mesKey, setor: "rotatividade", responsavel: "sistema", descricao: JSON.stringify(novaGrade) };
+    const payload = {
+      titulo: mesKey, setor: "rotatividade", responsavel: "sistema",
+      descricao: JSON.stringify(novaGrade)
+    };
     if (existentes.length > 0) {
       await base44.entities.AtividadeLogistica.update(existentes[0].id, payload);
     } else {
       await base44.entities.AtividadeLogistica.create(payload);
     }
+    // Salvar postos fixos separadamente
+    const mesKeyFixos = `${mesKey}-fixos`;
+    const existentesFixos = await base44.entities.AtividadeLogistica.filter({ setor: "rotatividade", titulo: mesKeyFixos });
+    const payloadFixos = {
+      titulo: mesKeyFixos, setor: "rotatividade", responsavel: "sistema",
+      descricao: JSON.stringify({ _postosFixos: novosFixos !== undefined ? novosFixos : postosFixos })
+    };
+    if (existentesFixos.length > 0) {
+      await base44.entities.AtividadeLogistica.update(existentesFixos[0].id, payloadFixos);
+    } else {
+      await base44.entities.AtividadeLogistica.create(payloadFixos);
+    }
+    setSalvando(false);
   };
 
   const handleCellClick = (colabId, dia) => {
@@ -80,11 +109,56 @@ export default function PlanejamentoRotatividade() {
   const handlePostoSelect = async (posto) => {
     if (!editingCell) return;
     const key = `${editingCell.colabId}-${editingCell.dia}`;
-    const novaGrade = { ...grade, [key]: posto === 0 ? undefined : posto };
+    const novaGrade = { ...grade };
     if (posto === 0) delete novaGrade[key];
+    else novaGrade[key] = posto;
     setGrade(novaGrade);
     setEditingCell(null);
     await salvarGrade(novaGrade);
+  };
+
+  // ── Auto-completar rotatividade sequencial ────────────────────────────────
+  const autoCompletar = async () => {
+    const novaGrade = { ...grade };
+    const postosAtivos = postos.map(p => p.num).filter(n => !postosFixos[n]);
+
+    colaboradores.forEach(colab => {
+      // Encontrar o último posto preenchido para este colaborador
+      let ultimoPosto = null;
+      let ultimoDia = 0;
+      diasUteis.forEach(dia => {
+        const key = `${colab.id}-${dia}`;
+        if (novaGrade[key]) {
+          ultimoPosto = novaGrade[key];
+          ultimoDia = dia;
+        }
+      });
+
+      // Determinar índice de início para a sequência
+      let idxAtual = ultimoPosto != null
+        ? postosAtivos.indexOf(ultimoPosto)
+        : colaboradores.indexOf(colab) % postosAtivos.length - 1;
+
+      // Preencher os dias úteis não preenchidos
+      diasUteis.forEach(dia => {
+        const key = `${colab.id}-${dia}`;
+        if (!novaGrade[key]) {
+          idxAtual = (idxAtual + 1) % postosAtivos.length;
+          novaGrade[key] = postosAtivos[idxAtual];
+        }
+      });
+    });
+
+    setGrade(novaGrade);
+    await salvarGrade(novaGrade);
+  };
+
+  const togglePostoFixo = async (postoNum) => {
+    const novosFixos = { ...postosFixos };
+    if (novosFixos[postoNum]) delete novosFixos[postoNum];
+    else novosFixos[postoNum] = true;
+    setPostosFixos(novosFixos);
+    await salvarGrade(grade, novosFixos);
   };
 
   const adicionarColaborador = async () => {
@@ -100,9 +174,78 @@ export default function PlanejamentoRotatividade() {
     carregarDados();
   };
 
-  const getDiaSemana = (dia) => {
-    const d = new Date(mesAtual.getFullYear(), mesAtual.getMonth(), dia);
-    return d.getDay(); // 0=Dom, 6=Sáb
+  // ── Export PDF ────────────────────────────────────────────────────────────
+  const exportarPDF = () => {
+    const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a3" });
+    doc.setFontSize(14);
+    doc.setTextColor(13, 45, 107);
+    doc.text("Planejamento de Rotatividade", doc.internal.pageSize.width / 2, 15, { align: "center" });
+    doc.setFontSize(9);
+    doc.setTextColor(100);
+    doc.text(format(mesAtual, "MMMM 'de' yyyy", { locale: ptBR }), doc.internal.pageSize.width / 2, 21, { align: "center" });
+
+    const head = [["Colaborador / Chapa", ...diasArray.map(d => {
+      const ds = getDiaSemana(d);
+      return `${DIAS_SEMANA_ABREV[ds][0]}\n${d}`;
+    })]];
+
+    const body = colaboradores.map(colab => [
+      `${colab.nome}\n${colab.chapa}`,
+      ...diasArray.map(dia => {
+        const ds = getDiaSemana(dia);
+        if (ds === 0 || ds === 6) return "-";
+        return grade[`${colab.id}-${dia}`] || "";
+      })
+    ]);
+
+    doc.autoTable({
+      head,
+      body,
+      startY: 26,
+      styles: { fontSize: 6, cellPadding: 1, halign: "center" },
+      headStyles: { fillColor: [13, 45, 107], textColor: 255, fontSize: 6 },
+      columnStyles: { 0: { halign: "left", cellWidth: 28 } },
+      didDrawCell: (data) => {
+        if (data.section === "body" && data.column.index > 0) {
+          const dia = data.column.index;
+          const ds = getDiaSemana(dia);
+          if (ds === 0 || ds === 6) {
+            doc.setFillColor(220, 220, 220);
+            doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height, "F");
+          }
+        }
+      }
+    });
+
+    doc.save(`rotatividade-${format(mesAtual, "yyyy-MM")}.pdf`);
+  };
+
+  // ── Export Excel (CSV) ────────────────────────────────────────────────────
+  const exportarExcel = () => {
+    const linhas = [];
+    // Cabeçalho
+    const cabDias = diasArray.map(d => `${DIAS_SEMANA_ABREV[getDiaSemana(d)]} ${d}`);
+    linhas.push(["Colaborador", "Chapa", ...cabDias]);
+
+    colaboradores.forEach(colab => {
+      const linha = [colab.nome, colab.chapa];
+      diasArray.forEach(dia => {
+        const ds = getDiaSemana(dia);
+        if (ds === 0 || ds === 6) linha.push("FDS");
+        else linha.push(grade[`${colab.id}-${dia}`] || "");
+      });
+      linhas.push(linha);
+    });
+
+    const csvContent = linhas.map(l => l.map(c => `"${c}"`).join(";")).join("\n");
+    const BOM = "\uFEFF";
+    const blob = new Blob([BOM + csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `rotatividade-${format(mesAtual, "yyyy-MM")}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const mesNome = format(mesAtual, "MMMM 'de' yyyy", { locale: ptBR });
@@ -111,9 +254,24 @@ export default function PlanejamentoRotatividade() {
   return (
     <div className="space-y-4">
       {/* Título */}
-      <div className="bg-[#0d2d6b] rounded-xl py-4 px-6 text-center">
-        <h1 className="text-xl font-bold text-white tracking-wide">Planejamento de Rotatividade</h1>
-        <p className="text-blue-200 text-sm mt-1 capitalize">{mesNome}</p>
+      <div className="bg-[#0d2d6b] rounded-xl py-4 px-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <div className="text-center md:text-left">
+            <h1 className="text-xl font-bold text-white tracking-wide">Planejamento de Rotatividade</h1>
+            <p className="text-blue-200 text-sm mt-0.5 capitalize">{mesNome}</p>
+          </div>
+          <div className="flex flex-wrap gap-2 justify-center md:justify-end">
+            <Button size="sm" onClick={autoCompletar} className="bg-amber-500 hover:bg-amber-600 text-white gap-1.5 text-xs">
+              <Wand2 className="w-3.5 h-3.5" /> Auto-completar
+            </Button>
+            <Button size="sm" onClick={exportarPDF} className="bg-red-600 hover:bg-red-700 text-white gap-1.5 text-xs">
+              <Download className="w-3.5 h-3.5" /> PDF
+            </Button>
+            <Button size="sm" onClick={exportarExcel} className="bg-green-600 hover:bg-green-700 text-white gap-1.5 text-xs">
+              <FileSpreadsheet className="w-3.5 h-3.5" /> Excel
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* Cabeçalho informativo */}
@@ -141,7 +299,7 @@ export default function PlanejamentoRotatividade() {
       </div>
 
       {/* Tabela de rotatividade */}
-      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden" ref={tableRef}>
         <div className="overflow-x-auto">
           <table className="w-full border-collapse" style={{ minWidth: diasNoMes * 28 + 160 }}>
             <thead>
@@ -262,9 +420,17 @@ export default function PlanejamentoRotatividade() {
                 <button
                   key={p.num}
                   onClick={() => handlePostoSelect(p.num)}
-                  className="text-left text-[10px] px-2 py-2 rounded-lg border border-slate-200 hover:bg-blue-50 hover:border-blue-300"
+                  className={`text-left text-[10px] px-2 py-2 rounded-lg border transition-colors
+                    ${postosFixos[p.num]
+                      ? "border-orange-300 bg-orange-50 opacity-60 cursor-not-allowed"
+                      : "border-slate-200 hover:bg-blue-50 hover:border-blue-300"
+                    }`}
+                  disabled={!!postosFixos[p.num]}
                 >
-                  <span className="font-bold text-blue-700">{p.num}</span> — <span className="text-slate-600">{p.desc.substring(0, 30)}...</span>
+                  <span className="font-bold text-blue-700">{p.num}</span>
+                  {postosFixos[p.num] && <span className="ml-1 text-[8px] text-orange-500">fixo</span>}
+                  {" — "}
+                  <span className="text-slate-600">{p.desc.substring(0, 28)}…</span>
                 </button>
               ))}
               <button
@@ -279,16 +445,29 @@ export default function PlanejamentoRotatividade() {
         </div>
       )}
 
-      {/* Descrição dos Postos de Trabalho */}
+      {/* Descrição dos Postos + configuração de fixos */}
       <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-4">
-        <h3 className="text-sm font-bold text-slate-800 mb-3 border-b border-slate-100 pb-2">
-          Descrição dos Postos de trabalho
+        <h3 className="text-sm font-bold text-slate-800 mb-1 border-b border-slate-100 pb-2">
+          Descrição dos Postos de Trabalho
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
+        <p className="text-[10px] text-slate-400 mb-3">Clique em "Fixo" para marcar postos com operador fixo — eles serão pulados no auto-completar.</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
           {postos.map(p => (
-            <div key={p.num} className="flex gap-2 text-[11px] text-slate-600">
-              <span className="font-bold text-blue-700 w-5 flex-shrink-0">{p.num}</span>
-              <span>{p.desc}</span>
+            <div key={p.num} className="flex items-center justify-between gap-2 text-[11px] text-slate-600">
+              <div className="flex gap-2">
+                <span className="font-bold text-blue-700 w-5 flex-shrink-0">{p.num}</span>
+                <span>{p.desc}</span>
+              </div>
+              <button
+                onClick={() => togglePostoFixo(p.num)}
+                className={`flex-shrink-0 text-[9px] px-2 py-0.5 rounded-full border transition-colors ${
+                  postosFixos[p.num]
+                    ? "bg-orange-100 border-orange-400 text-orange-700 font-bold"
+                    : "border-slate-200 text-slate-400 hover:border-orange-300 hover:text-orange-500"
+                }`}
+              >
+                {postosFixos[p.num] ? "✓ Fixo" : "Fixo"}
+              </button>
             </div>
           ))}
         </div>
