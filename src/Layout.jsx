@@ -5,7 +5,7 @@ import { base44 } from "@/api/base44Client";
 import {
   LayoutDashboard, Truck, Users, Shield, LogOut, Bell,
   Menu, X, User, Car, Grid, Home, MoreHorizontal, Activity,
-  ClipboardList, ChevronDown, ChevronRight
+  ClipboardList, ChevronDown, ChevronRight, Target
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -43,6 +43,7 @@ const NAV_SECTIONS = [
   {
     title: "Gestão",
     items: [
+      { title: "Objetivos do Mês", url: "ObjetivosMes", icon: Target },
       { title: "Área do Monitor", url: "MonitorArea", icon: ClipboardList },
       { title: "Área do Líder", url: "LiderArea", icon: Shield, liderOnly: true },
       { title: "Gerenciar Usuários", url: "GerenciarUsuarios", icon: Users, liderOnly: true },
