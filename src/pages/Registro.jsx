@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -7,12 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { UserPlus, Camera, CheckCircle, Upload, AlertCircle } from "lucide-react";
+import { UserPlus, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function Registro() {
   const navigate = useNavigate();
-  const fileInputRef = useRef(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [formData, setFormData] = useState({
     celular: "",
@@ -21,11 +20,8 @@ export default function Registro() {
     equipe: "",
     turno: ""
   });
-  const [carteirinhaFile, setCarteirinhaFile] = useState(null);
-  const [carteirinhaPreview, setCarteirinhaPreview] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [uploadingFoto, setUploadingFoto] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => { checkUser(); }, []);
@@ -44,24 +40,6 @@ export default function Registro() {
     setLoading(false);
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      setError("Por favor selecione uma imagem.");
-      return;
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      setError("A imagem deve ter no máximo 10MB.");
-      return;
-    }
-    setError("");
-    setCarteirinhaFile(file);
-    const reader = new FileReader();
-    reader.onload = (ev) => setCarteirinhaPreview(ev.target.result);
-    reader.readAsDataURL(file);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -70,26 +48,13 @@ export default function Registro() {
       setError("Por favor, preencha todos os campos obrigatórios.");
       return;
     }
-    if (!carteirinhaFile) {
-      setError("Por favor, envie a foto da sua carteirinha Volkswagen.");
-      return;
-    }
 
     setSubmitting(true);
     try {
-      setUploadingFoto(true);
-      const { file_url } = await base44.integrations.Core.UploadFile({ file: carteirinhaFile });
-      setUploadingFoto(false);
-
-      await base44.auth.updateMe({
-        ...formData,
-        carteirinha_vw_url: file_url,
-        carteirinha_verificada: false,
-      });
+      await base44.auth.updateMe(formData);
       navigate(createPageUrl("Dashboard"));
     } catch {
       setError("Erro ao salvar dados. Tente novamente.");
-      setUploadingFoto(false);
     }
     setSubmitting(false);
   };
@@ -209,73 +174,14 @@ export default function Registro() {
                 />
               </div>
 
-              {/* Upload carteirinha */}
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold">
-                  Foto da Carteirinha VW *
-                  <span className="text-slate-400 font-normal ml-1">(obrigatório)</span>
-                </Label>
-                <div
-                  onClick={() => fileInputRef.current?.click()}
-                  className={`relative border-2 border-dashed rounded-xl cursor-pointer transition-all overflow-hidden
-                    ${carteirinhaPreview
-                      ? "border-green-400 bg-green-50"
-                      : "border-slate-300 bg-slate-50 hover:border-[#0066b1] hover:bg-blue-50"
-                    }`}
-                >
-                  {carteirinhaPreview ? (
-                    <div className="relative">
-                      <img src={carteirinhaPreview} alt="Carteirinha" className="w-full h-40 object-cover" />
-                      <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                        <div className="bg-white rounded-lg px-3 py-1.5 flex items-center gap-1.5">
-                          <Camera className="w-4 h-4 text-slate-700" />
-                          <span className="text-xs font-medium text-slate-700">Trocar foto</span>
-                        </div>
-                      </div>
-                      <div className="absolute top-2 right-2 bg-green-500 text-white rounded-full p-1">
-                        <CheckCircle className="w-4 h-4" />
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
-                      <div className="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center mb-3">
-                        <Camera className="w-6 h-6 text-slate-400" />
-                      </div>
-                      <p className="text-sm font-medium text-slate-600">Toque para enviar a foto</p>
-                      <p className="text-xs text-slate-400 mt-1">da sua carteirinha Volkswagen</p>
-                      <div className="mt-3 flex items-center gap-1.5 text-[#0066b1]">
-                        <Upload className="w-3.5 h-3.5" />
-                        <span className="text-xs font-medium">JPG, PNG até 10MB</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-                {carteirinhaPreview && (
-                  <p className="text-xs text-green-600 flex items-center gap-1">
-                    <CheckCircle className="w-3 h-3" /> Foto enviada com sucesso
-                  </p>
-                )}
-              </div>
-
               <Button
                 type="submit"
                 className="w-full bg-[#0066b1] hover:bg-[#004d82] text-white py-5 text-sm font-semibold mt-2"
                 disabled={submitting}
               >
-                {submitting
-                  ? uploadingFoto
-                    ? "Enviando foto..."
-                    : "Salvando dados..."
-                  : "Completar Cadastro e Entrar"}
+                {submitting ? "Salvando dados..." : "Completar Cadastro e Entrar"}
               </Button>
+
             </form>
           </CardContent>
         </Card>
