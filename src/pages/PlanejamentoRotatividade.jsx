@@ -2,9 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Plus, Trash2, Save, Download, FileSpreadsheet, Wand2 } from "lucide-react";
+import { Plus, Trash2, Download, FileSpreadsheet, Wand2, Settings, X, Lock, Unlock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -33,12 +32,16 @@ export default function PlanejamentoRotatividade() {
   const [mesAtual] = useState(new Date());
   const [colaboradores, setColaboradores] = useState([]);
   const [grade, setGrade] = useState({});
-  const [postosFixos, setPostosFixos] = useState({}); // { postoNum: true } = tem operador fixo
+  const [postosFixos, setPostosFixos] = useState({}); // { postoNum: true } = posto tem operador fixo (pular no auto-completar)
+  const [operadoresFixos, setOperadoresFixos] = useState({}); // { colabId: postoNum } = operador fixo num posto
   const [postos] = useState(POSTOS_DEFAULT);
   const [novoColab, setNovoColab] = useState({ chapa: "", nome: "" });
   const [adicionando, setAdicionando] = useState(false);
   const [editingCell, setEditingCell] = useState(null);
   const [salvando, setSalvando] = useState(false);
+  const [editandoInfo, setEditandoInfo] = useState(false);
+  const [infoArea, setInfoArea] = useState({ area: "Para-choque", centroCusto: "3338", time: "", lider: "" });
+  const [editingInfoTemp, setEditingInfoTemp] = useState(null);
   const tableRef = useRef(null);
 
   const diasNoMes = new Date(mesAtual.getFullYear(), mesAtual.getMonth() + 1, 0).getDate();
@@ -46,7 +49,10 @@ export default function PlanejamentoRotatividade() {
   const diasUteis = diasArray.filter(d => { const ds = getDiaSemana(d); return ds !== 0 && ds !== 6; });
 
   useEffect(() => {
-    base44.auth.me().then(u => setCurrentUser(u));
+    base44.auth.me().then(u => {
+      setCurrentUser(u);
+      setInfoArea(prev => ({ ...prev, lider: u?.full_name || "", time: u?.equipe || "" }));
+    });
     carregarDados();
   }, []);
 
@@ -62,45 +68,47 @@ export default function PlanejamentoRotatividade() {
     const atividades = await base44.entities.AtividadeLogistica.filter({ setor: "rotatividade" });
     const gradeMap = {};
     let fixosMap = {};
+    let opFixosMap = {};
+    let infoMap = null;
     atividades.forEach(a => {
       if (a.descricao) {
         try {
           const d = JSON.parse(a.descricao);
           if (d._postosFixos) fixosMap = d._postosFixos;
+          else if (d._operadoresFixos) opFixosMap = d._operadoresFixos;
+          else if (d._infoArea) infoMap = d._infoArea;
           else Object.assign(gradeMap, d);
         } catch {}
       }
     });
     setGrade(gradeMap);
     setPostosFixos(fixosMap);
+    setOperadoresFixos(opFixosMap);
+    if (infoMap) setInfoArea(infoMap);
   };
 
-  const salvarGrade = async (novaGrade, novosFixos) => {
+  const salvarRegistro = async (titulo, payload) => {
+    const existentes = await base44.entities.AtividadeLogistica.filter({ setor: "rotatividade", titulo });
+    const dados = { titulo, setor: "rotatividade", responsavel: "sistema", descricao: JSON.stringify(payload) };
+    if (existentes.length > 0) {
+      await base44.entities.AtividadeLogistica.update(existentes[0].id, dados);
+    } else {
+      await base44.entities.AtividadeLogistica.create(dados);
+    }
+  };
+
+  const salvarGrade = async (novaGrade, novosFixos, novosOpFixos) => {
     setSalvando(true);
     const mesKey = format(mesAtual, "yyyy-MM");
-    const existentes = await base44.entities.AtividadeLogistica.filter({ setor: "rotatividade", titulo: mesKey });
-    const payload = {
-      titulo: mesKey, setor: "rotatividade", responsavel: "sistema",
-      descricao: JSON.stringify(novaGrade)
-    };
-    if (existentes.length > 0) {
-      await base44.entities.AtividadeLogistica.update(existentes[0].id, payload);
-    } else {
-      await base44.entities.AtividadeLogistica.create(payload);
-    }
-    // Salvar postos fixos separadamente
-    const mesKeyFixos = `${mesKey}-fixos`;
-    const existentesFixos = await base44.entities.AtividadeLogistica.filter({ setor: "rotatividade", titulo: mesKeyFixos });
-    const payloadFixos = {
-      titulo: mesKeyFixos, setor: "rotatividade", responsavel: "sistema",
-      descricao: JSON.stringify({ _postosFixos: novosFixos !== undefined ? novosFixos : postosFixos })
-    };
-    if (existentesFixos.length > 0) {
-      await base44.entities.AtividadeLogistica.update(existentesFixos[0].id, payloadFixos);
-    } else {
-      await base44.entities.AtividadeLogistica.create(payloadFixos);
-    }
+    await salvarRegistro(mesKey, novaGrade);
+    await salvarRegistro(`${mesKey}-fixos`, { _postosFixos: novosFixos !== undefined ? novosFixos : postosFixos });
+    await salvarRegistro(`${mesKey}-opfixos`, { _operadoresFixos: novosOpFixos !== undefined ? novosOpFixos : operadoresFixos });
     setSalvando(false);
+  };
+
+  const salvarInfoArea = async (novaInfo) => {
+    const mesKey = format(mesAtual, "yyyy-MM");
+    await salvarRegistro(`${mesKey}-info`, { _infoArea: novaInfo });
   };
 
   const handleCellClick = (colabId, dia) => {
@@ -124,23 +132,26 @@ export default function PlanejamentoRotatividade() {
     const postosAtivos = postos.map(p => p.num).filter(n => !postosFixos[n]);
 
     colaboradores.forEach(colab => {
-      // Encontrar o último posto preenchido para este colaborador
+      // Se operador tem posto fixo, preencher todos os dias com o posto fixo
+      if (operadoresFixos[colab.id]) {
+        const postoFixo = operadoresFixos[colab.id];
+        diasUteis.forEach(dia => {
+          novaGrade[`${colab.id}-${dia}`] = postoFixo;
+        });
+        return;
+      }
+
+      // Rotatividade normal
       let ultimoPosto = null;
-      let ultimoDia = 0;
       diasUteis.forEach(dia => {
         const key = `${colab.id}-${dia}`;
-        if (novaGrade[key]) {
-          ultimoPosto = novaGrade[key];
-          ultimoDia = dia;
-        }
+        if (novaGrade[key]) ultimoPosto = novaGrade[key];
       });
 
-      // Determinar índice de início para a sequência
       let idxAtual = ultimoPosto != null
         ? postosAtivos.indexOf(ultimoPosto)
         : colaboradores.indexOf(colab) % postosAtivos.length - 1;
 
-      // Preencher os dias úteis não preenchidos
       diasUteis.forEach(dia => {
         const key = `${colab.id}-${dia}`;
         if (!novaGrade[key]) {
@@ -160,6 +171,17 @@ export default function PlanejamentoRotatividade() {
     else novosFixos[postoNum] = true;
     setPostosFixos(novosFixos);
     await salvarGrade(grade, novosFixos);
+  };
+
+  const toggleOperadorFixo = async (colabId, postoNum) => {
+    const novosOpFixos = { ...operadoresFixos };
+    if (novosOpFixos[colabId] === postoNum) {
+      delete novosOpFixos[colabId]; // remove fixação
+    } else {
+      novosOpFixos[colabId] = postoNum; // fixa neste posto
+    }
+    setOperadoresFixos(novosOpFixos);
+    await salvarGrade(grade, undefined, novosOpFixos);
   };
 
   const adicionarColaborador = async () => {
@@ -283,27 +305,95 @@ export default function PlanejamentoRotatividade() {
 
       {/* Cabeçalho informativo */}
       <div className="bg-white border border-slate-200 rounded-xl overflow-hidden text-xs shadow-sm">
-        <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-slate-200 border-b border-slate-200">
+        <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100 bg-slate-50">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Informações da Área</span>
+          <button
+            onClick={() => { setEditingInfoTemp({ ...infoArea }); setEditandoInfo(true); }}
+            className="flex items-center gap-1 text-[10px] text-blue-600 hover:text-blue-800"
+          >
+            <Settings className="w-3 h-3" /> Editar
+          </button>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-slate-200">
           <div className="px-3 py-2">
             <p className="text-slate-400 text-[10px]">Área / Setor</p>
-            <p className="font-semibold text-slate-800">Para-choque</p>
+            <p className="font-semibold text-slate-800">{infoArea.area || "—"}</p>
           </div>
           <div className="px-3 py-2">
             <p className="text-slate-400 text-[10px]">Líder da área</p>
-            <p className="font-semibold text-slate-800">{currentUser?.full_name || "—"}</p>
+            <p className="font-semibold text-slate-800">{infoArea.lider || "—"}</p>
           </div>
           <div className="px-3 py-2">
             <p className="text-slate-400 text-[10px]">Centro de Custo / Time</p>
-            <p className="font-semibold text-slate-800">3338 / {currentUser?.equipe || "2"}</p>
+            <p className="font-semibold text-slate-800">{infoArea.centroCusto || "—"} / {infoArea.time || "—"}</p>
           </div>
           <div className="px-3 py-2">
             <p className="text-slate-400 text-[10px]">Turno / Data</p>
             <p className="font-semibold text-slate-800">
-              {currentUser?.turno === "manha" ? "1º" : currentUser?.turno === "tarde" ? "2º" : currentUser?.turno === "noite" ? "3º" : "2º"} — {format(mesAtual, "dd/MM/yyyy")}
+              {currentUser?.turno === "manha" ? "1º" : currentUser?.turno === "tarde" ? "2º" : currentUser?.turno === "noite" ? "3º" : "—"} — {format(mesAtual, "dd/MM/yyyy")}
             </p>
           </div>
         </div>
       </div>
+
+      {/* Modal editar info da área */}
+      {editandoInfo && editingInfoTemp && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setEditandoInfo(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl p-5 w-80" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <p className="font-bold text-slate-800">Editar Informações</p>
+              <button onClick={() => setEditandoInfo(false)}><X className="w-4 h-4 text-slate-400" /></button>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <label className="text-[10px] font-semibold text-slate-500 uppercase">Área / Setor</label>
+                <input
+                  className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+                  value={editingInfoTemp.area}
+                  onChange={e => setEditingInfoTemp(p => ({ ...p, area: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-semibold text-slate-500 uppercase">Líder da Área</label>
+                <input
+                  className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+                  value={editingInfoTemp.lider}
+                  onChange={e => setEditingInfoTemp(p => ({ ...p, lider: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-semibold text-slate-500 uppercase">Centro de Custo</label>
+                <input
+                  className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+                  value={editingInfoTemp.centroCusto}
+                  onChange={e => setEditingInfoTemp(p => ({ ...p, centroCusto: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-semibold text-slate-500 uppercase">Time / Equipe</label>
+                <input
+                  className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+                  value={editingInfoTemp.time}
+                  onChange={e => setEditingInfoTemp(p => ({ ...p, time: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="flex gap-2 mt-4">
+              <Button
+                className="flex-1 bg-[#0066b1] hover:bg-[#004d82] text-white"
+                onClick={async () => {
+                  setInfoArea(editingInfoTemp);
+                  await salvarInfoArea(editingInfoTemp);
+                  setEditandoInfo(false);
+                }}
+              >
+                Salvar
+              </Button>
+              <Button variant="outline" onClick={() => setEditandoInfo(false)}>Cancelar</Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Tabela de rotatividade */}
       <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden" ref={tableRef}>
@@ -333,15 +423,21 @@ export default function PlanejamentoRotatividade() {
               {colaboradores.map((colab, idx) => (
                 <tr key={colab.id} className={idx % 2 === 0 ? "bg-white" : "bg-slate-50"}>
                   <td className="sticky left-0 z-10 border border-slate-300 px-2 py-1 text-[10px] font-medium text-slate-800 bg-inherit">
-                    <div className="flex items-center justify-between gap-1">
-                      <div>
-                        <div className="text-[9px] text-slate-400">{colab.chapa}</div>
-                        <div className="font-semibold">{colab.nome}</div>
-                      </div>
-                      <button onClick={() => removerColaborador(colab.id)} className="text-slate-300 hover:text-red-400 p-0.5">
-                        <Trash2 className="w-3 h-3" />
-                      </button>
-                    </div>
+                   <div className="flex items-center justify-between gap-1">
+                     <div>
+                       <div className="text-[9px] text-slate-400">{colab.chapa}</div>
+                       <div className="font-semibold">{colab.nome}</div>
+                       {operadoresFixos[colab.id] && (
+                         <div className="flex items-center gap-0.5 mt-0.5">
+                           <Lock className="w-2.5 h-2.5 text-orange-500" />
+                           <span className="text-[8px] text-orange-600 font-bold">Posto {operadoresFixos[colab.id]}</span>
+                         </div>
+                       )}
+                     </div>
+                     <button onClick={() => removerColaborador(colab.id)} className="text-slate-300 hover:text-red-400 p-0.5">
+                       <Trash2 className="w-3 h-3" />
+                     </button>
+                   </div>
                   </td>
                   {diasArray.map(dia => {
                     const ds = getDiaSemana(dia);
@@ -419,9 +515,40 @@ export default function PlanejamentoRotatividade() {
       {editingCell && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={() => setEditingCell(null)}>
           <div className="bg-white rounded-2xl shadow-2xl p-4 w-80 max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-            <p className="text-sm font-bold text-slate-800 mb-3">
+            <p className="text-sm font-bold text-slate-800 mb-1">
               Selecione o posto — Dia {editingCell.dia}
             </p>
+            {/* Toggle operador fixo */}
+            <div className="mb-3 p-2 bg-orange-50 rounded-lg border border-orange-200">
+              <p className="text-[10px] text-orange-700 font-semibold mb-1 flex items-center gap-1">
+                <Lock className="w-3 h-3" /> Operador fixo nesta operação
+              </p>
+              <div className="grid grid-cols-2 gap-1">
+                {postos.map(p => (
+                  <button
+                    key={p.num}
+                    onClick={() => toggleOperadorFixo(editingCell.colabId, p.num)}
+                    className={`text-[9px] px-2 py-1 rounded border transition-colors text-left ${
+                      operadoresFixos[editingCell.colabId] === p.num
+                        ? "bg-orange-400 border-orange-500 text-white font-bold"
+                        : "border-orange-200 text-orange-600 hover:bg-orange-100"
+                    }`}
+                  >
+                    {operadoresFixos[editingCell.colabId] === p.num ? <Lock className="inline w-2.5 h-2.5 mr-0.5" /> : <Unlock className="inline w-2.5 h-2.5 mr-0.5" />}
+                    Posto {p.num}
+                  </button>
+                ))}
+              </div>
+              {operadoresFixos[editingCell.colabId] && (
+                <button
+                  onClick={() => toggleOperadorFixo(editingCell.colabId, operadoresFixos[editingCell.colabId])}
+                  className="mt-1 w-full text-[9px] text-orange-500 hover:text-orange-700"
+                >
+                  ✕ Remover fixação
+                </button>
+              )}
+            </div>
+            <p className="text-[10px] text-slate-500 font-semibold mb-2">Ou selecione manualmente para hoje:</p>
             <div className="grid grid-cols-2 gap-1.5">
               {postos.map(p => (
                 <button
@@ -437,7 +564,7 @@ export default function PlanejamentoRotatividade() {
                   <span className="font-bold text-blue-700">{p.num}</span>
                   {postosFixos[p.num] && <span className="ml-1 text-[8px] text-orange-500">fixo</span>}
                   {" — "}
-                  <span className="text-slate-600">{p.desc.substring(0, 28)}…</span>
+                  <span className="text-slate-600">{p.desc.substring(0, 25)}…</span>
                 </button>
               ))}
               <button
