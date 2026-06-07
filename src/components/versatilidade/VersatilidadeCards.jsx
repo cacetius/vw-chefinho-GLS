@@ -1,9 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, User, Award } from "lucide-react";
+import { Pencil, Trash2, Search } from "lucide-react";
 
 const disponibilidadeColors = {
   disponivel: "bg-green-100 text-green-800 border-green-200",
@@ -27,10 +26,37 @@ const nivelLabels = {
 };
 
 export default function VersatilidadeCards({ colaboradores = [], onEdit, onDelete }) {
+  const [busca, setBusca] = useState("");
+
+  const filtrados = colaboradores.filter(c =>
+    !busca.trim() ||
+    c.colaborador?.toLowerCase().includes(busca.toLowerCase()) ||
+    c.chapa?.toLowerCase().includes(busca.toLowerCase()) ||
+    c.equipe?.toLowerCase().includes(busca.toLowerCase())
+  );
+
   return (
+    <div className="space-y-3">
+      {/* Filtro rápido */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+        <input
+          type="text"
+          placeholder="Buscar por nome, chapa ou equipe..."
+          value={busca}
+          onChange={e => setBusca(e.target.value)}
+          className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-purple-200"
+        />
+        {busca && (
+          <button onClick={() => setBusca("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">✕</button>
+        )}
+      </div>
+      {filtrados.length === 0 && busca && (
+        <p className="text-center text-sm text-slate-400 py-4">Nenhum colaborador encontrado para "{busca}"</p>
+      )}
     <div className="grid grid-cols-1 gap-3">
       <AnimatePresence>
-        {colaboradores.map((colaborador) => {
+        {filtrados.map((colaborador) => {
           const treinadas = colaborador.habilidades?.filter(h => h.nivel === "treinado" || h.nivel === "instrutor").length || 0;
           const instrutor = colaborador.habilidades?.filter(h => h.nivel === "instrutor").length || 0;
           
@@ -99,6 +125,7 @@ export default function VersatilidadeCards({ colaboradores = [], onEdit, onDelet
           );
         })}
       </AnimatePresence>
+    </div>
     </div>
   );
 }

@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Pencil, Trash2, Check, X, Download, Users, ShoppingCart, ChevronDown, ChevronUp, AlertTriangle, Filter } from "lucide-react";
+import { Pencil, Trash2, Check, X, Download, Users, ShoppingCart, ChevronDown, ChevronUp, AlertTriangle, Filter, Search } from "lucide-react";
 import { format } from "date-fns";
 
 const STATUS_CONFIG = {
@@ -197,7 +197,14 @@ export default function PedidosList({ pedidos, onEdit, onDelete, onUpdateStatus,
     document.body.removeChild(link); URL.revokeObjectURL(link.href);
   };
 
-  const pedidosFiltrados = filtroStatus === "todos" ? pedidos : pedidos.filter(p => p.status === filtroStatus);
+  const [buscaItem, setBuscaItem] = useState("");
+  const pedidosFiltradosPorStatus = filtroStatus === "todos" ? pedidos : pedidos.filter(p => p.status === filtroStatus);
+  const pedidosFiltrados = !buscaItem.trim() ? pedidosFiltradosPorStatus : pedidosFiltradosPorStatus.filter(p =>
+    p.item?.toLowerCase().includes(buscaItem.toLowerCase()) ||
+    p.solicitante?.toLowerCase().includes(buscaItem.toLowerCase()) ||
+    p.solicitante_full_name?.toLowerCase().includes(buscaItem.toLowerCase()) ||
+    p.equipe?.toLowerCase().includes(buscaItem.toLowerCase())
+  );
   const contagens = { todos: pedidos.length, pendente: 0, aprovado: 0, reprovado: 0, entregue: 0 };
   pedidos.forEach(p => { if (contagens[p.status] !== undefined) contagens[p.status]++; });
 
@@ -257,6 +264,21 @@ export default function PedidosList({ pedidos, onEdit, onDelete, onUpdateStatus,
       )}
 
       <div className="space-y-3">
+        {/* Busca rápida */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Buscar por item, solicitante ou equipe..."
+            value={buscaItem}
+            onChange={e => setBuscaItem(e.target.value)}
+            className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-200"
+          />
+          {buscaItem && (
+            <button onClick={() => setBuscaItem("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">✕</button>
+          )}
+        </div>
+
         {/* Filtros + export */}
         <div className="flex items-center gap-1.5 flex-wrap">
           <Filter className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
