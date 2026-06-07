@@ -1,0 +1,88 @@
+{
+  "name": "PlanoAcaoVDA",
+  "type": "object",
+  "properties": {
+    "auditoria_id": {
+      "type": "string",
+      "description": "ID da auditoria relacionada"
+    },
+    "nao_conformidade": {
+      "type": "string",
+      "description": "Descri\u00e7\u00e3o da n\u00e3o conformidade"
+    },
+    "causa_raiz": {
+      "type": "string",
+      "description": "An\u00e1lise de causa raiz (5 Porqu\u00eas)"
+    },
+    "acao_imediata": {
+      "type": "string",
+      "description": "A\u00e7\u00e3o de conten\u00e7\u00e3o imediata"
+    },
+    "acao_corretiva": {
+      "type": "string",
+      "description": "A\u00e7\u00e3o corretiva definitiva"
+    },
+    "acao_preventiva": {
+      "type": "string",
+      "description": "A\u00e7\u00e3o preventiva"
+    },
+    "responsavel_id": {
+      "type": "string"
+    },
+    "responsavel_nome": {
+      "type": "string"
+    },
+    "prazo_conclusao": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "aberto",
+        "em_andamento",
+        "aguardando_verificacao",
+        "concluido",
+        "cancelado"
+      ],
+      "default": "aberto"
+    },
+    "evidencia_implementacao": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "descricao": {
+            "type": "string"
+          },
+          "arquivo_url": {
+            "type": "string"
+          },
+          "data": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      }
+    },
+    "eficacia_verificada": {
+      "type": "boolean",
+      "default": false
+    },
+    "data_verificacao": {
+      "type": "string",
+      "format": "date"
+    },
+    "verificado_por": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "auditoria_id",
+    "nao_conformidade",
+    "acao_corretiva",
+    "responsavel_id",
+    "responsavel_nome",
+    "prazo_conclusao"
+  ]
+}

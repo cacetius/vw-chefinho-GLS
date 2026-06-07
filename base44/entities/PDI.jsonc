@@ -1,0 +1,92 @@
+{
+  "name": "PDI",
+  "type": "object",
+  "properties": {
+    "colaborador_id": {
+      "type": "string",
+      "description": "ID do colaborador"
+    },
+    "colaborador_nome": {
+      "type": "string",
+      "description": "Nome do colaborador"
+    },
+    "habilidade_alvo": {
+      "type": "number",
+      "description": "N\u00famero da habilidade que quer desenvolver"
+    },
+    "nivel_atual": {
+      "type": "string",
+      "enum": [
+        "nao_treinado",
+        "em_treinamento",
+        "treinado",
+        "instrutor"
+      ]
+    },
+    "nivel_alvo": {
+      "type": "string",
+      "enum": [
+        "em_treinamento",
+        "treinado",
+        "instrutor"
+      ]
+    },
+    "prazo": {
+      "type": "string",
+      "format": "date",
+      "description": "Prazo para atingir o objetivo"
+    },
+    "acoes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "descricao": {
+            "type": "string"
+          },
+          "responsavel": {
+            "type": "string"
+          },
+          "prazo": {
+            "type": "string",
+            "format": "date"
+          },
+          "concluida": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      }
+    },
+    "treinamentos_associados": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs dos treinamentos relacionados"
+    },
+    "observacoes": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ativo",
+        "concluido",
+        "cancelado"
+      ],
+      "default": "ativo"
+    },
+    "progresso": {
+      "type": "number",
+      "description": "Percentual de conclus\u00e3o (0-100)"
+    }
+  },
+  "required": [
+    "colaborador_id",
+    "colaborador_nome",
+    "habilidade_alvo",
+    "nivel_atual",
+    "nivel_alvo"
+  ]
+}

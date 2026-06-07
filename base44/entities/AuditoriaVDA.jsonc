@@ -1,0 +1,175 @@
+{
+  "name": "AuditoriaVDA",
+  "type": "object",
+  "properties": {
+    "titulo": {
+      "type": "string",
+      "description": "T\u00edtulo da auditoria"
+    },
+    "tipo_auditoria": {
+      "type": "string",
+      "enum": [
+        "VDA_6.3",
+        "VDA_6.5",
+        "5S",
+        "Layered_Process_Audit",
+        "Outro"
+      ],
+      "description": "Tipo de auditoria VDA"
+    },
+    "area_auditada": {
+      "type": "string",
+      "description": "\u00c1rea ou processo auditado"
+    },
+    "auditor_id": {
+      "type": "string",
+      "description": "ID do monitor/auditor"
+    },
+    "auditor_nome": {
+      "type": "string"
+    },
+    "data_auditoria": {
+      "type": "string",
+      "format": "date"
+    },
+    "turno": {
+      "type": "string",
+      "enum": [
+        "manha",
+        "tarde",
+        "noite"
+      ]
+    },
+    "itens_checklist": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "numero": {
+            "type": "string",
+            "description": "N\u00famero do item (ex: P1, P2, etc)"
+          },
+          "descricao": {
+            "type": "string"
+          },
+          "categoria": {
+            "type": "string",
+            "enum": [
+              "processo",
+              "produto",
+              "documentacao",
+              "pessoal",
+              "ambiente"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "conforme",
+              "nao_conforme",
+              "nao_aplicavel",
+              "observacao"
+            ]
+          },
+          "evidencia_foto": {
+            "type": "string",
+            "description": "URL da foto de evid\u00eancia"
+          },
+          "comentario": {
+            "type": "string"
+          },
+          "pontuacao": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 10,
+            "description": "Pontua\u00e7\u00e3o VDA (0-10)"
+          }
+        }
+      }
+    },
+    "pontuacao_total": {
+      "type": "number",
+      "description": "Pontua\u00e7\u00e3o total da auditoria"
+    },
+    "pontuacao_maxima": {
+      "type": "number",
+      "description": "Pontua\u00e7\u00e3o m\u00e1xima poss\u00edvel"
+    },
+    "percentual_conformidade": {
+      "type": "number",
+      "description": "Percentual de conformidade (%)"
+    },
+    "nao_conformidades": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "descricao": {
+            "type": "string"
+          },
+          "severidade": {
+            "type": "string",
+            "enum": [
+              "critica",
+              "maior",
+              "menor"
+            ]
+          },
+          "acao_corretiva": {
+            "type": "string"
+          },
+          "responsavel": {
+            "type": "string"
+          },
+          "prazo": {
+            "type": "string",
+            "format": "date"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "aberta",
+              "em_andamento",
+              "concluida"
+            ],
+            "default": "aberta"
+          }
+        }
+      }
+    },
+    "observacoes_gerais": {
+      "type": "string"
+    },
+    "pontos_fortes": {
+      "type": "string"
+    },
+    "oportunidades_melhoria": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "rascunho",
+        "finalizada",
+        "aprovada"
+      ],
+      "default": "rascunho"
+    },
+    "aprovada_por": {
+      "type": "string",
+      "description": "ID do l\u00edder que aprovou"
+    },
+    "data_aprovacao": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "titulo",
+    "tipo_auditoria",
+    "area_auditada",
+    "auditor_id",
+    "auditor_nome",
+    "data_auditoria"
+  ]
+}

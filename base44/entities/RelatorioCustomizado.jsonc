@@ -1,0 +1,72 @@
+{
+  "name": "RelatorioCustomizado",
+  "type": "object",
+  "properties": {
+    "nome": {
+      "type": "string"
+    },
+    "descricao": {
+      "type": "string"
+    },
+    "criado_por": {
+      "type": "string"
+    },
+    "entidade_fonte": {
+      "type": "string",
+      "enum": [
+        "PedidoEPI",
+        "AtividadeLogistica",
+        "TarefaMonitor",
+        "Objetivo",
+        "Versatilidade",
+        "Treinamento",
+        "Ausencia",
+        "EstoqueEPI"
+      ],
+      "description": "Entidade base do relat\u00f3rio"
+    },
+    "campos_selecionados": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Campos a exibir"
+    },
+    "filtros": {
+      "type": "object",
+      "description": "Filtros aplicados"
+    },
+    "agrupamento": {
+      "type": "string",
+      "description": "Campo para agrupar"
+    },
+    "ordenacao": {
+      "type": "string"
+    },
+    "tipo_visualizacao": {
+      "type": "string",
+      "enum": [
+        "tabela",
+        "grafico_barras",
+        "grafico_linha",
+        "grafico_pizza"
+      ],
+      "default": "tabela"
+    },
+    "publico": {
+      "type": "boolean",
+      "default": false,
+      "description": "Se outros podem ver"
+    },
+    "favorito": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "nome",
+    "criado_por",
+    "entidade_fonte",
+    "campos_selecionados"
+  ]
+}

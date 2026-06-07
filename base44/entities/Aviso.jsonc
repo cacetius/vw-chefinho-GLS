@@ -1,0 +1,55 @@
+{
+  "name": "Aviso",
+  "type": "object",
+  "properties": {
+    "titulo": {
+      "type": "string",
+      "description": "T\u00edtulo do aviso"
+    },
+    "conteudo": {
+      "type": "string",
+      "description": "Conte\u00fado do aviso"
+    },
+    "autor": {
+      "type": "string",
+      "description": "Nome do autor do aviso"
+    },
+    "cargo_autor": {
+      "type": "string",
+      "description": "Cargo do autor"
+    },
+    "prioridade": {
+      "type": "string",
+      "enum": [
+        "normal",
+        "importante",
+        "urgente"
+      ],
+      "default": "normal",
+      "description": "Prioridade do aviso"
+    },
+    "categoria": {
+      "type": "string",
+      "enum": [
+        "geral",
+        "seguranca",
+        "logistica",
+        "epi",
+        "treinamento",
+        "outro"
+      ],
+      "default": "geral",
+      "description": "Categoria do aviso"
+    },
+    "fixado": {
+      "type": "boolean",
+      "default": false,
+      "description": "Se o aviso est\u00e1 fixado no topo"
+    }
+  },
+  "required": [
+    "titulo",
+    "conteudo",
+    "autor"
+  ]
+}

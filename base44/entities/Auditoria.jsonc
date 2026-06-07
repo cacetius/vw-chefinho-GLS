@@ -1,0 +1,57 @@
+{
+  "name": "Auditoria",
+  "type": "object",
+  "properties": {
+    "usuario_id": {
+      "type": "string"
+    },
+    "usuario_nome": {
+      "type": "string"
+    },
+    "acao": {
+      "type": "string",
+      "enum": [
+        "criacao",
+        "edicao",
+        "exclusao",
+        "aprovacao",
+        "reprovacao",
+        "login",
+        "logout"
+      ],
+      "description": "Tipo de a\u00e7\u00e3o"
+    },
+    "entidade_tipo": {
+      "type": "string",
+      "description": "Tipo de entidade afetada"
+    },
+    "entidade_id": {
+      "type": "string",
+      "description": "ID da entidade afetada"
+    },
+    "descricao": {
+      "type": "string",
+      "description": "Descri\u00e7\u00e3o da a\u00e7\u00e3o"
+    },
+    "dados_anteriores": {
+      "type": "object",
+      "description": "Dados antes da modifica\u00e7\u00e3o"
+    },
+    "dados_novos": {
+      "type": "object",
+      "description": "Dados ap\u00f3s a modifica\u00e7\u00e3o"
+    },
+    "ip_address": {
+      "type": "string"
+    },
+    "user_agent": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "usuario_id",
+    "usuario_nome",
+    "acao",
+    "descricao"
+  ]
+}

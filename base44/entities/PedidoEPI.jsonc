@@ -1,0 +1,81 @@
+{
+  "name": "PedidoEPI",
+  "type": "object",
+  "properties": {
+    "solicitante": {
+      "type": "string",
+      "description": "Nome do solicitante"
+    },
+    "solicitante_id": {
+      "type": "string",
+      "description": "ID do solicitante"
+    },
+    "solicitante_full_name": {
+      "type": "string",
+      "description": "Nome completo do solicitante (do sistema)"
+    },
+    "equipe": {
+      "type": "string",
+      "description": "Equipe do solicitante"
+    },
+    "turno": {
+      "type": "string",
+      "description": "Turno do solicitante"
+    },
+    "item": {
+      "type": "string",
+      "description": "Item de EPI solicitado"
+    },
+    "quantidade": {
+      "type": "number",
+      "description": "Quantidade solicitada"
+    },
+    "valor_unitario": {
+      "type": "number",
+      "description": "Valor unit\u00e1rio do item"
+    },
+    "valor_total": {
+      "type": "number",
+      "description": "Valor total do pedido"
+    },
+    "justificativa": {
+      "type": "string",
+      "description": "Justificativa do pedido"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pendente",
+        "aprovado",
+        "reprovado",
+        "entregue"
+      ],
+      "default": "pendente"
+    },
+    "urgencia": {
+      "type": "string",
+      "enum": [
+        "normal",
+        "urgente"
+      ],
+      "default": "normal"
+    },
+    "data_solicitacao": {
+      "type": "string",
+      "format": "date"
+    },
+    "orcamento_aprovado": {
+      "type": "number",
+      "description": "Valor do or\u00e7amento aprovado pelo l\u00edder"
+    },
+    "observacoes_orcamento": {
+      "type": "string",
+      "description": "Observa\u00e7\u00f5es sobre o or\u00e7amento"
+    }
+  },
+  "required": [
+    "solicitante",
+    "item",
+    "quantidade"
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "name": "Comentario",
+  "type": "object",
+  "properties": {
+    "entidade_tipo": {
+      "type": "string",
+      "enum": [
+        "pedido_epi",
+        "atividade_logistica",
+        "tarefa",
+        "objetivo",
+        "treinamento"
+      ],
+      "description": "Tipo de entidade comentada"
+    },
+    "entidade_id": {
+      "type": "string",
+      "description": "ID da entidade comentada"
+    },
+    "autor_id": {
+      "type": "string",
+      "description": "ID do autor"
+    },
+    "autor_nome": {
+      "type": "string"
+    },
+    "autor_cargo": {
+      "type": "string"
+    },
+    "comentario": {
+      "type": "string",
+      "description": "Texto do coment\u00e1rio"
+    },
+    "anexos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "tipo": {
+            "type": "string"
+          },
+          "nome": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "entidade_tipo",
+    "entidade_id",
+    "autor_id",
+    "autor_nome",
+    "comentario"
+  ]
+}

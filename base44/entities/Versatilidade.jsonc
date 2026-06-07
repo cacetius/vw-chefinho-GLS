@@ -1,0 +1,71 @@
+{
+  "name": "Versatilidade",
+  "type": "object",
+  "properties": {
+    "colaborador": {
+      "type": "string",
+      "description": "Nome do colaborador"
+    },
+    "chapa": {
+      "type": "string",
+      "description": "Chapa do colaborador"
+    },
+    "equipe": {
+      "type": "string",
+      "description": "Equipe do colaborador"
+    },
+    "turno": {
+      "type": "string",
+      "enum": [
+        "manha",
+        "tarde",
+        "noite"
+      ],
+      "description": "Turno do colaborador"
+    },
+    "habilidades": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "numero": {
+            "type": "number",
+            "description": "N\u00famero da habilidade"
+          },
+          "descricao": {
+            "type": "string",
+            "description": "Descri\u00e7\u00e3o da habilidade"
+          },
+          "nivel": {
+            "type": "string",
+            "enum": [
+              "nao_treinado",
+              "em_treinamento",
+              "treinado",
+              "instrutor"
+            ],
+            "description": "N\u00edvel de dom\u00ednio da habilidade"
+          }
+        }
+      },
+      "description": "Lista de habilidades e n\u00edveis do colaborador"
+    },
+    "disponibilidade": {
+      "type": "string",
+      "enum": [
+        "disponivel",
+        "indisponivel",
+        "licenca",
+        "ferias"
+      ],
+      "default": "disponivel"
+    },
+    "observacoes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "colaborador",
+    "chapa"
+  ]
+}

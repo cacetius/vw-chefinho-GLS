@@ -1,0 +1,68 @@
+{
+  "name": "Notificacao",
+  "type": "object",
+  "properties": {
+    "usuario_id": {
+      "type": "string",
+      "description": "ID do usu\u00e1rio que receber\u00e1 a notifica\u00e7\u00e3o"
+    },
+    "titulo": {
+      "type": "string",
+      "description": "T\u00edtulo da notifica\u00e7\u00e3o"
+    },
+    "mensagem": {
+      "type": "string",
+      "description": "Conte\u00fado da notifica\u00e7\u00e3o"
+    },
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "info",
+        "sucesso",
+        "aviso",
+        "erro",
+        "urgente"
+      ],
+      "default": "info"
+    },
+    "categoria": {
+      "type": "string",
+      "enum": [
+        "pedido",
+        "tarefa",
+        "chat",
+        "objetivo",
+        "treinamento",
+        "ausencia",
+        "sistema"
+      ],
+      "description": "Categoria da notifica\u00e7\u00e3o"
+    },
+    "link": {
+      "type": "string",
+      "description": "URL para onde a notifica\u00e7\u00e3o deve redirecionar"
+    },
+    "lida": {
+      "type": "boolean",
+      "default": false
+    },
+    "data_leitura": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "remetente_id": {
+      "type": "string",
+      "description": "ID de quem gerou a notifica\u00e7\u00e3o"
+    },
+    "remetente_nome": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "usuario_id",
+    "titulo",
+    "mensagem",
+    "tipo",
+    "categoria"
+  ]
+}

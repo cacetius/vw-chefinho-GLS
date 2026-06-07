@@ -1,0 +1,178 @@
+{
+  "name": "CarroLinha",
+  "type": "object",
+  "properties": {
+    "chassi": {
+      "type": "string",
+      "description": "N\u00famero do chassi do ve\u00edculo"
+    },
+    "modelo": {
+      "type": "string",
+      "description": "Modelo do ve\u00edculo (Gol, Polo, T-Cross, etc)"
+    },
+    "cor": {
+      "type": "string",
+      "description": "Cor do ve\u00edculo"
+    },
+    "posicao_linha": {
+      "type": "number",
+      "description": "Posi\u00e7\u00e3o atual na linha (1-50)"
+    },
+    "estacao_atual": {
+      "type": "string",
+      "enum": [
+        "entrada",
+        "chaparia_solda",
+        "chaparia_geometria",
+        "zp1",
+        "zp2",
+        "zp3",
+        "zp4",
+        "zp5",
+        "zp6",
+        "zp7",
+        "zp8",
+        "celula_parachoque",
+        "dress_up",
+        "chicotes",
+        "vidros",
+        "doorless",
+        "bancos",
+        "acabamento_interno",
+        "capo_tampa",
+        "pintura_fosfatizacao",
+        "pintura_ecoat",
+        "pintura_primer",
+        "pintura_base",
+        "pintura_verniz",
+        "pintura_secagem",
+        "pcp_polimento",
+        "pcp_retoque",
+        "qualidade_auditoria",
+        "qualidade_agua",
+        "teste_dinamometro",
+        "teste_alinhamento",
+        "teste_luz",
+        "teste_road",
+        "expedicao_limpeza",
+        "expedicao_final",
+        "saida"
+      ],
+      "description": "Esta\u00e7\u00e3o atual na linha de produ\u00e7\u00e3o"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ok",
+        "alerta",
+        "erro",
+        "aguardando",
+        "em_processo",
+        "concluido"
+      ],
+      "default": "aguardando",
+      "description": "Status do ve\u00edculo"
+    },
+    "problemas": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "qualidade",
+              "montagem",
+              "pintura",
+              "eletrica",
+              "mecanica",
+              "outro"
+            ]
+          },
+          "descricao": {
+            "type": "string"
+          },
+          "severidade": {
+            "type": "string",
+            "enum": [
+              "baixa",
+              "media",
+              "alta",
+              "critica"
+            ]
+          },
+          "data_deteccao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "resolvido": {
+            "type": "boolean",
+            "default": false
+          },
+          "responsavel": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "tempo_entrada": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Hor\u00e1rio de entrada na linha"
+    },
+    "tempo_estimado_conclusao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Hor\u00e1rio estimado de conclus\u00e3o"
+    },
+    "tempo_parado": {
+      "type": "number",
+      "description": "Tempo total parado em minutos"
+    },
+    "turno": {
+      "type": "string",
+      "enum": [
+        "manha",
+        "tarde",
+        "noite"
+      ]
+    },
+    "operador_responsavel": {
+      "type": "string"
+    },
+    "operador_id": {
+      "type": "string"
+    },
+    "observacoes": {
+      "type": "string"
+    },
+    "historico": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "estacao": {
+            "type": "string"
+          },
+          "tempo_entrada": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "tempo_saida": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "chassi",
+    "modelo",
+    "posicao_linha",
+    "estacao_atual"
+  ]
+}

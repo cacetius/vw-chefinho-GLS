@@ -1,0 +1,67 @@
+{
+  "name": "Orcamento",
+  "type": "object",
+  "properties": {
+    "titulo": {
+      "type": "string",
+      "description": "T\u00edtulo do or\u00e7amento"
+    },
+    "descricao": {
+      "type": "string",
+      "description": "Descri\u00e7\u00e3o detalhada"
+    },
+    "equipe": {
+      "type": "string",
+      "description": "Equipe relacionada"
+    },
+    "turno": {
+      "type": "string",
+      "enum": [
+        "manha",
+        "tarde",
+        "noite",
+        "todos"
+      ],
+      "description": "Turno relacionado"
+    },
+    "mes_referencia": {
+      "type": "string",
+      "format": "date",
+      "description": "M\u00eas de refer\u00eancia do or\u00e7amento"
+    },
+    "valor_total": {
+      "type": "number",
+      "description": "Valor total do or\u00e7amento"
+    },
+    "valor_utilizado": {
+      "type": "number",
+      "default": 0,
+      "description": "Valor j\u00e1 utilizado"
+    },
+    "categoria": {
+      "type": "string",
+      "enum": [
+        "epi",
+        "ferramentas",
+        "manutencao",
+        "outros"
+      ],
+      "description": "Categoria do or\u00e7amento"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ativo",
+        "esgotado",
+        "cancelado"
+      ],
+      "default": "ativo"
+    }
+  },
+  "required": [
+    "titulo",
+    "mes_referencia",
+    "valor_total",
+    "categoria"
+  ]
+}

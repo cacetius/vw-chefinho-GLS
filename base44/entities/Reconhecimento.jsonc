@@ -1,0 +1,59 @@
+{
+  "name": "Reconhecimento",
+  "type": "object",
+  "properties": {
+    "colaborador_id": {
+      "type": "string",
+      "description": "ID do colaborador reconhecido"
+    },
+    "colaborador_nome": {
+      "type": "string"
+    },
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "colaborador_mes",
+        "meta_atingida",
+        "seguranca",
+        "inovacao",
+        "lideranca",
+        "versatilidade"
+      ],
+      "description": "Tipo de reconhecimento"
+    },
+    "titulo": {
+      "type": "string",
+      "description": "T\u00edtulo do reconhecimento"
+    },
+    "descricao": {
+      "type": "string",
+      "description": "Descri\u00e7\u00e3o do motivo"
+    },
+    "concedido_por": {
+      "type": "string",
+      "description": "ID de quem concedeu"
+    },
+    "concedido_por_nome": {
+      "type": "string"
+    },
+    "pontos": {
+      "type": "number",
+      "description": "Pontos de gamifica\u00e7\u00e3o"
+    },
+    "badge": {
+      "type": "string",
+      "description": "Nome do badge/conquista"
+    },
+    "publico": {
+      "type": "boolean",
+      "default": true,
+      "description": "Se aparece no mural"
+    }
+  },
+  "required": [
+    "colaborador_id",
+    "colaborador_nome",
+    "tipo",
+    "titulo"
+  ]
+}

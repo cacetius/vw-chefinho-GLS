@@ -1,0 +1,73 @@
+{
+  "name": "Documento",
+  "type": "object",
+  "properties": {
+    "titulo": {
+      "type": "string",
+      "description": "T\u00edtulo do documento"
+    },
+    "descricao": {
+      "type": "string"
+    },
+    "categoria": {
+      "type": "string",
+      "enum": [
+        "procedimento",
+        "manual",
+        "politica",
+        "seguranca",
+        "qualidade",
+        "treinamento",
+        "outro"
+      ],
+      "description": "Categoria do documento"
+    },
+    "arquivo_url": {
+      "type": "string",
+      "description": "URL do arquivo"
+    },
+    "tipo_arquivo": {
+      "type": "string",
+      "description": "Tipo do arquivo (pdf, doc, etc)"
+    },
+    "versao": {
+      "type": "string",
+      "description": "Vers\u00e3o do documento"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags para busca"
+    },
+    "acesso": {
+      "type": "string",
+      "enum": [
+        "publico",
+        "monitor",
+        "lider"
+      ],
+      "default": "publico",
+      "description": "N\u00edvel de acesso necess\u00e1rio"
+    },
+    "autor": {
+      "type": "string"
+    },
+    "data_validade": {
+      "type": "string",
+      "format": "date",
+      "description": "Data de validade/revis\u00e3o"
+    },
+    "visualizacoes": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "titulo",
+    "categoria",
+    "arquivo_url",
+    "autor"
+  ]
+}

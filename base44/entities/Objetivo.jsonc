@@ -1,0 +1,75 @@
+{
+  "name": "Objetivo",
+  "type": "object",
+  "properties": {
+    "titulo": {
+      "type": "string",
+      "description": "T\u00edtulo do objetivo"
+    },
+    "descricao": {
+      "type": "string",
+      "description": "Descri\u00e7\u00e3o detalhada"
+    },
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "diario",
+        "mensal"
+      ],
+      "description": "Se \u00e9 objetivo di\u00e1rio ou mensal"
+    },
+    "categoria": {
+      "type": "string",
+      "enum": [
+        "seguranca",
+        "qualidade",
+        "producao",
+        "processo"
+      ],
+      "description": "Categoria do objetivo"
+    },
+    "meta_numerica": {
+      "type": "number",
+      "description": "Meta num\u00e9rica quando aplic\u00e1vel"
+    },
+    "valor_atual": {
+      "type": "number",
+      "description": "Valor atual alcan\u00e7ado"
+    },
+    "unidade": {
+      "type": "string",
+      "description": "Unidade de medida (ex: acidentes, D/1000, %)"
+    },
+    "data_referencia": {
+      "type": "string",
+      "format": "date",
+      "description": "Data de refer\u00eancia (dia ou m\u00eas)"
+    },
+    "turno": {
+      "type": "string",
+      "enum": [
+        "manha",
+        "tarde",
+        "noite",
+        "todos"
+      ],
+      "default": "todos",
+      "description": "Turno aplic\u00e1vel"
+    },
+    "concluido": {
+      "type": "boolean",
+      "default": false,
+      "description": "Se o objetivo foi atingido"
+    },
+    "observacoes": {
+      "type": "string",
+      "description": "Observa\u00e7\u00f5es adicionais"
+    }
+  },
+  "required": [
+    "titulo",
+    "tipo",
+    "categoria",
+    "data_referencia"
+  ]
+}

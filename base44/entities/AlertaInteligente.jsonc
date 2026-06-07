@@ -1,0 +1,65 @@
+{
+  "name": "AlertaInteligente",
+  "type": "object",
+  "properties": {
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "gasto_alto",
+        "estoque_baixo",
+        "prazo_proximo",
+        "tendencia_negativa",
+        "meta_risco",
+        "ausencia_alta"
+      ],
+      "description": "Tipo do alerta"
+    },
+    "severidade": {
+      "type": "string",
+      "enum": [
+        "info",
+        "aviso",
+        "critico"
+      ],
+      "default": "info"
+    },
+    "titulo": {
+      "type": "string"
+    },
+    "mensagem": {
+      "type": "string"
+    },
+    "dados_contexto": {
+      "type": "object",
+      "description": "Dados que geraram o alerta"
+    },
+    "destinatarios": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs dos usu\u00e1rios que devem ver"
+    },
+    "acao_sugerida": {
+      "type": "string"
+    },
+    "link_relacionado": {
+      "type": "string"
+    },
+    "visualizado_por": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "resolvido": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "tipo",
+    "titulo",
+    "mensagem"
+  ]
+}

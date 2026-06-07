@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useNavigate, Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
   Users, Shield,
-  CheckCircle2, Activity,
-  ArrowRight, Bell, Target, Car, ClipboardList, TrendingUp
+  Activity,
+  ArrowRight, Bell, Target, ClipboardList, Package
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import HistoricoAtividades from "../components/shared/HistoricoAtividades";
 import PrazoAlertas from "../components/dashboard/PrazoAlertas";
@@ -90,19 +89,11 @@ export default function Dashboard() {
   // Os módulos principais
   const MODULES = [
     {
-      title: "Linha de Produção",
-      desc: "Veículos em tempo real",
-      icon: Car,
-      url: "LinhaProducao",
-      gradient: "from-[#0066b1] to-[#004d82]",
-      badge: null,
-    },
-    {
       title: "EPI & Orçamentos",
       desc: `${stats.epiPendentes ?? 0} pedidos pendentes`,
       icon: Shield,
       url: "OperacoesHub",
-      gradient: "from-cyan-600 to-blue-700",
+      gradient: "from-[#0066b1] to-[#004d82]",
       badge: (stats.epiPendentes ?? 0) > 0 ? stats.epiPendentes : null,
     },
     {
@@ -130,11 +121,19 @@ export default function Dashboard() {
       badge: null,
     },
     {
-      title: "Dashboard Produção",
-      desc: "Métricas e indicadores",
-      icon: TrendingUp,
-      url: "DashboardProducao",
-      gradient: "from-slate-700 to-slate-900",
+      title: "Estoque EPI",
+      desc: "Controle de estoque",
+      icon: Package,
+      url: "Estoque",
+      gradient: "from-teal-600 to-cyan-700",
+      badge: null,
+    },
+    {
+      title: "Rotatividade",
+      desc: "Planejamento mensal",
+      icon: Activity,
+      url: "PlanejamentoRotatividade",
+      gradient: "from-slate-600 to-slate-800",
       badge: null,
     },
   ];

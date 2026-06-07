@@ -1,0 +1,80 @@
+{
+  "name": "MensagemChat",
+  "type": "object",
+  "properties": {
+    "canal_id": {
+      "type": "string",
+      "description": "ID do canal onde a mensagem foi enviada"
+    },
+    "remetente": {
+      "type": "string",
+      "description": "Nome do remetente"
+    },
+    "remetente_id": {
+      "type": "string",
+      "description": "ID do remetente"
+    },
+    "mensagem": {
+      "type": "string",
+      "description": "Conte\u00fado da mensagem"
+    },
+    "cargo_remetente": {
+      "type": "string",
+      "description": "Cargo do remetente"
+    },
+    "mencoes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs dos usu\u00e1rios mencionados"
+    },
+    "anexos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "imagem",
+              "documento",
+              "video"
+            ]
+          },
+          "url": {
+            "type": "string"
+          },
+          "nome": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Arquivos anexados"
+    },
+    "fixada": {
+      "type": "boolean",
+      "default": false,
+      "description": "Se a mensagem est\u00e1 fixada"
+    },
+    "reacoes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "emoji": {
+            "type": "string"
+          },
+          "usuario_id": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Rea\u00e7\u00f5es \u00e0 mensagem"
+    }
+  },
+  "required": [
+    "remetente",
+    "mensagem"
+  ]
+}

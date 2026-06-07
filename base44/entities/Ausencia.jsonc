@@ -1,0 +1,70 @@
+{
+  "name": "Ausencia",
+  "type": "object",
+  "properties": {
+    "colaborador_id": {
+      "type": "string",
+      "description": "ID do colaborador"
+    },
+    "colaborador_nome": {
+      "type": "string",
+      "description": "Nome do colaborador"
+    },
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "ferias",
+        "folga",
+        "atestado",
+        "licenca",
+        "outro"
+      ],
+      "description": "Tipo de aus\u00eancia"
+    },
+    "data_inicio": {
+      "type": "string",
+      "format": "date",
+      "description": "Data de in\u00edcio"
+    },
+    "data_fim": {
+      "type": "string",
+      "format": "date",
+      "description": "Data de t\u00e9rmino"
+    },
+    "motivo": {
+      "type": "string",
+      "description": "Motivo/justificativa"
+    },
+    "anexo": {
+      "type": "string",
+      "description": "URL do documento anexo (atestado, etc)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pendente",
+        "aprovado",
+        "reprovado"
+      ],
+      "default": "pendente"
+    },
+    "aprovado_por": {
+      "type": "string",
+      "description": "ID do l\u00edder que aprovou"
+    },
+    "data_aprovacao": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "observacoes_aprovacao": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "colaborador_id",
+    "colaborador_nome",
+    "tipo",
+    "data_inicio",
+    "data_fim"
+  ]
+}

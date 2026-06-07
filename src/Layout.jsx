@@ -3,25 +3,20 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import {
-  LayoutDashboard, Truck, Users, Shield, LogOut, Bell,
-  Menu, X, User, Car, Grid, Home, MoreHorizontal, Activity,
-  ClipboardList, ChevronDown, ChevronRight, Target
+  LayoutDashboard, Truck, Users, Shield, LogOut,
+  Menu, X, User, Home, MoreHorizontal,
+  ClipboardList, ChevronRight, Target, Package, Bell
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
-import TurnoGuard, { isTurnoAtivo } from "@/components/shared/TurnoGuard";
-import GeoGuard from "@/components/shared/GeoGuard";
 
-// As 6 funções principais
 const NAV_SECTIONS = [
   {
     title: "Principal",
     items: [
       { title: "Dashboard", url: "Dashboard", icon: LayoutDashboard },
-      { title: "Linha de Produção", url: "LinhaProducao", icon: Car },
-      { title: "Dashboard Produção", url: "DashboardProducao", icon: Activity },
     ]
   },
   {
@@ -36,15 +31,14 @@ const NAV_SECTIONS = [
     title: "Ferramentas",
     items: [
       { title: "Auditoria VDA", url: "AuditoriaVDA", icon: ClipboardList },
-      { title: "Layout das Linhas", url: "LayoutLinhaPage", icon: Grid },
-      { title: "Estoque EPI", url: "Estoque", icon: Bell },
+      { title: "Estoque EPI", url: "Estoque", icon: Package },
+      { title: "Objetivos do Mês", url: "ObjetivosMes", icon: Target },
+      { title: "Rotatividade", url: "PlanejamentoRotatividade", icon: ClipboardList },
     ]
   },
   {
     title: "Gestão",
     items: [
-      { title: "Objetivos do Mês", url: "ObjetivosMes", icon: Target },
-      { title: "Rotatividade", url: "PlanejamentoRotatividade", icon: Grid },
       { title: "Área do Monitor", url: "MonitorArea", icon: ClipboardList },
       { title: "Área do Líder", url: "LiderArea", icon: Shield, liderOnly: true },
       { title: "Gerenciar Usuários", url: "GerenciarUsuarios", icon: Users, liderOnly: true },
@@ -52,12 +46,11 @@ const NAV_SECTIONS = [
   }
 ];
 
-// Bottom nav — as 6 funções chave
 const BOTTOM_NAV = [
   { title: "Início", url: "Dashboard", icon: Home },
-  { title: "Linha", url: "LinhaProducao", icon: Car },
-  { title: "EPI & Orçamentos", url: "OperacoesHub", icon: Truck },
+  { title: "EPI", url: "OperacoesHub", icon: Truck },
   { title: "Pessoas", url: "PessoasHub", icon: Users },
+  { title: "Segurança", url: "SegurancaHub", icon: Shield },
   { title: "Menu", url: null, icon: MoreHorizontal },
 ];
 
@@ -67,14 +60,12 @@ export default function Layout({ children, currentPageName }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [expandedSections, setExpandedSections] = useState({ Principal: true, Módulos: true });
 
   useEffect(() => {
     base44.auth.me().then(u => { setCurrentUser(u); setLoading(false); }).catch(() => setLoading(false));
   }, []);
 
   const handleLogout = async () => { await base44.auth.logout(); };
-  const toggleSection = (title) => setExpandedSections(prev => ({ ...prev, [title]: !prev[title] }));
 
   const hasLeaderAccess = (user) => {
     if (!user) return false;
@@ -94,10 +85,6 @@ export default function Layout({ children, currentPageName }) {
 
   const isActive = (url) => url && location.pathname === createPageUrl(url);
 
-  // Páginas sem guard de turno (sempre acessíveis)
-  const PAGINAS_LIVRES = ["/Registro", "/Perfil"];
-  const paginaLivre = PAGINAS_LIVRES.some(p => location.pathname.startsWith(p));
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
@@ -113,18 +100,16 @@ export default function Layout({ children, currentPageName }) {
 
   if (!currentUser) return <div className="min-h-screen bg-slate-50">{children}</div>;
 
-  // Verificação de turno desativada
-
   const displayName = currentUser.nome_exibicao || currentUser.full_name;
 
-  const mainContent = (
+  return (
     <div className="min-h-screen flex bg-slate-50">
 
       {/* DESKTOP SIDEBAR */}
-      <aside className="hidden lg:flex flex-col w-60 bg-white border-r border-slate-200 fixed left-0 top-0 bottom-0 z-30">
+      <aside className="hidden lg:flex flex-col w-56 bg-white border-r border-slate-200 fixed left-0 top-0 bottom-0 z-30">
         <div className="px-4 py-3.5 border-b border-slate-100 flex items-center gap-2.5">
-          <div className="w-9 h-9 bg-[#0066b1] rounded-lg flex items-center justify-center flex-shrink-0">
-            <span className="text-xl">🏭</span>
+          <div className="w-8 h-8 bg-[#0066b1] rounded-lg flex items-center justify-center flex-shrink-0">
+            <span className="text-lg">🏭</span>
           </div>
           <div>
             <p className="font-bold text-slate-900 text-sm leading-tight">VW Chefinho</p>
@@ -132,46 +117,28 @@ export default function Layout({ children, currentPageName }) {
           </div>
         </div>
 
-        <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
+        <nav className="flex-1 overflow-y-auto py-2 px-2">
           {filteredSections.map(section => (
-            <div key={section.title} className="mb-1">
-              <button
-                onClick={() => toggleSection(section.title)}
-                className="w-full flex items-center justify-between px-2.5 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-[#0066b1] transition-colors rounded"
-              >
-                <span>{section.title}</span>
-                <ChevronDown className={`w-3 h-3 transition-transform ${expandedSections[section.title] ? 'rotate-180' : ''}`} />
-              </button>
-              <AnimatePresence initial={false}>
-                {expandedSections[section.title] !== false && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.15 }}
-                    className="overflow-hidden"
-                  >
-                    {section.items.map(item => (
-                      <Link key={item.url} to={createPageUrl(item.url)}>
-                        <div className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
-                          isActive(item.url)
-                            ? 'bg-[#0066b1] text-white'
-                            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                        }`}>
-                          <item.icon className="w-4 h-4 flex-shrink-0" />
-                          <span className="truncate">{item.title}</span>
-                        </div>
-                      </Link>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
+            <div key={section.title} className="mb-3">
+              <p className="px-2 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest">{section.title}</p>
+              {section.items.map(item => (
+                <Link key={item.url} to={createPageUrl(item.url)}>
+                  <div className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 mb-0.5 ${
+                    isActive(item.url)
+                      ? 'bg-[#0066b1] text-white'
+                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                  }`}>
+                    <item.icon className="w-4 h-4 flex-shrink-0" />
+                    <span className="truncate">{item.title}</span>
+                  </div>
+                </Link>
+              ))}
             </div>
           ))}
         </nav>
 
         <div className="border-t border-slate-100 p-3">
-          <div className="flex items-center gap-2 mb-2.5">
+          <div className="flex items-center gap-2 mb-2">
             <Avatar className="w-8 h-8 flex-shrink-0">
               {currentUser.foto_perfil
                 ? <AvatarImage src={currentUser.foto_perfil} />
@@ -185,7 +152,7 @@ export default function Layout({ children, currentPageName }) {
           </div>
           <div className="flex gap-1.5">
             <Link to={createPageUrl("Perfil")} className="flex-1">
-              <Button variant="outline" size="sm" className="w-full h-7 text-[11px] hover:border-[#0066b1] hover:text-[#0066b1]">
+              <Button variant="outline" size="sm" className="w-full h-7 text-[11px]">
                 <User className="w-3 h-3 mr-1" /> Perfil
               </Button>
             </Link>
@@ -207,19 +174,16 @@ export default function Layout({ children, currentPageName }) {
             />
             <motion.div
               initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }}
-              transition={{ type: "tween", duration: 0.25 }}
+              transition={{ type: "tween", duration: 0.2 }}
               className="fixed left-0 top-0 bottom-0 w-72 bg-white z-50 lg:hidden flex flex-col shadow-2xl"
               onClick={e => e.stopPropagation()}
             >
               <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 bg-[#0066b1] rounded-lg flex items-center justify-center">
-                    <span className="text-xl">🏭</span>
+                  <div className="w-8 h-8 bg-[#0066b1] rounded-lg flex items-center justify-center">
+                    <span className="text-lg">🏭</span>
                   </div>
-                  <div>
-                    <p className="font-bold text-slate-900 text-sm">VW Chefinho</p>
-                    <p className="text-[10px] text-slate-400">Gestão Industrial</p>
-                  </div>
+                  <p className="font-bold text-slate-900 text-sm">VW Chefinho</p>
                 </div>
                 <button onClick={() => setDrawerOpen(false)} className="p-1.5 rounded-lg hover:bg-slate-100">
                   <X className="w-5 h-5 text-slate-500" />
@@ -235,27 +199,23 @@ export default function Layout({ children, currentPageName }) {
                 </Avatar>
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-slate-900 text-sm truncate">{displayName}</p>
-                  <p className="text-xs text-slate-500">{currentUser.cargo === 'supervisor' ? '🎖️ Supervisor' : currentUser.cargo === 'lider' ? '👔 Líder' : '👷 Monitor'} • {currentUser.equipe || ''}</p>
-                  {currentUser.turno && (
-                    <Badge className="mt-1 text-[9px] bg-[#0066b1]/10 text-[#0066b1] border-transparent">
-                      {currentUser.turno === "manha" ? "1º Turno" : currentUser.turno === "tarde" ? "2º Turno" : "3º Turno"}
-                    </Badge>
-                  )}
+                  <p className="text-xs text-slate-500">
+                    {currentUser.cargo === 'supervisor' ? '🎖️ Supervisor' : currentUser.cargo === 'lider' ? '👔 Líder' : '👷 Monitor'}
+                    {currentUser.equipe ? ` • ${currentUser.equipe}` : ''}
+                  </p>
                 </div>
               </div>
 
               <nav className="flex-1 overflow-y-auto py-3 px-2">
                 {filteredSections.map(section => (
-                  <div key={section.title} className="mb-2">
+                  <div key={section.title} className="mb-3">
                     <p className="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest">{section.title}</p>
                     {section.items.map(item => (
                       <Link key={item.url} to={createPageUrl(item.url)} onClick={() => setDrawerOpen(false)}>
-                        <div className={`flex items-center gap-3 px-3 py-3 rounded-xl mb-0.5 transition-all active:scale-[0.98] ${
-                          isActive(item.url)
-                            ? 'bg-[#0066b1] text-white'
-                            : 'text-slate-700 hover:bg-slate-100'
+                        <div className={`flex items-center gap-3 px-3 py-2.5 rounded-xl mb-0.5 transition-all ${
+                          isActive(item.url) ? 'bg-[#0066b1] text-white' : 'text-slate-700 hover:bg-slate-100'
                         }`}>
-                          <item.icon className="w-5 h-5 flex-shrink-0" />
+                          <item.icon className="w-4 h-4 flex-shrink-0" />
                           <span className="text-sm font-medium">{item.title}</span>
                           {isActive(item.url) && <ChevronRight className="w-4 h-4 ml-auto opacity-60" />}
                         </div>
@@ -267,7 +227,7 @@ export default function Layout({ children, currentPageName }) {
 
               <div className="border-t border-slate-100 p-3 flex gap-2">
                 <Link to={createPageUrl("Perfil")} onClick={() => setDrawerOpen(false)} className="flex-1">
-                  <Button variant="outline" className="w-full text-sm hover:border-[#0066b1] hover:text-[#0066b1]">
+                  <Button variant="outline" className="w-full text-sm">
                     <User className="w-4 h-4 mr-2" /> Perfil
                   </Button>
                 </Link>
@@ -281,35 +241,25 @@ export default function Layout({ children, currentPageName }) {
       </AnimatePresence>
 
       {/* MAIN CONTENT */}
-      <main className="flex-1 lg:ml-60 flex flex-col min-h-screen">
-        <header className="sticky top-0 z-20 bg-white/98 backdrop-blur-sm border-b border-slate-200 px-3 md:px-5 py-2.5 flex items-center gap-2.5 shadow-sm min-h-[52px]">
+      <main className="flex-1 lg:ml-56 flex flex-col min-h-screen">
+        <header className="sticky top-0 z-20 bg-white border-b border-slate-200 px-3 md:px-5 py-3 flex items-center gap-2.5">
           <button
-            className="lg:hidden p-2 rounded-xl hover:bg-slate-100 transition-colors active:scale-95"
+            className="lg:hidden p-2 rounded-xl hover:bg-slate-100 transition-colors"
             onClick={() => setDrawerOpen(true)}
           >
             <Menu className="w-5 h-5 text-slate-700" />
           </button>
           <div className="flex-1 min-w-0">
-            <h1 className="text-sm font-bold text-slate-900 truncate leading-tight">{currentPageName}</h1>
-            {(currentUser.equipe || currentUser.turno) && (
-              <p className="text-[10px] text-slate-400 leading-tight">
-                {[currentUser.equipe, currentUser.turno === "manha" ? "1º Turno" : currentUser.turno === "tarde" ? "2º Turno" : currentUser.turno === "noite" ? "3º Turno" : ""].filter(Boolean).join(' • ')}
-              </p>
-            )}
+            <h1 className="text-sm font-bold text-slate-900 truncate">{currentPageName}</h1>
           </div>
-          <div className="flex items-center gap-1.5">
-            {currentUser.cargo_temporario === "lider" && (
-              <Badge className="bg-amber-500 text-white text-[10px] px-1.5 py-0.5">Temp.</Badge>
-            )}
-            <Link to={createPageUrl("Perfil")}>
-              <Avatar className="w-8 h-8 ring-2 ring-slate-100 hover:ring-[#0066b1] transition-all">
-                {currentUser.foto_perfil
-                  ? <AvatarImage src={currentUser.foto_perfil} />
-                  : <AvatarFallback className="bg-[#0066b1] text-white text-xs font-bold">{displayName?.charAt(0)}</AvatarFallback>
-                }
-              </Avatar>
-            </Link>
-          </div>
+          <Link to={createPageUrl("Perfil")}>
+            <Avatar className="w-8 h-8 ring-2 ring-slate-100 hover:ring-[#0066b1] transition-all">
+              {currentUser.foto_perfil
+                ? <AvatarImage src={currentUser.foto_perfil} />
+                : <AvatarFallback className="bg-[#0066b1] text-white text-xs font-bold">{displayName?.charAt(0)}</AvatarFallback>
+              }
+            </Avatar>
+          </Link>
         </header>
 
         <div className="flex-1 p-3 md:p-5 pb-24 lg:pb-6">
@@ -318,8 +268,8 @@ export default function Layout({ children, currentPageName }) {
       </main>
 
       {/* MOBILE BOTTOM NAV */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-200 shadow-[0_-2px_12px_rgba(0,0,0,0.08)]">
-        <div className="flex items-stretch h-[60px]" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-200">
+        <div className="flex items-stretch h-[60px]">
           {BOTTOM_NAV.map(item => {
             const active = item.url ? isActive(item.url) : drawerOpen;
             const isMenu = item.url === null;
@@ -332,13 +282,10 @@ export default function Layout({ children, currentPageName }) {
                 }`}
               >
                 {active && (
-                  <motion.div
-                    layoutId="bottomNavIndicator"
-                    className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-0.5 bg-[#0066b1] rounded-full"
-                  />
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-[#0066b1] rounded-full" />
                 )}
-                <item.icon className={`w-[22px] h-[22px] transition-all ${active ? 'scale-110' : ''}`} />
-                <span className={`text-[9px] font-medium leading-tight ${active ? 'font-bold text-[#0066b1]' : ''}`}>{item.title}</span>
+                <item.icon className="w-5 h-5" />
+                <span className={`text-[9px] font-medium ${active ? 'font-bold' : ''}`}>{item.title}</span>
               </button>
             );
           })}
@@ -346,6 +293,4 @@ export default function Layout({ children, currentPageName }) {
       </nav>
     </div>
   );
-
-  return mainContent;
 }

@@ -1,0 +1,63 @@
+{
+  "name": "ChecklistSeguranca",
+  "type": "object",
+  "properties": {
+    "data": {
+      "type": "string",
+      "format": "date"
+    },
+    "turno": {
+      "type": "string",
+      "enum": [
+        "manha",
+        "tarde",
+        "noite"
+      ]
+    },
+    "responsavel_id": {
+      "type": "string"
+    },
+    "responsavel_nome": {
+      "type": "string"
+    },
+    "itens": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "descricao": {
+            "type": "string"
+          },
+          "conforme": {
+            "type": "boolean"
+          },
+          "observacao": {
+            "type": "string"
+          },
+          "foto": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "assinatura": {
+      "type": "string",
+      "description": "Assinatura digital (base64 ou URL)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pendente",
+        "completo",
+        "com_pendencias"
+      ],
+      "default": "pendente"
+    }
+  },
+  "required": [
+    "data",
+    "turno",
+    "responsavel_id",
+    "responsavel_nome"
+  ]
+}
