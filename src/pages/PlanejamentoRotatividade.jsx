@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Plus, Trash2, Download, FileSpreadsheet, Wand2, Settings, X, Lock, Unlock } from "lucide-react";
+import { Plus, Trash2, Download, FileSpreadsheet, Wand2, Settings, X, Lock, Unlock, Pencil, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -25,6 +25,8 @@ const POSTOS_DEFAULT = [
   { num: 14, desc: "F124 Mtg PCH diant. LD" },
 ];
 
+const POSTOS_KEY = "rotatividade-postos-config";
+
 const DIAS_SEMANA_ABREV = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
 export default function PlanejamentoRotatividade() {
@@ -34,7 +36,7 @@ export default function PlanejamentoRotatividade() {
   const [grade, setGrade] = useState({});
   const [postosFixos, setPostosFixos] = useState({}); // { postoNum: true } = posto tem operador fixo (pular no auto-completar)
   const [operadoresFixos, setOperadoresFixos] = useState({}); // { colabId: postoNum } = operador fixo num posto
-  const [postos] = useState(POSTOS_DEFAULT);
+  const [postos, setPostos] = useState(POSTOS_DEFAULT);
   const [novoColab, setNovoColab] = useState({ chapa: "", nome: "" });
   const [adicionando, setAdicionando] = useState(false);
   const [editingCell, setEditingCell] = useState(null);
@@ -42,6 +44,8 @@ export default function PlanejamentoRotatividade() {
   const [editandoInfo, setEditandoInfo] = useState(false);
   const [infoArea, setInfoArea] = useState({ area: "Para-choque", centroCusto: "3338", time: "", lider: "" });
   const [editingInfoTemp, setEditingInfoTemp] = useState(null);
+  const [editandoPostos, setEditandoPostos] = useState(false);
+  const [postosTemp, setPostosTemp] = useState([]);
   const tableRef = useRef(null);
 
   const diasNoMes = new Date(mesAtual.getFullYear(), mesAtual.getMonth() + 1, 0).getDate();
@@ -70,6 +74,7 @@ export default function PlanejamentoRotatividade() {
     let fixosMap = {};
     let opFixosMap = {};
     let infoMap = null;
+    let postosMap = null;
     atividades.forEach(a => {
       if (a.descricao) {
         try {
@@ -77,6 +82,7 @@ export default function PlanejamentoRotatividade() {
           if (d._postosFixos) fixosMap = d._postosFixos;
           else if (d._operadoresFixos) opFixosMap = d._operadoresFixos;
           else if (d._infoArea) infoMap = d._infoArea;
+          else if (d._postosConfig) postosMap = d._postosConfig;
           else Object.assign(gradeMap, d);
         } catch {}
       }
@@ -85,6 +91,11 @@ export default function PlanejamentoRotatividade() {
     setPostosFixos(fixosMap);
     setOperadoresFixos(opFixosMap);
     if (infoMap) setInfoArea(infoMap);
+    if (postosMap) setPostos(postosMap);
+  };
+
+  const salvarPostosConfig = async (novosPostos) => {
+    await salvarRegistro(`${POSTOS_KEY}`, { _postosConfig: novosPostos });
   };
 
   const salvarRegistro = async (titulo, payload) => {
@@ -580,12 +591,20 @@ export default function PlanejamentoRotatividade() {
       )}
 
       {/* Descrição dos Postos + configuração de fixos */}
-      <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-4">
-        <h3 className="text-sm font-bold text-slate-800 mb-1 border-b border-slate-100 pb-2">
-          Descrição dos Postos de Trabalho
-        </h3>
-        <p className="text-[10px] text-slate-400 mb-3">Clique em "Fixo" para marcar postos com operador fixo — eles serão pulados no auto-completar.</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
+      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-2 border-b border-slate-100 bg-slate-50">
+          <div>
+            <h3 className="text-sm font-bold text-slate-800">Postos de Trabalho</h3>
+            <p className="text-[10px] text-slate-400">Clique em "Fixo" para pular no auto-completar</p>
+          </div>
+          <button
+            onClick={() => { setPostosTemp(postos.map(p => ({ ...p }))); setEditandoPostos(true); }}
+            className="flex items-center gap-1 text-[10px] text-blue-600 hover:text-blue-800 border border-blue-200 rounded-lg px-2 py-1"
+          >
+            <Pencil className="w-3 h-3" /> Editar Postos
+          </button>
+        </div>
+        <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-1.5">
           {postos.map(p => (
             <div key={p.num} className="flex items-center justify-between gap-2 text-[11px] text-slate-600">
               <div className="flex gap-2">
@@ -606,6 +625,58 @@ export default function PlanejamentoRotatividade() {
           ))}
         </div>
       </div>
+
+      {/* Modal editar postos */}
+      {editandoPostos && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setEditandoPostos(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl p-5 w-[90vw] max-w-2xl max-h-[85vh] flex flex-col" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <p className="font-bold text-slate-800 text-base">Editar Postos de Trabalho</p>
+              <button onClick={() => setEditandoPostos(false)}><X className="w-4 h-4 text-slate-400" /></button>
+            </div>
+            <div className="overflow-y-auto flex-1 space-y-2 pr-1">
+              {postosTemp.map((p, idx) => (
+                <div key={p.num} className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-blue-700 w-6 flex-shrink-0">{p.num}</span>
+                  <input
+                    className="flex-1 border border-slate-300 rounded-lg px-2 py-1.5 text-xs"
+                    value={p.desc}
+                    onChange={e => setPostosTemp(prev => prev.map((x, i) => i === idx ? { ...x, desc: e.target.value } : x))}
+                  />
+                  <button
+                    onClick={() => setPostosTemp(prev => prev.filter((_, i) => i !== idx))}
+                    className="text-slate-300 hover:text-red-400"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={() => {
+                const nextNum = postosTemp.length > 0 ? Math.max(...postosTemp.map(p => p.num)) + 1 : 1;
+                setPostosTemp(prev => [...prev, { num: nextNum, desc: "" }]);
+              }}
+              className="mt-3 flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800"
+            >
+              <Plus className="w-3.5 h-3.5" /> Adicionar posto
+            </button>
+            <div className="flex gap-2 mt-4 border-t border-slate-100 pt-3">
+              <Button
+                className="flex-1 bg-[#0066b1] hover:bg-[#004d82] text-white"
+                onClick={async () => {
+                  setPostos(postosTemp);
+                  await salvarPostosConfig(postosTemp);
+                  setEditandoPostos(false);
+                }}
+              >
+                <Check className="w-3.5 h-3.5 mr-1" /> Salvar Postos
+              </Button>
+              <Button variant="outline" onClick={() => setEditandoPostos(false)}>Cancelar</Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Rodapé */}
       <div className="text-[10px] text-slate-400 text-center pb-2">
