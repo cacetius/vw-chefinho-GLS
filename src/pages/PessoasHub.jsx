@@ -180,15 +180,18 @@ export default function PessoasHub() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3 h-9">
-          <TabsTrigger value="versatilidade" className="text-xs flex items-center gap-1">
-            <Users className="w-3.5 h-3.5" /> Versatiidade
+        <TabsList className="grid w-full grid-cols-3 h-10">
+          <TabsTrigger value="versatilidade" className="text-[11px] flex flex-col sm:flex-row items-center gap-0.5 sm:gap-1 px-1">
+            <Users className="w-3.5 h-3.5 flex-shrink-0" />
+            <span className="leading-tight">Versatiidade</span>
           </TabsTrigger>
-          <TabsTrigger value="ausencias" className="text-xs flex items-center gap-1">
-            <CalendarX className="w-3.5 h-3.5" /> Ausências
+          <TabsTrigger value="ausencias" className="text-[11px] flex flex-col sm:flex-row items-center gap-0.5 sm:gap-1 px-1">
+            <CalendarX className="w-3.5 h-3.5 flex-shrink-0" />
+            <span className="leading-tight">Ausências</span>
           </TabsTrigger>
-          <TabsTrigger value="treinamentos" className="text-xs flex items-center gap-1">
-            <BookOpen className="w-3.5 h-3.5" /> Treinamentos
+          <TabsTrigger value="treinamentos" className="text-[11px] flex flex-col sm:flex-row items-center gap-0.5 sm:gap-1 px-1">
+            <BookOpen className="w-3.5 h-3.5 flex-shrink-0" />
+            <span className="leading-tight">Treinamentos</span>
           </TabsTrigger>
         </TabsList>
 

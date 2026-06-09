@@ -49,8 +49,8 @@ export default function MatrizHabilidades({ colaboradores = [], onEdit, onDelete
   }
 
   return (
-    <div className="overflow-x-auto -mx-3 px-3">
-      <div style={{ minWidth: Math.max(320, 200 + todasHabilidades.length * 100) + 'px' }}>
+    <div className="overflow-x-auto -mx-1 px-1 rounded-xl border border-slate-200">
+      <div style={{ minWidth: Math.max(300, 160 + todasHabilidades.length * 70) + 'px' }}>
       <table className="w-full text-sm">
         <thead className="bg-gradient-to-r from-purple-600 to-purple-700 text-white">
           <tr>

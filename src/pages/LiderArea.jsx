@@ -175,15 +175,18 @@ export default function LiderArea() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3 h-9">
-          <TabsTrigger value="tarefas" className="text-xs flex items-center gap-1">
-            <Shield className="w-3.5 h-3.5" /> Tarefas
+        <TabsList className="grid w-full grid-cols-3 h-10">
+          <TabsTrigger value="tarefas" className="text-[11px] flex flex-col sm:flex-row items-center gap-0.5 sm:gap-1 px-1">
+            <Shield className="w-3.5 h-3.5 flex-shrink-0" />
+            <span className="leading-tight">Tarefas</span>
           </TabsTrigger>
-          <TabsTrigger value="dashboard" className="text-xs flex items-center gap-1">
-            <BarChart2 className="w-3.5 h-3.5" /> Dashboard
+          <TabsTrigger value="dashboard" className="text-[11px] flex flex-col sm:flex-row items-center gap-0.5 sm:gap-1 px-1">
+            <BarChart2 className="w-3.5 h-3.5 flex-shrink-0" />
+            <span className="leading-tight">Dashboard</span>
           </TabsTrigger>
-          <TabsTrigger value="acoes" className="text-xs flex items-center gap-1">
-            <AlertTriangle className="w-3.5 h-3.5" /> Ações
+          <TabsTrigger value="acoes" className="text-[11px] flex flex-col sm:flex-row items-center gap-0.5 sm:gap-1 px-1">
+            <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
+            <span className="leading-tight">Ações</span>
           </TabsTrigger>
         </TabsList>
 

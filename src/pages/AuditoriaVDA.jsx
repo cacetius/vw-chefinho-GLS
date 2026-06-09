@@ -213,10 +213,10 @@ export default function AuditoriaVDA() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3 h-9">
-            <TabsTrigger value="auditorias" className="text-xs">Auditorias</TabsTrigger>
-            <TabsTrigger value="planos" className="text-xs">Planos</TabsTrigger>
-            <TabsTrigger value="indicadores" className="text-xs">Indicadores</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 h-10">
+            <TabsTrigger value="auditorias" className="text-[11px]">Auditorias</TabsTrigger>
+            <TabsTrigger value="planos" className="text-[11px]">Planos</TabsTrigger>
+            <TabsTrigger value="indicadores" className="text-[11px]">Indicadores</TabsTrigger>
           </TabsList>
 
           <TabsContent value="auditorias" className="mt-3">

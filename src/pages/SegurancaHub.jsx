@@ -183,15 +183,18 @@ export default function SegurancaHub() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3 h-9">
-          <TabsTrigger value="objetivos" className="text-xs flex items-center gap-1">
-            <Target className="w-3.5 h-3.5" /> Objetivos
+        <TabsList className="grid w-full grid-cols-3 h-10">
+          <TabsTrigger value="objetivos" className="text-[11px] flex flex-col sm:flex-row items-center gap-0.5 sm:gap-1 px-1">
+            <Target className="w-3.5 h-3.5 flex-shrink-0" />
+            <span className="leading-tight">Objetivos</span>
           </TabsTrigger>
-          <TabsTrigger value="avisos" className="text-xs flex items-center gap-1">
-            <Bell className="w-3.5 h-3.5" /> Avisos
+          <TabsTrigger value="avisos" className="text-[11px] flex flex-col sm:flex-row items-center gap-0.5 sm:gap-1 px-1">
+            <Bell className="w-3.5 h-3.5 flex-shrink-0" />
+            <span className="leading-tight">Avisos</span>
           </TabsTrigger>
-          <TabsTrigger value="dialogos" className="text-xs flex items-center gap-1">
-            <BookOpen className="w-3.5 h-3.5" /> DDS
+          <TabsTrigger value="dialogos" className="text-[11px] flex flex-col sm:flex-row items-center gap-0.5 sm:gap-1 px-1">
+            <BookOpen className="w-3.5 h-3.5 flex-shrink-0" />
+            <span className="leading-tight">DDS</span>
           </TabsTrigger>
         </TabsList>
 

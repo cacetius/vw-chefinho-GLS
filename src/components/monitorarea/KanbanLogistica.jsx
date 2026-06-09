@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Clock, AlertTriangle, CheckCircle2, Loader2, ChevronDown, ChevronUp, User, CalendarDays } from "lucide-react";
 import { format } from "date-fns";
 
@@ -160,49 +161,65 @@ export default function KanbanLogistica({ atividades, onUpdateStatus }) {
         <span className="text-[10px] text-slate-400">{total} atividade{total !== 1 ? "s" : ""}</span>
       </div>
 
-      {/* Colunas */}
-      <div className="grid grid-cols-3 gap-2">
+      {/* Colunas — desktop: 3 colunas / mobile: tabs */}
+      <div className="hidden sm:grid grid-cols-3 gap-2">
         {COLUNAS.map((col) => {
           const items = atividades.filter((a) => a.status === col.key);
           const Icon = col.icon;
           return (
             <div key={col.key} className="flex flex-col gap-2 min-h-[120px]">
-              {/* Cabeçalho coluna */}
               <div className={`rounded-xl border px-2.5 py-2 flex items-center gap-1.5 ${col.headerClass}`}>
                 <Icon className={`w-3.5 h-3.5 flex-shrink-0 ${col.iconClass}`} />
                 <span className="text-[10px] font-bold text-slate-700 leading-none flex-1 truncate">{col.label}</span>
                 <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${col.badgeClass}`}>{items.length}</span>
               </div>
-
-              {/* Cards */}
               <div className="flex flex-col gap-2">
                 <AnimatePresence>
                   {items.length === 0 ? (
-                    <motion.div
-                      key="empty"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="flex flex-col items-center justify-center py-6 text-slate-300 rounded-xl border border-dashed border-slate-200"
-                    >
-                      <Icon className="w-6 h-6 mb-1" />
-                      <p className="text-[9px]">Vazio</p>
+                    <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                      className="flex flex-col items-center justify-center py-6 text-slate-300 rounded-xl border border-dashed border-slate-200">
+                      <Icon className="w-6 h-6 mb-1" /><p className="text-[9px]">Vazio</p>
                     </motion.div>
-                  ) : (
-                    items.map((a) => (
-                      <KanbanCard
-                        key={a.id}
-                        atividade={a}
-                        coluna={col}
-                        onAdvance={handleAdvance}
-                        advancing={advancing}
-                      />
-                    ))
-                  )}
+                  ) : items.map((a) => (
+                    <KanbanCard key={a.id} atividade={a} coluna={col} onAdvance={handleAdvance} advancing={advancing} />
+                  ))}
                 </AnimatePresence>
               </div>
             </div>
           );
         })}
+      </div>
+
+      {/* Mobile: tabs por coluna */}
+      <div className="sm:hidden">
+        <Tabs defaultValue="pendente">
+          <TabsList className="grid w-full grid-cols-3 h-10 mb-3">
+            {COLUNAS.map((col) => {
+              const count = atividades.filter((a) => a.status === col.key).length;
+              return (
+                <TabsTrigger key={col.key} value={col.key} className="text-[11px] flex items-center gap-1 px-1">
+                  <span className="truncate">{col.label}</span>
+                  <span className={`text-[9px] font-bold px-1 py-0 rounded-full min-w-[16px] text-center ${col.badgeClass}`}>{count}</span>
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
+          {COLUNAS.map((col) => {
+            const items = atividades.filter((a) => a.status === col.key);
+            const Icon = col.icon;
+            return (
+              <TabsContent key={col.key} value={col.key} className="mt-0 space-y-2">
+                {items.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-10 text-slate-300 rounded-xl border border-dashed border-slate-200">
+                    <Icon className="w-8 h-8 mb-2" /><p className="text-xs">Nenhuma atividade</p>
+                  </div>
+                ) : items.map((a) => (
+                  <KanbanCard key={a.id} atividade={a} coluna={col} onAdvance={handleAdvance} advancing={advancing} />
+                ))}
+              </TabsContent>
+            );
+          })}
+        </Tabs>
       </div>
     </div>
   );

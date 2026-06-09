@@ -126,12 +126,12 @@ export default function MonitorArea() {
 
       {/* Tabs: Tarefas | Logística Kanban */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-2 h-9">
-          <TabsTrigger value="tarefas" className="text-xs flex items-center gap-1">
-            <ClipboardList className="w-3.5 h-3.5" /> Minhas Tarefas
+        <TabsList className="grid w-full grid-cols-2 h-10">
+          <TabsTrigger value="tarefas" className="text-[11px] flex items-center gap-1.5">
+            <ClipboardList className="w-3.5 h-3.5 flex-shrink-0" /> Minhas Tarefas
           </TabsTrigger>
-          <TabsTrigger value="logistica" className="text-xs flex items-center gap-1">
-            <Truck className="w-3.5 h-3.5" /> Logística
+          <TabsTrigger value="logistica" className="text-[11px] flex items-center gap-1.5">
+            <Truck className="w-3.5 h-3.5 flex-shrink-0" /> Logística
           </TabsTrigger>
         </TabsList>
 

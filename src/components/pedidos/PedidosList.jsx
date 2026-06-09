@@ -31,49 +31,49 @@ function PedidoCard({ pedido, hasLeaderAccess, onEdit, onDelete, onUpdateStatus,
   return (
     <Card className={`border transition-all active:scale-[0.99] ${pedido.urgencia === "urgente" ? "border-red-200 bg-red-50/20" : "border-slate-200"}`}>
       <CardContent className="p-3">
-        <div className="flex items-start gap-3">
-          <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm ${
-            pedido.status === "entregue" ? "bg-blue-500" :
-            pedido.status === "aprovado" ? "bg-green-500" :
-            pedido.status === "reprovado" ? "bg-red-400" : "bg-[#0066b1]"
-          }`}>
-            <ShoppingCart className="w-4 h-4 text-white" />
+        <div className="flex items-start gap-2.5">
+        <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm ${
+        pedido.status === "entregue" ? "bg-blue-500" :
+        pedido.status === "aprovado" ? "bg-green-500" :
+        pedido.status === "reprovado" ? "bg-red-400" : "bg-[#0066b1]"
+        }`}>
+        <ShoppingCart className="w-3.5 h-3.5 text-white" />
+        </div>
+        <div className="flex-1 min-w-0">
+        <div className="flex items-start justify-between gap-1.5">
+          <div className="min-w-0 flex-1">
+            <h3 className="font-semibold text-slate-900 text-sm leading-tight">{pedido.item}</h3>
+            <p className="text-[11px] text-slate-500">{pedido.solicitante || pedido.solicitante_full_name}</p>
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0">
-                <h3 className="font-semibold text-slate-900 text-sm leading-tight">{pedido.item}</h3>
-                <p className="text-[11px] text-slate-500">{pedido.solicitante || pedido.solicitante_full_name}</p>
-              </div>
-              <div className="flex gap-1 flex-shrink-0">
-                {hasLeaderAccess && pedido.status === "pendente" && (
-                  <>
-                    <button onClick={() => onAprovar(pedido)}
-                      className="w-9 h-9 rounded-xl bg-green-50 text-green-600 active:bg-green-200 flex items-center justify-center touch-manipulation" title="Aprovar">
-                      <Check className="w-4 h-4" />
-                    </button>
-                    <button onClick={() => onUpdateStatus(pedido.id, "reprovado")}
-                      className="w-9 h-9 rounded-xl bg-red-50 text-red-600 active:bg-red-200 flex items-center justify-center touch-manipulation" title="Reprovar">
-                      <X className="w-4 h-4" />
-                    </button>
-                  </>
-                )}
-                {hasLeaderAccess && pedido.status === "aprovado" && (
-                  <button onClick={() => onUpdateStatus(pedido.id, "entregue")}
-                    className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 active:bg-blue-200 flex items-center justify-center touch-manipulation" title="Marcar como entregue">
-                    <Check className="w-4 h-4" />
-                  </button>
-                )}
-                <button onClick={() => onEdit(pedido)}
-                  className="w-9 h-9 rounded-xl text-slate-400 active:bg-blue-50 active:text-blue-600 flex items-center justify-center touch-manipulation">
-                  <Pencil className="w-4 h-4" />
+          <div className="flex gap-0.5 flex-shrink-0">
+            {hasLeaderAccess && pedido.status === "pendente" && (
+              <>
+                <button onClick={() => onAprovar(pedido)}
+                  className="w-8 h-8 rounded-lg bg-green-50 text-green-600 active:bg-green-200 flex items-center justify-center touch-manipulation" title="Aprovar">
+                  <Check className="w-3.5 h-3.5" />
                 </button>
-                <button onClick={() => onDelete(pedido.id)}
-                  className="w-9 h-9 rounded-xl text-slate-400 active:bg-red-50 active:text-red-600 flex items-center justify-center touch-manipulation">
-                  <Trash2 className="w-4 h-4" />
+                <button onClick={() => onUpdateStatus(pedido.id, "reprovado")}
+                  className="w-8 h-8 rounded-lg bg-red-50 text-red-600 active:bg-red-200 flex items-center justify-center touch-manipulation" title="Reprovar">
+                  <X className="w-3.5 h-3.5" />
                 </button>
-              </div>
-            </div>
+              </>
+            )}
+            {hasLeaderAccess && pedido.status === "aprovado" && (
+              <button onClick={() => onUpdateStatus(pedido.id, "entregue")}
+                className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 active:bg-blue-200 flex items-center justify-center touch-manipulation" title="Marcar como entregue">
+                <Check className="w-3.5 h-3.5" />
+              </button>
+            )}
+            <button onClick={() => onEdit(pedido)}
+              className="w-8 h-8 rounded-lg text-slate-400 active:bg-blue-50 active:text-blue-600 flex items-center justify-center touch-manipulation">
+              <Pencil className="w-3.5 h-3.5" />
+            </button>
+            <button onClick={() => onDelete(pedido.id)}
+              className="w-8 h-8 rounded-lg text-slate-400 active:bg-red-50 active:text-red-600 flex items-center justify-center touch-manipulation">
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
 
             <div className="flex flex-wrap gap-1 mt-1.5">
               <Badge className={`text-[10px] px-1.5 py-0 ${STATUS_CONFIG[pedido.status]?.className}`}>
@@ -280,20 +280,22 @@ export default function PedidosList({ pedidos, onEdit, onDelete, onUpdateStatus,
         </div>
 
         {/* Filtros + export */}
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <Filter className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-          {Object.entries({ todos: "Todos", pendente: "Pend.", aprovado: "Aprov.", reprovado: "Reprov.", entregue: "Entreg." }).map(([key, label]) => (
-            <button key={key} onClick={() => setFiltroStatus(key)}
-              className={`text-[11px] px-3 py-1.5 rounded-full border transition-all font-medium touch-manipulation min-h-[32px] ${
-                filtroStatus === key ? "bg-[#0066b1] text-white border-[#0066b1]" : "border-slate-200 text-slate-600 bg-white"
-              }`}>
-              {label} <span className="opacity-70">({contagens[key] ?? 0})</span>
-            </button>
-          ))}
-          <Button onClick={exportarCSV} variant="outline" size="sm"
-            className="h-7 text-[11px] bg-green-50 hover:bg-green-100 text-green-700 border-green-200 ml-auto">
-            <Download className="w-3 h-3 mr-1" /> CSV
-          </Button>
+        <div className="space-y-2">
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+            <Filter className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+            {Object.entries({ todos: "Todos", pendente: "Pend.", aprovado: "Aprov.", reprovado: "Reprov.", entregue: "Entreg." }).map(([key, label]) => (
+              <button key={key} onClick={() => setFiltroStatus(key)}
+                className={`flex-shrink-0 text-[11px] px-3 py-1.5 rounded-full border transition-all font-medium touch-manipulation min-h-[32px] ${
+                  filtroStatus === key ? "bg-[#0066b1] text-white border-[#0066b1]" : "border-slate-200 text-slate-600 bg-white"
+                }`}>
+                {label} <span className="opacity-70">({contagens[key] ?? 0})</span>
+              </button>
+            ))}
+            <Button onClick={exportarCSV} variant="outline" size="sm"
+              className="flex-shrink-0 h-7 text-[11px] bg-green-50 hover:bg-green-100 text-green-700 border-green-200 ml-auto">
+              <Download className="w-3 h-3 mr-1" /> CSV
+            </Button>
+          </div>
         </div>
 
         {pedidosFiltrados.length === 0 ? (
