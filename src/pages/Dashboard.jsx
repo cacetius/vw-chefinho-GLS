@@ -148,27 +148,27 @@ export default function Dashboard() {
         className="bg-gradient-to-r from-[#001e50] to-[#0066b1] rounded-2xl p-4 text-white overflow-hidden relative"
       >
         <div className="absolute right-0 top-0 bottom-0 w-24 opacity-5 select-none text-[90px] leading-none overflow-hidden">🏭</div>
-        <div className="relative flex items-start justify-between gap-2">
-          <div className="flex-1 min-w-0">
-            <p className="text-blue-200 text-[10px] font-medium uppercase tracking-wide">VW Chefinho</p>
-            <h1 className="text-lg font-bold leading-tight mt-0.5">
+        <div className="relative flex items-start justify-between gap-2 w-full min-w-0">
+          <div className="flex-1 min-w-0 overflow-hidden">
+            <p className="text-blue-200 text-[10px] font-medium uppercase tracking-wide truncate">VW Chefinho</p>
+            <h1 className="text-lg font-bold leading-tight mt-0.5 truncate">
               Olá, {firstName}! 👋
             </h1>
-            <p className="text-blue-200 text-[11px] mt-0.5 capitalize">
+            <p className="text-blue-200 text-[11px] mt-0.5 capitalize truncate">
               {new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })}
             </p>
           </div>
-          <div className="flex flex-col items-end gap-1 flex-shrink-0">
-            <Badge className="bg-white/20 text-white border-transparent text-[10px] px-2 py-0.5">
+          <div className="flex flex-col items-end gap-1 flex-shrink-0 max-w-[45%]">
+            <Badge className="bg-white/20 text-white border-transparent text-[10px] px-2 py-0.5 whitespace-nowrap">
               {currentUser?.cargo === "supervisor" ? "🎖️ Supervisor" : currentUser?.cargo === "lider" ? "👔 Líder" : "👷 Monitor"}
             </Badge>
             {currentUser?.equipe && (
-              <Badge className="bg-white/10 text-white/80 border-transparent text-[9px] px-2 py-0.5">
+              <Badge className="bg-white/10 text-white/80 border-transparent text-[9px] px-2 py-0.5 max-w-full truncate">
                 {currentUser.equipe}
               </Badge>
             )}
             {turnoLabel && (
-              <Badge className="bg-white/10 text-white/80 border-transparent text-[9px] px-2 py-0.5">
+              <Badge className="bg-white/10 text-white/80 border-transparent text-[9px] px-2 py-0.5 whitespace-nowrap">
                 {turnoLabel}
               </Badge>
             )}
@@ -215,22 +215,22 @@ export default function Dashboard() {
         <div className="grid grid-cols-2 gap-2">
           {MODULES.map(({ title, desc, icon: Icon, url, gradient, badge }, i) => (
             <Link key={url} to={createPageUrl(url)}>
-              <div className={`bg-gradient-to-br ${gradient} rounded-2xl p-3.5 text-white relative overflow-hidden active:opacity-80 transition-all cursor-pointer min-h-[108px] flex flex-col justify-between touch-manipulation select-none`}>
+              <div className={`bg-gradient-to-br ${gradient} rounded-2xl p-3 text-white relative overflow-hidden active:opacity-80 transition-all cursor-pointer min-h-[100px] flex flex-col justify-between touch-manipulation select-none`}>
                 <div className="flex items-start justify-between">
-                  <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
+                  <div className="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
                     <Icon className="w-4 h-4 text-white" />
                   </div>
                   {badge !== null && (
-                    <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                    <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0">
                       <span className="text-[9px] font-bold text-white">{badge}</span>
                     </div>
                   )}
                 </div>
-                <div className="mt-2">
-                  <p className="font-bold text-[13px] leading-tight">{title}</p>
-                  <p className="text-white/65 text-[10px] mt-0.5 leading-tight">{desc}</p>
+                <div className="mt-2 min-w-0">
+                  <p className="font-bold text-[12px] leading-tight line-clamp-2">{title}</p>
+                  <p className="text-white/65 text-[10px] mt-0.5 leading-tight line-clamp-2">{desc}</p>
                 </div>
-                <div className="absolute bottom-0 right-0 w-16 h-16 bg-white/5 rounded-full -mr-6 -mb-6" />
+                <div className="absolute bottom-0 right-0 w-14 h-14 bg-white/5 rounded-full -mr-5 -mb-5" />
               </div>
             </Link>
           ))}
