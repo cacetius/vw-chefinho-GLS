@@ -139,7 +139,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 w-full min-w-0 overflow-x-hidden">
 
       {/* Welcome Banner */}
       <motion.div

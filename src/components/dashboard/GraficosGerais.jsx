@@ -79,7 +79,7 @@ export default function GraficosGerais({ currentUser }) {
   })();
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 min-w-0 overflow-hidden">
 
       {/* Pedidos EPI por status */}
       {pedidosStatusData.length > 0 && (
@@ -90,8 +90,8 @@ export default function GraficosGerais({ currentUser }) {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-3">
-            <div className="flex items-center gap-2">
-              <ResponsiveContainer width="50%" height={120}>
+            <div className="flex items-center gap-2 min-w-0">
+              <ResponsiveContainer width="45%" height={110}>
                 <PieChart>
                   <Pie data={pedidosStatusData} cx="50%" cy="50%" innerRadius={30} outerRadius={50} dataKey="value">
                     {pedidosStatusData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
@@ -125,10 +125,10 @@ export default function GraficosGerais({ currentUser }) {
           </CardHeader>
           <CardContent className="p-3">
             <ResponsiveContainer width="100%" height={130}>
-              <BarChart data={habilidadesData} margin={{ top: 4, right: 4, bottom: 4, left: -20 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="name" tick={{ fontSize: 9 }} />
-                <YAxis tick={{ fontSize: 9 }} allowDecimals={false} />
+            <BarChart data={habilidadesData} margin={{ top: 4, right: 4, bottom: 20, left: -20 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="name" tick={{ fontSize: 8 }} interval={0} angle={-15} textAnchor="end" />
+              <YAxis tick={{ fontSize: 9 }} allowDecimals={false} />
                 <Tooltip />
                 <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                   {habilidadesData.map((d, i) => <Cell key={i} fill={d.fill} />)}

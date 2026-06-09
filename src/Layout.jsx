@@ -241,7 +241,7 @@ export default function Layout({ children, currentPageName }) {
       </AnimatePresence>
 
       {/* MAIN CONTENT */}
-      <main className="flex-1 lg:ml-56 flex flex-col min-h-screen">
+      <main className="flex-1 lg:ml-56 flex flex-col min-h-screen overflow-x-hidden w-full min-w-0">
         <header className="sticky top-0 z-20 bg-white border-b border-slate-200 px-3 md:px-5 py-3 flex items-center gap-2.5">
           <button
             className="lg:hidden p-2 rounded-xl hover:bg-slate-100 transition-colors"
@@ -262,7 +262,7 @@ export default function Layout({ children, currentPageName }) {
           </Link>
         </header>
 
-        <div className="flex-1 p-3 md:p-5 pb-24 lg:pb-6">
+        <div className="flex-1 p-3 md:p-5 pb-28 lg:pb-6 overflow-x-hidden">
           {children}
         </div>
       </main>
