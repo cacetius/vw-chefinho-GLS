@@ -155,6 +155,24 @@ export default function ObjetivosMes() {
   const diasAtingidos = diasPassados.filter(d => getDiaGeral(d) === "concluido").length;
   const pct = diasPassados.length > 0 ? Math.round((diasAtingidos / diasPassados.length) * 100) : 0;
 
+  // Calendário circular SVG
+  const RAIO = 82;
+  const CENTRO = 115;
+  const STROKE = 15;
+  const angPorDia = (2 * Math.PI) / diasNoMes;
+  const COR_DIA = { concluido: "#22c55e", nao_atingido: "#ef4444", feriado: "#94a3b8", fds: "#e2e8f0", null: "#f1f5f9" };
+
+  function polarToXY(ang, r) {
+    return { x: CENTRO + r * Math.cos(ang - Math.PI / 2), y: CENTRO + r * Math.sin(ang - Math.PI / 2) };
+  }
+
+  function getCorDia(dia) {
+    const ds = getDiaSemana(dia);
+    if (ds === 0 || ds === 6) return COR_DIA.fds;
+    const s = getDiaGeral(dia);
+    return COR_DIA[s] || COR_DIA.null;
+  }
+
   // Dias da semana abreviados
   const DIAS_ABR = ["D", "S", "T", "Q", "Q", "S", "S"];
   function getDiaSemana(dia) {
@@ -394,6 +412,57 @@ export default function ObjetivosMes() {
           <span className="flex items-center gap-1"><span className="w-4 h-3 bg-red-500 rounded-sm inline-block" /> Não Atingido</span>
           <span className="flex items-center gap-1"><span className="w-4 h-3 bg-slate-300 rounded-sm inline-block" /> Feriado</span>
           <span className="ml-auto font-semibold text-[#0066b1]">{pct}% — {diasAtingidos}/{diasPassados.length} dias atingidos</span>
+        </div>
+      </div>
+
+      {/* Calendário Circular */}
+      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+        <div className="flex items-center justify-between px-3 py-2 bg-[#2563eb]">
+          <h2 className="text-white font-bold text-sm">Calendário Circular — Resultado do Mês</h2>
+          <span className="text-blue-200 text-[10px]">{pct}% atingido</span>
+        </div>
+        <div className="flex flex-col items-center py-4">
+          <svg width={CENTRO * 2} height={CENTRO * 2} viewBox={`0 0 ${CENTRO * 2} ${CENTRO * 2}`}>
+            {/* Anel de fundo */}
+            <circle cx={CENTRO} cy={CENTRO} r={RAIO} fill="none" stroke="#f1f5f9" strokeWidth={STROKE + 4} />
+            {/* Arco por dia */}
+            {diasArray.map(dia => {
+              const gap = 0.025;
+              const inicio = (dia - 1) * angPorDia - Math.PI / 2;
+              const fim = dia * angPorDia - Math.PI / 2;
+              const p1 = polarToXY(inicio + gap, RAIO);
+              const p2 = polarToXY(fim - gap, RAIO);
+              const largArc = (fim - gap) - (inicio + gap) > Math.PI ? 1 : 0;
+              return (
+                <path key={dia}
+                  d={`M ${p1.x} ${p1.y} A ${RAIO} ${RAIO} 0 ${largArc} 1 ${p2.x} ${p2.y}`}
+                  fill="none" stroke={getCorDia(dia)} strokeWidth={STROKE} strokeLinecap="round"
+                />
+              );
+            })}
+            {/* Labels: 1, 5, 10, 15, 20, 25, 30 */}
+            {diasArray.filter(d => d === 1 || d % 5 === 0).map(dia => {
+              const ang = (dia - 0.5) * angPorDia - Math.PI / 2;
+              const pos = polarToXY(ang, RAIO + STROKE + 9);
+              return (
+                <text key={dia} x={pos.x} y={pos.y} textAnchor="middle" dominantBaseline="middle"
+                  fontSize="7" fill="#94a3b8" fontWeight="600">{dia}</text>
+              );
+            })}
+            {/* Centro */}
+            <text x={CENTRO} y={CENTRO - 12} textAnchor="middle" fontSize="26" fontWeight="bold" fill="#1e293b">{pct}%</text>
+            <text x={CENTRO} y={CENTRO + 8} textAnchor="middle" fontSize="9" fill="#64748b">dias atingidos</text>
+            <text x={CENTRO} y={CENTRO + 20} textAnchor="middle" fontSize="8" fill="#94a3b8">{diasAtingidos} de {diasPassados.length}</text>
+          </svg>
+          {/* Legenda */}
+          <div className="flex flex-wrap justify-center gap-4 mt-1">
+            {[["#22c55e","Atingido"],["#ef4444","Não Atingido"],["#94a3b8","Feriado"],["#e2e8f0","Final de Semana"],["#f1f5f9","Sem registro"]].map(([cor,label]) => (
+              <span key={label} className="flex items-center gap-1 text-[10px] text-slate-500">
+                <span className="w-3 h-3 rounded-full inline-block flex-shrink-0" style={{ background: cor, border: "1px solid #e2e8f0" }} />
+                {label}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
 
