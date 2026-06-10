@@ -9,8 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { X } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 
-export default function PlanoAcaoForm({ auditorias, currentUser, onSubmit, onCancel }) {
-  const [formData, setFormData] = useState({
+export default function PlanoAcaoForm({ auditorias, currentUser, onSubmit, onCancel, plano }) {
+  const [formData, setFormData] = useState(plano || {
     auditoria_id: "",
     nao_conformidade: "",
     causa_raiz: "",
@@ -25,7 +25,11 @@ export default function PlanoAcaoForm({ auditorias, currentUser, onSubmit, onCan
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await base44.entities.PlanoAcaoVDA.create(formData);
+    if (plano) {
+      await base44.entities.PlanoAcaoVDA.update(plano.id, formData);
+    } else {
+      await base44.entities.PlanoAcaoVDA.create(formData);
+    }
     onSubmit();
   };
 
@@ -38,7 +42,7 @@ export default function PlanoAcaoForm({ auditorias, currentUser, onSubmit, onCan
       <Card className="shadow-xl border-0 bg-gradient-to-br from-purple-50 to-pink-50">
         <CardHeader className="border-b">
           <div className="flex justify-between items-center">
-            <CardTitle>Novo Plano de Ação</CardTitle>
+            <CardTitle>{plano ? "Editar Plano de Ação" : "Novo Plano de Ação"}</CardTitle>
             <Button variant="ghost" size="icon" onClick={onCancel}>
               <X className="w-5 h-5" />
             </Button>
@@ -129,7 +133,7 @@ export default function PlanoAcaoForm({ auditorias, currentUser, onSubmit, onCan
                 Cancelar
               </Button>
               <Button type="submit" className="bg-gradient-to-r from-purple-600 to-pink-600">
-                Criar Plano de Ação
+                {plano ? "Salvar Alterações" : "Criar Plano de Ação"}
               </Button>
             </div>
           </form>

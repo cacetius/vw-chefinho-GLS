@@ -25,6 +25,7 @@ export default function TreinamentoForm({ treinamento, onSubmit, onCancel }) {
   
   const [instrutores, setInstrutores] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
+  const [instrutorManual, setInstrutorManual] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -116,29 +117,39 @@ export default function TreinamentoForm({ treinamento, onSubmit, onCancel }) {
 
             <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="instrutor">Instrutor *</Label>
-                <Select
-                  value={formData.instrutor_id}
-                  onValueChange={(value) => {
-                    const instrutor = instrutores.find(i => i.id === value);
-                    setFormData({
-                      ...formData,
-                      instrutor_id: value,
-                      instrutor: instrutor?.full_name || instrutor?.colaborador || ""
-                    });
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o instrutor" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {instrutores.map((inst) => (
-                      <SelectItem key={inst.id} value={inst.id}>
-                        {inst.full_name || inst.colaborador}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="instrutor">Instrutor *</Label>
+                  <button type="button" onClick={() => setInstrutorManual(v => !v)} className="text-[10px] text-blue-600 underline">
+                    {instrutorManual ? "Escolher da lista" : "Digitar nome"}
+                  </button>
+                </div>
+                {instrutorManual ? (
+                  <Input
+                    placeholder="Nome do instrutor"
+                    value={formData.instrutor}
+                    onChange={(e) => setFormData({ ...formData, instrutor: e.target.value, instrutor_id: "" })}
+                    required
+                  />
+                ) : (
+                  <Select
+                    value={formData.instrutor_id}
+                    onValueChange={(value) => {
+                      const inst = instrutores.find(i => i.id === value);
+                      setFormData({ ...formData, instrutor_id: value, instrutor: inst?.full_name || inst?.colaborador || "" });
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o instrutor" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {instrutores.map((inst) => (
+                        <SelectItem key={inst.id} value={inst.id}>
+                          {inst.full_name || inst.colaborador}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="local">Local</Label>

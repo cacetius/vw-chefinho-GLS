@@ -120,7 +120,7 @@ export default function AusenciasList({ ausencias, onEdit, onDelete, onAprovar, 
                         </Button>
                       </>
                     )}
-                    {ausencia.status === "pendente" && ausencia.colaborador_id === currentUser?.id && (
+                    {(ausencia.colaborador_id === currentUser?.id || hasLeaderAccess) && (
                       <>
                         <Button variant="ghost" size="icon" onClick={() => onEdit(ausencia)}>
                           <Pencil className="w-4 h-4" />

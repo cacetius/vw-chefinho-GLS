@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, CheckCircle, Clock, AlertTriangle, ShieldCheck } from "lucide-react";
+import { Plus, CheckCircle, Clock, AlertTriangle, ShieldCheck, Pencil } from "lucide-react";
 import PlanoAcaoForm from "./PlanoAcaoForm";
 import { AnimatePresence, motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
@@ -27,6 +27,7 @@ function statusIcon(s) {
 
 export default function PlanoAcaoList({ planosAcao, auditorias, onRefresh, currentUser }) {
   const [showForm, setShowForm] = useState(false);
+  const [editingPlano, setEditingPlano] = useState(null);
   const [validando, setValidando] = useState(null);
 
   const isLiderOuAdmin =
@@ -67,12 +68,13 @@ export default function PlanoAcaoList({ planosAcao, auditorias, onRefresh, curre
       </div>
 
       <AnimatePresence>
-        {showForm && (
+        {(showForm || editingPlano) && (
           <PlanoAcaoForm
             auditorias={auditorias}
             currentUser={currentUser}
-            onSubmit={() => { setShowForm(false); onRefresh(); }}
-            onCancel={() => setShowForm(false)}
+            plano={editingPlano}
+            onSubmit={() => { setShowForm(false); setEditingPlano(null); onRefresh(); }}
+            onCancel={() => { setShowForm(false); setEditingPlano(null); }}
           />
         )}
       </AnimatePresence>
@@ -144,6 +146,16 @@ export default function PlanoAcaoList({ planosAcao, auditorias, onRefresh, curre
                         <span>✅ {plano.verificado_por}</span>
                       )}
                     </div>
+
+                    {/* Botão editar — sempre visível para líderes/admins */}
+                    {isLiderOuAdmin && (
+                      <button
+                        onClick={() => setEditingPlano(plano)}
+                        className="mt-2 flex items-center gap-1 text-[10px] text-slate-400 hover:text-blue-600"
+                      >
+                        <Pencil className="w-3 h-3" /> Editar plano
+                      </button>
+                    )}
 
                     {/* Ações para líderes/admins */}
                      {isLiderOuAdmin && plano.status !== "concluido" && (

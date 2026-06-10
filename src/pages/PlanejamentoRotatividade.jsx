@@ -138,30 +138,47 @@ export default function PlanejamentoRotatividade() {
   };
 
   // ── Auto-completar rotatividade sequencial ────────────────────────────────
+  // Postos ocupados por operadores fixos em determinado dia
+  const getPostosOcupadosDia = (gradeAtual, dia) => {
+    const ocupados = new Set();
+    colaboradores.forEach(c => {
+      if (operadoresFixos[c.id]) ocupados.add(operadoresFixos[c.id]);
+    });
+    return ocupados;
+  };
+
   const autoCompletar = async () => {
     const novaGrade = { ...grade };
-    const postosAtivos = postos.map(p => p.num).filter(n => !postosFixos[n]);
 
+    // Postos fixos de posto (excluídos da rotatividade)
+    // Postos com operador fixo também devem ser pulados na rotatividade dos demais
+    const postosComOperadorFixo = new Set(Object.values(operadoresFixos));
+    const postosAtivos = postos
+      .map(p => p.num)
+      .filter(n => !postosFixos[n] && !postosComOperadorFixo.has(n));
+
+    // 1. Preencher operadores fixos
     colaboradores.forEach(colab => {
-      // Se operador tem posto fixo, preencher todos os dias com o posto fixo
       if (operadoresFixos[colab.id]) {
-        const postoFixo = operadoresFixos[colab.id];
         diasUteis.forEach(dia => {
-          novaGrade[`${colab.id}-${dia}`] = postoFixo;
+          novaGrade[`${colab.id}-${dia}`] = operadoresFixos[colab.id];
         });
-        return;
       }
+    });
 
-      // Rotatividade normal
+    // 2. Rotatividade para os demais (pulando postos fixos e postos com operador fixo)
+    const rotativos = colaboradores.filter(c => !operadoresFixos[c.id]);
+
+    rotativos.forEach((colab, colabIdx) => {
       let ultimoPosto = null;
       diasUteis.forEach(dia => {
-        const key = `${colab.id}-${dia}`;
-        if (novaGrade[key]) ultimoPosto = novaGrade[key];
+        const k = `${colab.id}-${dia}`;
+        if (novaGrade[k]) ultimoPosto = novaGrade[k];
       });
 
       let idxAtual = ultimoPosto != null
         ? postosAtivos.indexOf(ultimoPosto)
-        : colaboradores.indexOf(colab) % postosAtivos.length - 1;
+        : (colabIdx % postosAtivos.length) - 1;
 
       diasUteis.forEach(dia => {
         const key = `${colab.id}-${dia}`;
