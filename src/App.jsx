@@ -8,6 +8,7 @@ import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import ObjetivosMesPage from './pages/ObjetivosMes';
+import GastosEPIPage from './pages/GastosEPI';
 import PlanejamentoRotatividadePage from './pages/PlanejamentoRotatividade';
 import OperacoesHubPage from './pages/OperacoesHub';
 import PessoasHubPage from './pages/PessoasHub';
@@ -70,6 +71,7 @@ const AuthenticatedApp = () => {
       <Route path="/SegurancaHub" element={<LayoutWrapper currentPageName="Segurança & Qualidade"><SegurancaHubPage /></LayoutWrapper>} />
       <Route path="/ObjetivosMes" element={<LayoutWrapper currentPageName="Objetivos do Mês"><ObjetivosMesPage /></LayoutWrapper>} />
       <Route path="/PlanejamentoRotatividade" element={<LayoutWrapper currentPageName="Planejamento de Rotatividade"><PlanejamentoRotatividadePage /></LayoutWrapper>} />
+      <Route path="/GastosEPI" element={<LayoutWrapper currentPageName="Gastos EPI"><GastosEPIPage /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

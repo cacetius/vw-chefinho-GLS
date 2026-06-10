@@ -5,7 +5,7 @@ import { base44 } from "@/api/base44Client";
 import {
   LayoutDashboard, Truck, Users, Shield, LogOut,
   Menu, X, User, Home, MoreHorizontal,
-  ClipboardList, ChevronRight, Target, Package, Bell
+  ClipboardList, ChevronRight, Target, Package, Bell, DollarSign
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -34,6 +34,7 @@ const NAV_SECTIONS = [
       { title: "Estoque EPI", url: "Estoque", icon: Package },
       { title: "Objetivos do Mês", url: "ObjetivosMes", icon: Target },
       { title: "Rotatividade", url: "PlanejamentoRotatividade", icon: ClipboardList },
+      { title: "Gastos EPI", url: "GastosEPI", icon: DollarSign },
     ]
   },
   {
