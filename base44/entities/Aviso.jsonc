@@ -45,6 +45,10 @@
       "type": "boolean",
       "default": false,
       "description": "Se o aviso est\u00e1 fixado no topo"
+    },
+    "equipe": {
+      "type": "string",
+      "description": "Equipe/c\u00e9lula destinat\u00e1ria do aviso"
     }
   },
   "required": [

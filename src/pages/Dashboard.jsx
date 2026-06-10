@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { useEquipeFilter } from "@/lib/useEquipeFilter";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate, Link } from "react-router-dom";
@@ -38,21 +39,20 @@ export default function Dashboard() {
     queryFn: async () => {
       const user = await base44.auth.me();
       const isSup = user?.cargo === "supervisor" || user?.role === "admin";
+      const filtraEquipe = (arr) =>
+        isSup ? arr : arr.filter(x => x.equipe === user?.equipe);
+
       const [pedidos, versatilidade, objetivos, avisos] = await Promise.all([
         base44.entities.PedidoEPI.list(),
         base44.entities.Versatilidade.list(),
         base44.entities.Objetivo.list(),
         base44.entities.Aviso.list()
       ]);
-      // Filtra por equipe (supervisor vê tudo)
-      const filtraEquipe = (arr) =>
-        isSup || !user?.equipe
-          ? arr
-          : arr.filter(x => x.equipe === user.equipe);
 
       const pedidosFilt = filtraEquipe(pedidos);
       const colabFilt = filtraEquipe(versatilidade);
       const objetivosFilt = filtraEquipe(objetivos);
+      const avisosFilt = filtraEquipe(avisos);
 
 
       return {
@@ -60,7 +60,7 @@ export default function Dashboard() {
         colaboradores: colabFilt.length,
         objetivosConcluidos: objetivosFilt.filter(o => o.concluido).length,
         objetivosTotal: objetivosFilt.length,
-        urgentes: avisos.filter(a => a.prioridade === "urgente" || a.prioridade === "importante").length,
+        urgentes: avisosFilt.filter(a => a.prioridade === "urgente" || a.prioridade === "importante").length,
       };
     },
     enabled: !!currentUser,

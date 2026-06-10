@@ -64,6 +64,10 @@
     "observacoes": {
       "type": "string",
       "description": "Observa\u00e7\u00f5es adicionais"
+    },
+    "equipe": {
+      "type": "string",
+      "description": "Equipe/c\u00e9lula respons\u00e1vel pelo objetivo"
     }
   },
   "required": [

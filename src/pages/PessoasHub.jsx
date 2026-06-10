@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { useEquipeFilter } from "@/lib/useEquipeFilter";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,17 +28,11 @@ export default function PessoasHub() {
 
   useEffect(() => { base44.auth.me().then(setCurrentUser); }, []);
 
-  const isSupervisor = currentUser?.cargo === "supervisor" || currentUser?.role === "admin";
-
-  const filtraEquipe = (arr, campo = "equipe") =>
-    isSupervisor || !currentUser?.equipe ? arr : arr.filter(x => x[campo] === currentUser.equipe);
+  const { isSupervisor, filtrar } = useEquipeFilter(currentUser);
 
   const { data: versatilidades = [] } = useQuery({
     queryKey: ["versatilidade", currentUser?.equipe],
-    queryFn: async () => {
-      const all = await base44.entities.Versatilidade.list("-created_date");
-      return isSupervisor || !currentUser?.equipe ? all : all.filter(v => v.equipe === currentUser.equipe);
-    },
+    queryFn: async () => filtrar(await base44.entities.Versatilidade.list("-created_date")),
     enabled: !!currentUser
   });
 
@@ -45,42 +40,35 @@ export default function PessoasHub() {
     queryKey: ["ausencias", currentUser?.equipe],
     queryFn: async () => {
       const all = await base44.entities.Ausencia.list("-created_date");
-      return isSupervisor || !currentUser?.equipe ? all : all.filter(a => {
-        // Monitores veem só as próprias; líderes veem da equipe
-        if (currentUser.cargo === "lider") return true; // lider já filtra por equipe indiretamente
-        return a.colaborador_id === currentUser.id;
-      });
+      if (isSupervisor) return all;
+      return all.filter(a => a.equipe === currentUser?.equipe || a.colaborador_id === currentUser?.id);
     },
     enabled: !!currentUser
   });
 
   const { data: treinamentos = [] } = useQuery({
     queryKey: ["treinamentos", currentUser?.equipe],
-    queryFn: async () => {
-      const all = await base44.entities.Treinamento.list("-created_date");
-      // Todos veem treinamentos (é informação de capacitação geral)
-      return all;
-    },
+    queryFn: async () => filtrar(await base44.entities.Treinamento.list("-created_date"), "equipe"),
     enabled: !!currentUser
   });
 
   const handleVersSubmit = async (data) => {
     if (editingVers) await base44.entities.Versatilidade.update(editingVers.id, data);
-    else await base44.entities.Versatilidade.create(data);
+    else await base44.entities.Versatilidade.create({ ...data, equipe: data.equipe || currentUser?.equipe });
     queryClient.invalidateQueries({ queryKey: ["versatilidade"] });
     setShowVersForm(false); setEditingVers(null);
   };
 
   const handleAusSubmit = async (data) => {
     if (editingAus) await base44.entities.Ausencia.update(editingAus.id, data);
-    else await base44.entities.Ausencia.create({ ...data, colaborador_id: currentUser.id, colaborador_nome: currentUser.full_name });
+    else await base44.entities.Ausencia.create({ ...data, colaborador_id: currentUser.id, colaborador_nome: currentUser.full_name, equipe: currentUser.equipe });
     queryClient.invalidateQueries({ queryKey: ["ausencias"] });
     setShowAusForm(false); setEditingAus(null);
   };
 
   const handleTreinSubmit = async (data) => {
     if (editingTrein) await base44.entities.Treinamento.update(editingTrein.id, data);
-    else await base44.entities.Treinamento.create(data);
+    else await base44.entities.Treinamento.create({ ...data, equipe: data.equipe || currentUser?.equipe });
     queryClient.invalidateQueries({ queryKey: ["treinamentos"] });
     setShowTreinForm(false); setEditingTrein(null);
   };

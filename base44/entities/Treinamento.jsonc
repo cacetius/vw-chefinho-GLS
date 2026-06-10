@@ -95,6 +95,10 @@
         "cancelado"
       ],
       "default": "planejado"
+    },
+    "equipe": {
+      "type": "string",
+      "description": "Equipe/c\u00e9lula do treinamento"
     }
   },
   "required": [

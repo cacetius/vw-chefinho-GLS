@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { useEquipeFilter } from "@/lib/useEquipeFilter";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -29,40 +30,35 @@ export default function SegurancaHub() {
 
   useEffect(() => { base44.auth.me().then(setCurrentUser); }, []);
 
-  const isSupervisor = currentUser?.cargo === "supervisor" || currentUser?.role === "admin";
+  const { isSupervisor, filtrar } = useEquipeFilter(currentUser);
 
   const { data: objetivos = [] } = useQuery({
     queryKey: ["objetivos", currentUser?.equipe],
-    queryFn: async () => {
-      const all = await base44.entities.Objetivo.list("-data_referencia");
-      if (isSupervisor || !currentUser?.equipe) return all;
-      return all.filter(o => !o.equipe || o.equipe === currentUser.equipe || o.turno === "todos");
-    },
+    queryFn: async () => filtrar(await base44.entities.Objetivo.list("-data_referencia")),
     enabled: !!currentUser
   });
 
   const { data: avisos = [] } = useQuery({
-    queryKey: ["avisos"],
-    queryFn: () => base44.entities.Aviso.list("-created_date"),
-    // Avisos são globais — todos veem
+    queryKey: ["avisos", currentUser?.equipe],
+    queryFn: async () => filtrar(await base44.entities.Aviso.list("-created_date")),
     enabled: !!currentUser
   });
 
   const { data: dialogos = [] } = useQuery({
-    queryKey: ["dialogos"],
-    queryFn: () => base44.entities.DialogoSeguranca.list("-created_date"),
+    queryKey: ["dialogos", currentUser?.equipe],
+    queryFn: async () => filtrar(await base44.entities.DialogoSeguranca.list("-created_date")),
     enabled: !!currentUser
   });
 
   const handleObjetivoSubmit = async (data) => {
     if (editingObjetivo) await base44.entities.Objetivo.update(editingObjetivo.id, data);
-    else await base44.entities.Objetivo.create(data);
+    else await base44.entities.Objetivo.create({ ...data, equipe: data.equipe || currentUser?.equipe });
     queryClient.invalidateQueries({ queryKey: ["objetivos"] });
     setShowObjetivoForm(false); setEditingObjetivo(null);
   };
 
   const handleAvisoSubmit = async (data) => {
-    const payload = { ...data, autor: currentUser.nome_exibicao || currentUser.full_name, cargo_autor: currentUser.cargo };
+    const payload = { ...data, autor: currentUser.nome_exibicao || currentUser.full_name, cargo_autor: currentUser.cargo, equipe: data.equipe || currentUser?.equipe };
     if (editingAviso) await base44.entities.Aviso.update(editingAviso.id, payload);
     else await base44.entities.Aviso.create(payload);
     queryClient.invalidateQueries({ queryKey: ["avisos"] });
@@ -171,7 +167,7 @@ export default function SegurancaHub() {
             dialogo={editingDialogo}
             onSubmit={async (data) => {
               if (editingDialogo) await base44.entities.DialogoSeguranca.update(editingDialogo.id, data);
-              else await base44.entities.DialogoSeguranca.create({ ...data, autor: currentUser.full_name });
+              else await base44.entities.DialogoSeguranca.create({ ...data, autor: currentUser.full_name, equipe: data.equipe || currentUser?.equipe });
               queryClient.invalidateQueries({ queryKey: ["dialogos"] });
               setShowDialogoForm(false); setEditingDialogo(null);
             }}

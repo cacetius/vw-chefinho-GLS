@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { useEquipeFilter } from "@/lib/useEquipeFilter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,26 +23,17 @@ export default function OperacoesHub() {
 
   useEffect(() => { base44.auth.me().then(setCurrentUser); }, []);
 
-  const isSupervisor = currentUser?.cargo === "supervisor" || currentUser?.role === "admin";
+  const { isSupervisor, filtrar } = useEquipeFilter(currentUser);
 
   const { data: pedidos = [] } = useQuery({
     queryKey: ["pedidos-epi", currentUser?.equipe],
-    queryFn: async () => {
-      const all = await base44.entities.PedidoEPI.list("-created_date");
-      // Supervisor/admin vê tudo; demais só veem da própria equipe
-      if (isSupervisor || !currentUser?.equipe) return all;
-      return all.filter(p => p.equipe === currentUser.equipe);
-    },
+    queryFn: async () => filtrar(await base44.entities.PedidoEPI.list("-created_date")),
     enabled: !!currentUser
   });
 
   const { data: orcamentos = [] } = useQuery({
     queryKey: ["orcamentos", currentUser?.equipe],
-    queryFn: async () => {
-      const all = await base44.entities.Orcamento.list("-mes_referencia");
-      if (isSupervisor || !currentUser?.equipe) return all;
-      return all.filter(o => !o.equipe || o.equipe === currentUser.equipe);
-    },
+    queryFn: async () => filtrar(await base44.entities.Orcamento.list("-mes_referencia")),
     enabled: !!currentUser
   });
 
