@@ -4,8 +4,9 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Wrench, Search, Plus, Pencil, Trash2, MapPin, Settings } from "lucide-react";
+import { Wrench, Search, Plus, Pencil, Trash2, MapPin, Settings, Tag, FileCheck, AlertTriangle, CheckCircle2, Clock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { format, differenceInDays } from "date-fns";
 
 const CAT_LABELS = {
   maquina: "Máquina", ferramenta: "Ferramenta", torque: "Torque",
@@ -26,7 +27,8 @@ export default function Ferramentas() {
   const [filtroStatus, setFiltroStatus] = useState("todos");
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState({ nome: "", codigo: "", categoria: "ferramenta", status: "ativo", marca: "", modelo: "", numero_serie: "", patrimonio: "", area: "", localizacao: "" });
+  const INITIAL_FORM = { nome: "", codigo: "", categoria: "ferramenta", status: "ativo", marca: "", modelo: "", numero_serie: "", patrimonio: "", area: "", localizacao: "", etiqueta_data_instalacao: "", etiqueta_ultima_revisao: "", etiqueta_status: "ok", etiqueta_legivel: true, etiqueta_fixada: true, etiqueta_atualizada: true, certificado_calibracao: "", data_ultima_calibracao: "", data_vencimento_calibracao: "", anexo_certificado: "", calibracao_obrigatoria: false };
+  const [form, setForm] = useState(INITIAL_FORM);
   const queryClient = useQueryClient();
 
   useEffect(() => { base44.auth.me().then(u => setCurrentUser(u)); }, []);
@@ -51,7 +53,7 @@ export default function Ferramentas() {
   };
 
   const abrirForm = (f = null) => {
-    if (f) { setForm(f); setEditing(f); } else { setForm({ nome: "", codigo: "", categoria: "ferramenta", status: "ativo", marca: "", modelo: "", numero_serie: "", patrimonio: "", area: "", localizacao: "" }); setEditing(null); }
+    if (f) { setForm(f); setEditing(f); } else { setForm(INITIAL_FORM); setEditing(null); }
     setFormOpen(true);
   };
 
@@ -117,9 +119,22 @@ export default function Ferramentas() {
                         </div>
                       </div>
                       <div className="flex gap-1 mt-1.5 flex-wrap">
-                        <Badge className={`text-[9px] px-1.5 py-0 ${STATUS_COLORS[f.status] || "bg-slate-100"}`}>{STATUS_LABELS[f.status] || f.status}</Badge>
-                        <Badge className="text-[9px] px-1.5 py-0 bg-slate-100 text-slate-600">{CAT_LABELS[f.categoria] || f.categoria}</Badge>
-                        {f.area && <span className="text-[10px] text-slate-400 flex items-center gap-0.5"><MapPin className="w-2.5 h-2.5" />{f.area}</span>}
+                       <Badge className={`text-[9px] px-1.5 py-0 ${STATUS_COLORS[f.status] || "bg-slate-100"}`}>{STATUS_LABELS[f.status] || f.status}</Badge>
+                       <Badge className="text-[9px] px-1.5 py-0 bg-slate-100 text-slate-600">{CAT_LABELS[f.categoria] || f.categoria}</Badge>
+                       {f.area && <span className="text-[10px] text-slate-400 flex items-center gap-0.5"><MapPin className="w-2.5 h-2.5" />{f.area}</span>}
+                       {f.calibracao_obrigatoria && (
+                         (() => {
+                           if (!f.data_vencimento_calibracao) return <Badge className="text-[9px] px-1.5 py-0 bg-slate-100 text-slate-500"><Clock className="w-2.5 h-2.5 mr-0.5" />Sem data</Badge>;
+                           const venc = new Date(f.data_vencimento_calibracao + "T00:00:00");
+                           const dias = differenceInDays(venc, new Date());
+                           if (dias < 0) return <Badge className="text-[9px] px-1.5 py-0 bg-red-100 text-red-700"><AlertTriangle className="w-2.5 h-2.5 mr-0.5" />Cal. Vencida</Badge>;
+                           if (dias <= 30) return <Badge className="text-[9px] px-1.5 py-0 bg-amber-100 text-amber-700"><Clock className="w-2.5 h-2.5 mr-0.5" />Vence {dias}d</Badge>;
+                           return <Badge className="text-[9px] px-1.5 py-0 bg-emerald-100 text-emerald-700"><CheckCircle2 className="w-2.5 h-2.5 mr-0.5" />Cal. OK</Badge>;
+                         })()
+                       )}
+                       {f.etiqueta_status && f.etiqueta_status !== "ok" && (
+                         <Badge className={`text-[9px] px-1.5 py-0 ${f.etiqueta_status === "substituir" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}><Tag className="w-2.5 h-2.5 mr-0.5" />Etiqueta {f.etiqueta_status === "substituir" ? "Substituir" : "Desgastada"}</Badge>
+                       )}
                       </div>
                     </div>
                   </div>
@@ -155,6 +170,29 @@ export default function Ferramentas() {
                   <InputField label="Localização" value={form.localizacao} onChange={e => setForm({...form, localizacao: e.target.value})} />
                 </div>
                 <SelectField label="Status" value={form.status} options={STATUS_LABELS} onChange={e => setForm({...form, status: e.target.value})} />
+
+                {/* Etiqueta */}
+                <div className="pt-2 border-t border-slate-100"><h3 className="text-xs font-bold text-slate-600 mb-2 flex items-center gap-1.5"><Tag className="w-3 h-3" /> Etiqueta</h3></div>
+                <div className="grid grid-cols-2 gap-3">
+                  <InputField label="Data Instalação" value={form.etiqueta_data_instalacao} onChange={e => setForm({...form, etiqueta_data_instalacao: e.target.value})} type="date" />
+                  <InputField label="Última Revisão" value={form.etiqueta_ultima_revisao} onChange={e => setForm({...form, etiqueta_ultima_revisao: e.target.value})} type="date" />
+                </div>
+                <SelectField label="Estado" value={form.etiqueta_status} options={{ ok: "OK", desgastada: "Desgastada", substituir: "Substituir" }} onChange={e => setForm({...form, etiqueta_status: e.target.value})} />
+                <div className="flex gap-4 flex-wrap">
+                  <label className="flex items-center gap-1.5 text-xs"><input type="checkbox" checked={form.etiqueta_legivel} onChange={e => setForm({...form, etiqueta_legivel: e.target.checked})} /> Legível</label>
+                  <label className="flex items-center gap-1.5 text-xs"><input type="checkbox" checked={form.etiqueta_fixada} onChange={e => setForm({...form, etiqueta_fixada: e.target.checked})} /> Fixada</label>
+                  <label className="flex items-center gap-1.5 text-xs"><input type="checkbox" checked={form.etiqueta_atualizada} onChange={e => setForm({...form, etiqueta_atualizada: e.target.checked})} /> Atualizada</label>
+                </div>
+
+                {/* Calibração */}
+                <div className="pt-2 border-t border-slate-100"><h3 className="text-xs font-bold text-slate-600 mb-2 flex items-center gap-1.5"><FileCheck className="w-3 h-3" /> Certificado de Calibração</h3></div>
+                <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={form.calibracao_obrigatoria} onChange={e => setForm({...form, calibracao_obrigatoria: e.target.checked})} /> Calibração obrigatória</label>
+                <InputField label="Nº Certificado" value={form.certificado_calibracao} onChange={e => setForm({...form, certificado_calibracao: e.target.value})} />
+                <div className="grid grid-cols-2 gap-3">
+                  <InputField label="Última Calibração" value={form.data_ultima_calibracao} onChange={e => setForm({...form, data_ultima_calibracao: e.target.value})} type="date" />
+                  <InputField label="Vencimento" value={form.data_vencimento_calibracao} onChange={e => setForm({...form, data_vencimento_calibracao: e.target.value})} type="date" />
+                </div>
+                <InputField label="Anexo (URL)" value={form.anexo_certificado} onChange={e => setForm({...form, anexo_certificado: e.target.value})} />
               </div>
               <div className="flex gap-2 mt-5 pt-3 border-t border-slate-100">
                 <Button className="flex-1 bg-[#0066b1] hover:bg-[#004d82] text-white" onClick={salvar}>Salvar</Button>
@@ -168,8 +206,8 @@ export default function Ferramentas() {
   );
 }
 
-function InputField({ label, value, onChange }) {
-  return <div><label className="text-[10px] font-semibold text-slate-500 uppercase">{label}</label><input className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" value={value || ""} onChange={onChange} /></div>;
+function InputField({ label, value, onChange, type = "text" }) {
+  return <div><label className="text-[10px] font-semibold text-slate-500 uppercase">{label}</label><input type={type} className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" value={value || ""} onChange={onChange} /></div>;
 }
 function SelectField({ label, value, options, onChange }) {
   return <div><label className="text-[10px] font-semibold text-slate-500 uppercase">{label}</label><select className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" value={value || ""} onChange={onChange}>
