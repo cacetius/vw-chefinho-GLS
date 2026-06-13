@@ -16,7 +16,7 @@ import SegurancaHubPage from './pages/SegurancaHub';
 import FerramentasPage from './pages/Ferramentas';
 import CalibracaoPage from './pages/Calibracao';
 import CalendarioPage from './pages/Calendario';
-import AuditoriaIndustrialPage from './pages/AuditoriaIndustrial';
+import AuditoriaPage from './pages/Auditoria';
 import BancadasPage from './pages/Bancadas';
 import ChecklistPagePage from './pages/ChecklistPage';
 import CincoSPagePage from './pages/CincoSPage';
@@ -84,7 +84,7 @@ const AuthenticatedApp = () => {
       <Route path="/GastosEPI" element={<LayoutWrapper currentPageName="Gastos EPI"><GastosEPIPage /></LayoutWrapper>} />
       <Route path="/Ferramentas" element={<LayoutWrapper currentPageName="Ferramentas"><FerramentasPage /></LayoutWrapper>} />
       <Route path="/Calibracao" element={<LayoutWrapper currentPageName="Calibração"><CalibracaoPage /></LayoutWrapper>} />
-      <Route path="/AuditoriaIndustrial" element={<LayoutWrapper currentPageName="Auditoria Industrial"><AuditoriaIndustrialPage /></LayoutWrapper>} />
+      <Route path="/Auditoria" element={<LayoutWrapper currentPageName="Auditoria"><AuditoriaPage /></LayoutWrapper>} />
       <Route path="/Bancadas" element={<LayoutWrapper currentPageName="Bancadas"><BancadasPage /></LayoutWrapper>} />
       <Route path="/ChecklistAuditoria" element={<LayoutWrapper currentPageName="Checklist de Auditoria"><ChecklistPagePage /></LayoutWrapper>} />
       <Route path="/CincoS" element={<LayoutWrapper currentPageName="Gestão 5S"><CincoSPagePage /></LayoutWrapper>} />

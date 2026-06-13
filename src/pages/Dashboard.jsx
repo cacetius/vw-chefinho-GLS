@@ -109,7 +109,7 @@ export default function Dashboard() {
   const KPI_CARDS = [
     { label: "Ferramentas", valor: kpis.ferramentas, sub: `${kpis.ferramentasAtivas} ativas`, icon: Wrench, color: "from-blue-600 to-blue-800", url: "Ferramentas" },
     { label: "Calibrações", valor: kpis.calTotal, sub: `${kpis.calStatus.vencido} vencidas · ${kpis.calStatus.vence15 + kpis.calStatus.vence30} próximas`, icon: Gauge, color: "from-amber-600 to-orange-700", url: "Calibracao", alert: kpis.calStatus.vencido > 0 },
-    { label: "Auditorias", valor: kpis.audTotal, sub: `${kpis.audStatus.naoConforme} não conformes`, icon: ClipboardCheck, color: "from-emerald-600 to-teal-700", url: "AuditoriaIndustrial", alert: kpis.audStatus.naoConforme > 0 },
+    { label: "Auditorias", valor: kpis.audTotal, sub: `${kpis.audStatus.naoConforme} não conformes`, icon: ClipboardCheck, color: "from-emerald-600 to-teal-700", url: "Auditoria", alert: kpis.audStatus.naoConforme > 0 },
     { label: "5S", valor: kpis.ultimo5S ? `${kpis.ultimo5S.pontuacao_total}/50` : "-", sub: `${kpis.cincoSTotal} avaliações`, icon: Sparkles, color: "from-purple-600 to-violet-700", url: "CincoS" },
     { label: "Monitor", valor: `${kpis.ativStatus.concluidas}/${kpis.ativTotal}`, sub: `${kpis.ativStatus.atrasadas} atrasadas`, icon: Monitor, color: "from-cyan-600 to-sky-700", url: "QuadroMonitor", alert: kpis.ativStatus.atrasadas > 0 },
     { label: "Bancadas", valor: kpis.bancadas, sub: "em monitoramento", icon: BarChart3, color: "from-slate-600 to-slate-800", url: "Bancadas" },
@@ -159,7 +159,7 @@ export default function Dashboard() {
               </Badge>
             )}
             {kpis.audStatus.naoConforme > 0 && (
-              <Badge className="bg-red-100 text-red-700 text-[10px] cursor-pointer" onClick={() => navigate(createPageUrl("AuditoriaIndustrial"))}>
+              <Badge className="bg-red-100 text-red-700 text-[10px] cursor-pointer" onClick={() => navigate(createPageUrl("Auditoria"))}>
                 ❌ {kpis.audStatus.naoConforme} não conformidades
               </Badge>
             )}
@@ -250,7 +250,7 @@ export default function Dashboard() {
           {[
             { label: "Ferramentas", url: "Ferramentas", icon: Wrench },
             { label: "Calibração", url: "Calibracao", icon: Gauge },
-            { label: "Auditoria", url: "AuditoriaIndustrial", icon: ClipboardCheck },
+            { label: "Auditoria", url: "Auditoria", icon: ClipboardCheck },
             { label: "Quadro Monitor", url: "QuadroMonitor", icon: Monitor },
             { label: "5S", url: "CincoS", icon: Sparkles },
             { label: "Bancadas", url: "Bancadas", icon: BarChart3 },

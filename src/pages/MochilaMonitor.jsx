@@ -137,7 +137,7 @@ export default function MochilaMonitorPage() {
 
   const modules = [
     { icon: Wrench, title: "Ferramentas", subtitle: "Gestão de ferramentas", bg: "border-l-blue-500", textColor: "text-blue-600", path: "Ferramentas", badge: null },
-    { icon: ClipboardCheck, title: "Auditorias", subtitle: "Processo e Torque", bg: "border-l-emerald-500", textColor: "text-emerald-600", path: "AuditoriaIndustrial", badge: null },
+    { icon: ClipboardCheck, title: "Auditoria", subtitle: "Conformidade e qualidade", bg: "border-l-emerald-500", textColor: "text-emerald-600", path: "Auditoria", badge: null },
     { icon: Sparkles, title: "5S", subtitle: "Gestão 5S", bg: "border-l-purple-500", textColor: "text-purple-600", path: "CincoS", badge: null },
     { icon: Tag, title: "Etiquetas", subtitle: "Identificação visual", bg: "border-l-orange-500", textColor: "text-orange-600", path: "Etiquetas", badge: null },
     { icon: LayoutGrid, title: "Bancadas", subtitle: "Gestão de bancadas", bg: "border-l-teal-500", textColor: "text-teal-600", path: "Bancadas", badge: null },
@@ -208,7 +208,7 @@ export default function MochilaMonitorPage() {
           <Button
             variant="outline"
             className="h-auto py-4 flex flex-col items-center gap-1.5 border-2 border-dashed hover:border-slate-400"
-            onClick={() => navigate(createPageUrl("AuditoriaIndustrial"))}
+            onClick={() => navigate(createPageUrl("Auditoria"))}
           >
             <Camera className="w-6 h-6 text-slate-600" />
             <span className="text-xs font-medium">Auditar + Foto</span>

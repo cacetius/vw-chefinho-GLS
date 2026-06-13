@@ -28,7 +28,7 @@ const NAV_SECTIONS = [
   {
     title: "Auditoria",
     items: [
-      { title: "Auditoria Industrial", url: "AuditoriaIndustrial", icon: ClipboardCheck },
+      { title: "Auditoria", url: "Auditoria", icon: ClipboardCheck },
       { title: "Checklist", url: "ChecklistAuditoria", icon: ClipboardList },
       { title: "Gestão 5S", url: "CincoS", icon: Sparkles },
       { title: "Segurança & DDS", url: "SegurancaHub", icon: Shield },
@@ -55,7 +55,7 @@ const NAV_SECTIONS = [
 const BOTTOM_NAV = [
   { title: "Início", url: "QuadroMonitor", icon: Home },
   { title: "Mochila", url: "MochilaMonitor", icon: Zap },
-  { title: "Auditoria", url: "AuditoriaIndustrial", icon: ClipboardCheck },
+  { title: "Auditoria", url: "Auditoria", icon: ClipboardCheck },
   { title: "Saúde", url: "SaudeArea", icon: ShieldCheck },
   { title: "Menu", url: null, icon: MoreHorizontal },
 ];
