@@ -21,7 +21,6 @@ import BancadasPage from './pages/Bancadas';
 import ChecklistPagePage from './pages/ChecklistPage';
 import CincoSPagePage from './pages/CincoSPage';
 import QuadroMonitorPage from './pages/QuadroMonitor';
-import RelatoriosPage from './pages/Relatorios';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -60,8 +59,8 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       <Route path="/" element={
-        <LayoutWrapper currentPageName="Quadro do Monitor">
-          <QuadroMonitorPage />
+        <LayoutWrapper currentPageName={mainPageKey}>
+          <MainPage />
         </LayoutWrapper>
       } />
       {Object.entries(Pages).map(([path, Page]) => (
@@ -88,7 +87,6 @@ const AuthenticatedApp = () => {
       <Route path="/ChecklistAuditoria" element={<LayoutWrapper currentPageName="Checklist de Auditoria"><ChecklistPagePage /></LayoutWrapper>} />
       <Route path="/CincoS" element={<LayoutWrapper currentPageName="Gestão 5S"><CincoSPagePage /></LayoutWrapper>} />
       <Route path="/QuadroMonitor" element={<LayoutWrapper currentPageName="Quadro do Monitor"><QuadroMonitorPage /></LayoutWrapper>} />
-      <Route path="/Relatorios" element={<LayoutWrapper currentPageName="Relatórios"><RelatoriosPage /></LayoutWrapper>} />
       <Route path="/Calendario" element={<LayoutWrapper currentPageName="Calendário"><CalendarioPage /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>

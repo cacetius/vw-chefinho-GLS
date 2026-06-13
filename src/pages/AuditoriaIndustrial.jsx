@@ -1,272 +1,195 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { ClipboardCheck, Search, Plus, Pencil, Trash2, Filter, Wrench, AlertTriangle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ClipboardCheck, Plus, Camera, X, Search, CheckCircle2, AlertTriangle, CircleX } from "lucide-react";
 import { format } from "date-fns";
 
-const RESULTADOS = [
-  { value: "conforme", label: "Conforme", icone: "🟢", cor: "border-emerald-500 bg-emerald-50 text-emerald-700" },
-  { value: "atencao", label: "Atenção", icone: "🟡", cor: "border-amber-500 bg-amber-50 text-amber-700" },
-  { value: "nao_conforme", label: "Não Conforme", icone: "🔴", cor: "border-red-500 bg-red-50 text-red-700" },
-];
-
-const RESULT_ICONS = { conforme: "🟢", atencao: "🟡", nao_conforme: "🔴" };
+const CONF_COLORS = { conforme: "bg-emerald-100 text-emerald-700", nao_conforme: "bg-red-100 text-red-700", em_analise: "bg-amber-100 text-amber-700", resolvido: "bg-blue-100 text-blue-700" };
+const CONF_LABELS = { conforme: "Conforme", nao_conforme: "Não Conforme", em_analise: "Em Análise", resolvido: "Resolvido" };
+const RES_COLORS = { conforme: "bg-emerald-100 text-emerald-700", nao_conforme: "bg-red-100 text-red-700", em_analise: "bg-amber-100 text-amber-700" };
 
 export default function AuditoriaIndustrial() {
   const [currentUser, setCurrentUser] = useState(null);
-  const [mostrarForm, setMostrarForm] = useState(false);
-  const [passo, setPasso] = useState(1);
-  const [ferramentas, setFerramentas] = useState([]);
+  const [aba, setAba] = useState("processo");
   const [search, setSearch] = useState("");
-  const [form, setForm] = useState({
-    ferramenta_id: "", ferramenta_nome: "", ferramenta_tipo: "",
-    resultado: "conforme", foto: "", observacao: ""
-  });
-  const [fazendoFoto, setFazendoFoto] = useState(false);
-
+  const [filtro, setFiltro] = useState("todos");
+  const [formOpen, setFormOpen] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState({ data: "", hora: "", area: "", ferramenta: "", conformidade: "conforme", condicao_encontrada: "", acao_corretiva: "", observacao: "", categoria: "ferramenta" });
+  const [formTorque, setFormTorque] = useState({ data_auditoria: "", ferramenta: "", tacto: "", lado: "", posto: "", resultado: "conforme", condicao: "", acao_necessaria: "" });
   const queryClient = useQueryClient();
+
   useEffect(() => { base44.auth.me().then(u => setCurrentUser(u)); }, []);
 
-  // Buscar ferramentas para lista de seleção
-  useEffect(() => {
-    base44.entities.Ferramenta.list().then(fs => setFerramentas(fs));
-  }, []);
-
   const { data: auditorias = [] } = useQuery({
-    queryKey: ["auditorias-processo"], queryFn: () => base44.entities.AuditoriaProcesso.list("-data", 100)
+    queryKey: ["auditorias-processo"], queryFn: () => base44.entities.AuditoriaProcesso.list("-data", 200), enabled: aba === "processo"
+  });
+  const { data: torques = [] } = useQuery({
+    queryKey: ["auditorias-torque"], queryFn: () => base44.entities.AuditoriaTorque.list("-data_auditoria", 200), enabled: aba === "torque"
   });
 
-  const filtradas = auditorias.filter(a =>
-    !search || (a.ferramenta_nome || a.area || "").toLowerCase().includes(search.toLowerCase())
-  );
-
-  const ferramentasFiltradas = ferramentas.filter(f =>
-    !search || f.nome?.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const abrirForm = () => {
-    setPasso(1);
-    setForm({ ferramenta_id: "", ferramenta_nome: "", ferramenta_tipo: "", resultado: "conforme", foto: "", observacao: "" });
-    setSearch("");
-    setMostrarForm(true);
+  const abrirFormProc = (a = null) => {
+    if (a) { setForm(a); setEditing(a); } else { setForm({ data: format(new Date(), "yyyy-MM-dd"), hora: "", area: "", ferramenta: "", conformidade: "conforme", condicao_encontrada: "", acao_corretiva: "", observacao: "", categoria: "ferramenta" }); setEditing(null); }
+    setFormOpen(true);
   };
 
-  const selecionarFerramenta = (f) => {
-    setForm(p => ({ ...p, ferramenta_id: f.id, ferramenta_nome: f.nome, ferramenta_tipo: f.tipo || "" }));
-    setPasso(2);
+  const abrirFormTorque = (a = null) => {
+    if (a) { setFormTorque(a); setEditing(a); } else { setFormTorque({ data_auditoria: format(new Date(), "yyyy-MM-dd"), ferramenta: "", tacto: "", lado: "", posto: "", resultado: "conforme", condicao: "", acao_necessaria: "" }); setEditing(null); }
+    setFormOpen(true);
   };
 
-  const selecionarResultado = (r) => {
-    setForm(p => ({ ...p, resultado: r }));
-    setPasso(3);
-  };
-
-  const tirarFoto = async () => {
-    setFazendoFoto(true);
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*";
-    input.capture = "environment";
-    input.onchange = async (e) => {
-      const f = e.target.files[0];
-      if (!f) { setFazendoFoto(false); return; }
-      try {
-        const { file_url } = await base44.integrations.Core.UploadFile({ file: f });
-        setForm(p => ({ ...p, foto: file_url }));
-      } catch (e) { /* ignora */ }
-      setFazendoFoto(false);
-    };
-    input.click();
-  };
-
-  const salvar = async () => {
-    await base44.entities.AuditoriaProcesso.create({
-      data: format(new Date(), "yyyy-MM-dd"),
-      hora: format(new Date(), "HH:mm"),
-      ferramenta: form.ferramenta_nome,
-      ferramenta_id: form.ferramenta_id,
-      area: form.ferramenta_tipo,
-      conformidade: form.resultado,
-      condicao_encontrada: form.observacao,
-      foto: form.foto || null,
-      auditor_nome: currentUser?.nome_exibicao || currentUser?.full_name || "",
-      celula: currentUser?.celula || "",
-      equipe: currentUser?.equipe || "",
-    });
+  const salvarProc = async () => {
+    const dados = { ...form, celula: currentUser?.celula || "", equipe: currentUser?.equipe || "", auditor_nome: currentUser?.nome_exibicao || currentUser?.full_name || "" };
+    if (editing) await base44.entities.AuditoriaProcesso.update(editing.id, dados);
+    else await base44.entities.AuditoriaProcesso.create(dados);
     queryClient.invalidateQueries({ queryKey: ["auditorias-processo"] });
-    setMostrarForm(false);
+    setFormOpen(false);
   };
 
-  const excluir = async (id) => {
-    await base44.entities.AuditoriaProcesso.delete(id);
-    queryClient.invalidateQueries({ queryKey: ["auditorias-processo"] });
+  const salvarTorque = async () => {
+    const dados = { ...formTorque, celula: currentUser?.celula || "", equipe: currentUser?.equipe || "", auditor_nome: currentUser?.nome_exibicao || currentUser?.full_name || "" };
+    if (editing) await base44.entities.AuditoriaTorque.update(editing.id, dados);
+    else await base44.entities.AuditoriaTorque.create(dados);
+    queryClient.invalidateQueries({ queryKey: ["auditorias-torque"] });
+    setFormOpen(false);
   };
 
-  const resLabel = RESULTADOS.find(r => r.value === form.resultado);
+  const excluirProc = async (id) => { if (confirm("Excluir?")) { await base44.entities.AuditoriaProcesso.delete(id); queryClient.invalidateQueries({ queryKey: ["auditorias-processo"] }); } };
+  const excluirTorque = async (id) => { if (confirm("Excluir?")) { await base44.entities.AuditoriaTorque.delete(id); queryClient.invalidateQueries({ queryKey: ["auditorias-torque"] }); } };
+
+  const lista = aba === "processo" ? auditorias : torques;
 
   return (
-    <div className="max-w-md mx-auto w-full px-1 space-y-3 pb-4">
+    <div className="space-y-3 max-w-full">
+      <div className="bg-[#0d2d6b] rounded-xl py-3 px-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div><h1 className="text-lg font-bold text-white">Auditoria Industrial</h1><p className="text-blue-200 text-xs">Auditoria de processo e torque</p></div>
+        <Button size="sm" onClick={() => aba === "processo" ? abrirFormProc() : abrirFormTorque()} className="bg-white text-[#0d2d6b] hover:bg-blue-50 gap-1 text-xs h-8"><Plus className="w-3.5 h-3.5" /> Nova Auditoria</Button>
+      </div>
 
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-lg font-extrabold text-[#001e50]">📋 Auditorias</h1>
-          <p className="text-[10px] text-slate-400">{auditorias.length} registros</p>
-        </div>
-        <button onClick={abrirForm} className="w-11 h-11 bg-[#0066b1] rounded-2xl flex items-center justify-center active:opacity-80">
-          <Plus className="w-5 h-5 text-white" />
-        </button>
+      {/* Tabs */}
+      <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
+        {[{ key: "processo", label: "Processo" }, { key: "torque", label: "Torque" }].map(t => (
+          <button key={t.key} onClick={() => setAba(t.key)} className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${aba === t.key ? "bg-white shadow-sm text-slate-800" : "text-slate-500"}`}>
+            {t.label}
+          </button>
+        ))}
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-2">
-        {[
-          { label: "Conforme", val: auditorias.filter(a => a.conformidade === "conforme").length, cor: "bg-emerald-100 text-emerald-700 border-emerald-200" },
-          { label: "Atenção", val: auditorias.filter(a => a.conformidade === "atencao").length, cor: "bg-amber-100 text-amber-700 border-amber-200" },
-          { label: "Não Conforme", val: auditorias.filter(a => a.conformidade === "nao_conforme").length, cor: "bg-red-100 text-red-700 border-red-200" },
-        ].map(s => (
-          <div key={s.label} className={`rounded-xl border px-3 py-2 text-center ${s.cor}`}>
-            <p className="text-xl font-extrabold">{s.val}</p>
-            <p className="text-[9px] font-medium">{s.label}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Busca */}
-      <div className="relative">
-        <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar auditoria..."
-          className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-[#0066b1]" />
-      </div>
-
-      {/* Lista */}
-      <div className="space-y-1">
-        {filtradas.map(a => (
-          <div key={a.id} className={`flex items-center gap-3 bg-white border-2 rounded-xl px-3 py-3 ${
-            a.conformidade === "nao_conforme" ? "border-red-200" : a.conformidade === "atencao" ? "border-amber-200" : "border-slate-100"
-          }`}>
-            <span className="text-lg">{RESULT_ICONS[a.conformidade] || "⚪"}</span>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-slate-800 truncate">{a.ferramenta || a.area}</p>
-              <p className="text-[10px] text-slate-400">{a.data && format(new Date(a.data + "T00:00:00"), "dd/MM")} • {a.hora || ""} {a.auditor_nome ? `• ${a.auditor_nome}` : ""}</p>
+      {aba === "processo" && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          {[{ label: "Total", val: auditorias.length }, { label: "Conforme", val: auditorias.filter(a => a.conformidade === "conforme").length, color: "bg-emerald-500" }, { label: "Não Conforme", val: auditorias.filter(a => a.conformidade === "nao_conforme").length, color: "bg-red-500" }, { label: "Em Análise", val: auditorias.filter(a => a.conformidade === "em_analise").length, color: "bg-amber-500" }].map(s => (
+            <div key={s.label} className="bg-white rounded-lg border border-slate-200 px-3 py-2">
+              <div className="flex items-center gap-2"><div className={`w-2 h-2 rounded-full ${s.color || "bg-slate-500"}`} /><span className="text-[10px] text-slate-500">{s.label}</span></div>
+              <p className="text-lg font-bold text-slate-800">{s.val}</p>
             </div>
-            <button onClick={() => excluir(a.id)} className="text-[10px] text-red-400 px-2 py-1 rounded-lg hover:bg-red-50 active:bg-red-100">
-              ×
-            </button>
-          </div>
+          ))}
+        </div>
+      )}
+      {aba === "torque" && (
+        <div className="grid grid-cols-3 gap-2">
+          {[{ label: "Total", val: torques.length }, { label: "Conforme", val: torques.filter(t => t.resultado === "conforme").length, color: "bg-emerald-500" }, { label: "Não Conforme", val: torques.filter(t => t.resultado === "nao_conforme").length, color: "bg-red-500" }].map(s => (
+            <div key={s.label} className="bg-white rounded-lg border border-slate-200 px-3 py-2">
+              <div className="flex items-center gap-2"><div className={`w-2 h-2 rounded-full ${s.color || "bg-slate-500"}`} /><span className="text-[10px] text-slate-500">{s.label}</span></div>
+              <p className="text-lg font-bold text-slate-800">{s.val}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Search */}
+      <div className="relative"><Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" /><input className="w-full border border-slate-200 rounded-lg pl-8 pr-3 py-1.5 text-xs" placeholder={`Buscar ${aba === "processo" ? "área ou ferramenta" : "ferramenta ou posto"}...`} value={search} onChange={e => setSearch(e.target.value)} /></div>
+
+      {/* List */}
+      <div className="grid gap-2">
+        {lista.filter(a => {
+          const txt = (a.ferramenta || "") + (a.area || "") + (a.posto || "");
+          return !search || txt.toLowerCase().includes(search.toLowerCase());
+        }).map((a, i) => (
+          <motion.div key={a.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }}>
+            <Card className={`border ${(a.conformidade === "nao_conforme" || a.resultado === "nao_conforme") ? "border-red-300 bg-red-50/10" : "border-slate-200"}`}>
+              <CardContent className="p-3">
+                <div className="flex items-start gap-3">
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${aba === "torque" ? "bg-blue-50" : "bg-slate-100"}`}>
+                    {aba === "torque" ? <Wrench className="w-4 h-4 text-blue-600" /> : <ClipboardCheck className="w-4 h-4 text-slate-600" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <div><h3 className="text-sm font-bold text-slate-900">{a.ferramenta || a.area}</h3>
+                        <p className="text-[10px] text-slate-400">{a.data || a.data_auditoria ? format(new Date((a.data || a.data_auditoria) + "T00:00:00"), "dd/MM/yy") : ""} {a.hora && `• ${a.hora}`} {a.area && aba === "processo" ? `• ${a.area}` : ""} {a.posto && `• Posto: ${a.posto}`}</p>
+                      </div>
+                      <div className="flex gap-1 flex-shrink-0">
+                        <button onClick={() => aba === "processo" ? abrirFormProc(a) : abrirFormTorque(a)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400"><Pencil className="w-3.5 h-3.5" /></button>
+                        <button onClick={() => aba === "processo" ? excluirProc(a.id) : excluirTorque(a.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600"><Trash2 className="w-3.5 h-3.5" /></button>
+                      </div>
+                    </div>
+                    <div className="flex gap-1 mt-1.5 flex-wrap">
+                      {aba === "processo" && <Badge className={`text-[9px] px-1.5 py-0 ${CONF_COLORS[a.conformidade] || "bg-slate-100"}`}>{CONF_LABELS[a.conformidade]}</Badge>}
+                      {aba === "torque" && <Badge className={`text-[9px] px-1.5 py-0 ${RES_COLORS[a.resultado] || "bg-slate-100"}`}>{a.resultado === "conforme" ? "Conforme" : a.resultado === "nao_conforme" ? "Não Conforme" : "Em Análise"}</Badge>}
+                      {a.condicao_encontrada && <span className="text-[10px] text-slate-500">{a.condicao_encontrada}</span>}
+                      {a.acao_corretiva && <span className="text-[10px] text-blue-600">Ação: {a.acao_corretiva}</span>}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
         ))}
-        {filtradas.length === 0 && <p className="text-center text-xs text-slate-400 py-4">Nenhuma auditoria encontrada</p>}
       </div>
 
-      {/* Modal de Auditoria Rápida */}
+      {/* Modal Processo */}
       <AnimatePresence>
-        {mostrarForm && (
-          <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 z-40" onClick={() => setMostrarForm(false)} />
-            <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
-              className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl max-h-[85vh] overflow-y-auto">
-              <div className="p-5 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-extrabold text-[#001e50]">
-                    {passo === 1 ? "1. Selecione a ferramenta" : passo === 2 ? "2. Resultado" : "3. Foto e salvar"}
-                  </h2>
-                  <button onClick={() => setMostrarForm(false)} className="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center">
-                    <X className="w-4 h-4 text-slate-500" />
-                  </button>
+        {formOpen && aba === "processo" && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setFormOpen(false)}>
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white rounded-2xl shadow-2xl p-5 w-[90vw] max-w-lg max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+              <h2 className="font-bold text-slate-800 mb-4">{editing ? "Editar" : "Nova"} Auditoria de Processo</h2>
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div><label className="text-[10px] font-semibold text-slate-500 uppercase">Data</label><input type="date" className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" value={form.data} onChange={e => setForm({...form, data: e.target.value})} /></div>
+                  <div><label className="text-[10px] font-semibold text-slate-500 uppercase">Hora</label><input className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" value={form.hora} onChange={e => setForm({...form, hora: e.target.value})} /></div>
                 </div>
-
-                {/* PASSO 1: Selecionar ferramenta */}
-                {passo === 1 && (
-                  <div className="space-y-2">
-                    <input value={search} onChange={e => setSearch(e.target.value)} autoFocus
-                      placeholder="Digite o nome da ferramenta..." className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-[#0066b1]" />
-                    <div className="space-y-1 max-h-64 overflow-y-auto">
-                      {ferramentasFiltradas.slice(0, 20).map(f => (
-                        <button key={f.id} onClick={() => selecionarFerramenta(f)}
-                          className="w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-slate-100 hover:border-[#0066b1] active:bg-blue-50 transition-all text-left">
-                          <span className="text-lg">🔧</span>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-bold text-slate-800 truncate">{f.nome}</p>
-                            <p className="text-[10px] text-slate-400">{f.tipo || f.modelo}</p>
-                          </div>
-                        </button>
-                      ))}
-                      {ferramentasFiltradas.length === 0 && (
-                        <div className="text-center py-4">
-                          <p className="text-xs text-slate-400">Nenhuma ferramenta encontrada</p>
-                          <input value={search} onChange={e => setSearch(e.target.value)}
-                            placeholder="Ou digite um nome livre..."
-                            className="mt-2 w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none" />
-                          <button onClick={() => setPasso(2)}
-                            disabled={!search} className="mt-2 w-full py-2.5 bg-[#0066b1] text-white text-sm font-bold rounded-xl disabled:opacity-50">
-                            Usar "{search}" como referência
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* PASSO 2: Resultado */}
-                {passo === 2 && (
-                  <div className="space-y-3">
-                    <div className="bg-slate-50 rounded-xl p-3 flex items-center gap-3">
-                      <span className="text-lg">🔧</span>
-                      <p className="text-sm font-bold text-slate-700">{form.ferramenta_nome || "Ferramenta selecionada"}</p>
-                    </div>
-                    <p className="text-xs font-bold text-slate-500">Selecione o resultado:</p>
-                    {RESULTADOS.map(r => (
-                      <button key={r.value} onClick={() => selecionarResultado(r.value)}
-                        className={`w-full flex items-center gap-3 px-4 py-5 rounded-2xl border-2 ${r.cor} active:opacity-80 transition-all text-left text-lg font-bold`}>
-                        <span className="text-2xl">{r.icone}</span> {r.label}
-                      </button>
-                    ))}
-                    <button onClick={() => setPasso(1)} className="w-full py-2 text-xs text-slate-400">← Voltar</button>
-                  </div>
-                )}
-
-                {/* PASSO 3: Foto + Salvar */}
-                {passo === 3 && (
-                  <div className="space-y-3">
-                    <div className="bg-slate-50 rounded-xl p-3 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg">🔧</span>
-                        <span className="text-sm font-bold text-slate-700">{form.ferramenta_nome}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg">{resLabel?.icone}</span>
-                        <span className="text-sm font-bold text-slate-700">{resLabel?.label}</span>
-                      </div>
-                    </div>
-
-                    {/* Foto */}
-                    <button onClick={tirarFoto} disabled={fazendoFoto}
-                      className={`w-full py-5 rounded-2xl border-2 border-dashed flex flex-col items-center gap-2 transition-all ${
-                        form.foto ? "border-emerald-300 bg-emerald-50" : "border-slate-300 bg-slate-50 hover:border-[#0066b1]"
-                      }`}>
-                      <Camera className={`w-8 h-8 ${form.foto ? "text-emerald-600" : "text-slate-400"}`} />
-                      <span className="text-xs font-medium text-slate-500">
-                        {fazendoFoto ? "Tirando foto..." : form.foto ? "Foto adicionada ✓" : "Tirar foto (obrigatório)"}
-                      </span>
-                    </button>
-
-                    {/* Observação */}
-                    <input value={form.observacao} onChange={e => setForm(p => ({ ...p, observacao: e.target.value }))}
-                      placeholder="Observação (opcional)" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none" />
-
-                    <div className="flex gap-2">
-                      <button onClick={() => setPasso(2)} className="flex-1 py-3 bg-slate-100 text-slate-600 text-sm font-bold rounded-xl">← Voltar</button>
-                      <button onClick={salvar} className="flex-1 py-3 bg-emerald-600 text-white text-sm font-bold rounded-xl active:opacity-80">
-                        Salvar
-                      </button>
-                    </div>
-                  </div>
-                )}
+                <div><label className="text-[10px] font-semibold text-slate-500 uppercase">Área</label><input className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" value={form.area} onChange={e => setForm({...form, area: e.target.value})} /></div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div><label className="text-[10px] font-semibold text-slate-500 uppercase">Ferramenta</label><input className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" value={form.ferramenta} onChange={e => setForm({...form, ferramenta: e.target.value})} /></div>
+                  <div><label className="text-[10px] font-semibold text-slate-500 uppercase">Conformidade</label><select className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" value={form.conformidade} onChange={e => setForm({...form, conformidade: e.target.value})}>{Object.entries(CONF_LABELS).map(([k,v]) => <option key={k} value={k}>{v}</option>)}</select></div>
+                </div>
+                <div><label className="text-[10px] font-semibold text-slate-500 uppercase">Condição Encontrada</label><input className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" value={form.condicao_encontrada} onChange={e => setForm({...form, condicao_encontrada: e.target.value})} /></div>
+                <div><label className="text-[10px] font-semibold text-slate-500 uppercase">Ação Corretiva</label><input className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" value={form.acao_corretiva} onChange={e => setForm({...form, acao_corretiva: e.target.value})} /></div>
+                <div><label className="text-[10px] font-semibold text-slate-500 uppercase">Observação</label><textarea className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm h-20" value={form.observacao} onChange={e => setForm({...form, observacao: e.target.value})} /></div>
               </div>
+              <div className="flex gap-2 mt-5 pt-3 border-t border-slate-100"><Button className="flex-1 bg-[#0066b1] hover:bg-[#004d82] text-white" onClick={salvarProc}>Salvar</Button><Button variant="outline" onClick={() => setFormOpen(false)}>Cancelar</Button></div>
             </motion.div>
-          </>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Modal Torque */}
+      <AnimatePresence>
+        {formOpen && aba === "torque" && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setFormOpen(false)}>
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white rounded-2xl shadow-2xl p-5 w-[90vw] max-w-lg max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+              <h2 className="font-bold text-slate-800 mb-4">{editing ? "Editar" : "Nova"} Auditoria de Torque</h2>
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div><label className="text-[10px] font-semibold text-slate-500 uppercase">Data</label><input type="date" className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" value={formTorque.data_auditoria} onChange={e => setFormTorque({...formTorque, data_auditoria: e.target.value})} /></div>
+                  <div><label className="text-[10px] font-semibold text-slate-500 uppercase">Resultado</label><select className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" value={formTorque.resultado} onChange={e => setFormTorque({...formTorque, resultado: e.target.value})}><option value="conforme">Conforme</option><option value="nao_conforme">Não Conforme</option><option value="em_analise">Em Análise</option></select></div>
+                </div>
+                <div><label className="text-[10px] font-semibold text-slate-500 uppercase">Ferramenta *</label><input className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" value={formTorque.ferramenta} onChange={e => setFormTorque({...formTorque, ferramenta: e.target.value})} /></div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div><label className="text-[10px] font-semibold text-slate-500 uppercase">Tacto</label><input className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" value={formTorque.tacto} onChange={e => setFormTorque({...formTorque, tacto: e.target.value})} /></div>
+                  <div><label className="text-[10px] font-semibold text-slate-500 uppercase">Lado</label><input className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" value={formTorque.lado} onChange={e => setFormTorque({...formTorque, lado: e.target.value})} /></div>
+                  <div><label className="text-[10px] font-semibold text-slate-500 uppercase">Posto</label><input className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" value={formTorque.posto} onChange={e => setFormTorque({...formTorque, posto: e.target.value})} /></div>
+                </div>
+                <div><label className="text-[10px] font-semibold text-slate-500 uppercase">Condição</label><input className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" value={formTorque.condicao} onChange={e => setFormTorque({...formTorque, condicao: e.target.value})} /></div>
+                <div><label className="text-[10px] font-semibold text-slate-500 uppercase">Ação Necessária</label><input className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" value={formTorque.acao_necessaria} onChange={e => setFormTorque({...formTorque, acao_necessaria: e.target.value})} /></div>
+              </div>
+              <div className="flex gap-2 mt-5 pt-3 border-t border-slate-100"><Button className="flex-1 bg-[#0066b1] hover:bg-[#004d82] text-white" onClick={salvarTorque}>Salvar</Button><Button variant="outline" onClick={() => setFormOpen(false)}>Cancelar</Button></div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>

@@ -3,8 +3,10 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import {
-  LayoutDashboard, Wrench, ClipboardCheck, Calendar as CalendarIcon,
-  CheckCircle2, FileText, LogOut, Menu, X, User, Home, MoreHorizontal, ChevronRight
+  LayoutDashboard, Truck, Users, Shield, LogOut,
+  Menu, X, User, Home, MoreHorizontal,
+  ClipboardList, ChevronRight, Target, Package, Calendar as CalendarIcon,
+  Wrench, Gauge, ClipboardCheck, LayoutGrid, Sparkles, Monitor
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -15,22 +17,59 @@ const NAV_SECTIONS = [
   {
     title: "Principal",
     items: [
-      { title: "Início", url: "", icon: LayoutDashboard },
-      { title: "Ferramentas", url: "Ferramentas", icon: Wrench },
-      { title: "Auditorias", url: "AuditoriaIndustrial", icon: ClipboardCheck },
+      { title: "Dashboard", url: "Dashboard", icon: LayoutDashboard },
       { title: "Calendário", url: "Calendario", icon: CalendarIcon },
-      { title: "Minhas Atividades", url: "QuadroMonitor", icon: CheckCircle2 },
-      { title: "Relatórios", url: "Relatorios", icon: FileText },
     ]
   },
+  {
+    title: "Módulos",
+    items: [
+      { title: "EPI", url: "OperacoesHub", icon: Truck },
+      { title: "Segurança & DDS", url: "SegurancaHub", icon: Shield },
+    ]
+  },
+  {
+    title: "Auditoria & Qualidade",
+    items: [
+      { title: "Auditoria Industrial", url: "AuditoriaIndustrial", icon: ClipboardCheck },
+      { title: "Auditoria VDA", url: "AuditoriaVDA", icon: ClipboardList },
+      { title: "Checklist", url: "ChecklistAuditoria", icon: ClipboardList },
+      { title: "Gestão 5S", url: "CincoS", icon: Sparkles },
+    ]
+  },
+  {
+    title: "Ferramentas & Equipamentos",
+    items: [
+      { title: "Ferramentas", url: "Ferramentas", icon: Wrench },
+      { title: "Calibração", url: "Calibracao", icon: Gauge },
+      { title: "Bancadas", url: "Bancadas", icon: LayoutGrid },
+      { title: "Estoque EPI", url: "Estoque", icon: Package },
+    ]
+  },
+  {
+    title: "Operação",
+    items: [
+      { title: "Quadro do Monitor", url: "QuadroMonitor", icon: Monitor },
+      { title: "Objetivos do Mês", url: "ObjetivosMes", icon: Target },
+      { title: "Rotatividade", url: "PlanejamentoRotatividade", icon: ClipboardList },
+    ]
+  },
+  {
+    title: "Gestão",
+    items: [
+      { title: "Área do Monitor", url: "MonitorArea", icon: ClipboardList },
+      { title: "Área do Líder", url: "LiderArea", icon: Shield, liderOnly: true },
+      { title: "Gerenciar Usuários", url: "GerenciarUsuarios", icon: Users, liderOnly: true },
+    ]
+  }
 ];
 
 const BOTTOM_NAV = [
-  { title: "Início", url: "", icon: Home },
-  { title: "Ferramentas", url: "Ferramentas", icon: Wrench },
-  { title: "Auditorias", url: "AuditoriaIndustrial", icon: ClipboardCheck },
-  { title: "Atividades", url: "QuadroMonitor", icon: CheckCircle2 },
-  { title: "Relatórios", url: "Relatorios", icon: FileText },
+  { title: "Início", url: "Dashboard", icon: Home },
+  { title: "EPI", url: "OperacoesHub", icon: Truck },
+  { title: "Calendário", url: "Calendario", icon: CalendarIcon },
+  { title: "Segurança", url: "SegurancaHub", icon: Shield },
+  { title: "Menu", url: null, icon: MoreHorizontal },
 ];
 
 export default function Layout({ children, currentPageName }) {
@@ -62,10 +101,7 @@ export default function Layout({ children, currentPageName }) {
       })).filter(s => s.items.length > 0)
     : [];
 
-  const isActive = (url) => {
-    if (url === "") return location.pathname === "/";
-    return url && location.pathname === createPageUrl(url);
-  };
+  const isActive = (url) => url && location.pathname === createPageUrl(url);
 
   if (loading) {
     return (

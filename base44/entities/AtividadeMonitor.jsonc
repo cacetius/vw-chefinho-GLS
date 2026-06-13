@@ -4,63 +4,54 @@
   "properties": {
     "titulo": {
       "type": "string",
-      "description": "T\u00edtulo da tarefa"
-    },
-    "descricao": {
-      "type": "string",
-      "description": "Descri\u00e7\u00e3o detalhada"
+      "description": "T\u00edtulo da atividade"
     },
     "categoria": {
       "type": "string",
       "enum": [
         "diaria",
         "semanal",
-        "mensal",
-        "personalizada"
+        "mensal"
       ],
-      "description": "Frequ\u00eancia"
+      "description": "Frequ\u00eancia da atividade"
     },
-    "recorrencia": {
+    "tipo": {
       "type": "string",
       "enum": [
-        "nenhuma",
-        "todo_dia",
-        "toda_semana",
-        "todo_mes",
-        "personalizada"
+        "verificar_ferramentas_criticas",
+        "verificar_torques",
+        "verificar_etiquetas",
+        "verificar_faixas",
+        "verificar_epi",
+        "verificar_5s",
+        "verificar_equipamentos",
+        "auditoria_ferramentas",
+        "auditoria_bancadas",
+        "revisao_etiquetas",
+        "revisao_faixas",
+        "revisao_estoque_epi",
+        "auditoria_completa",
+        "inventario",
+        "revisao_documental",
+        "revisao_calibracoes",
+        "revisao_equipamentos_criticos",
+        "auditoria_rapida",
+        "outro"
       ],
-      "default": "nenhuma",
-      "description": "Recorr\u00eancia autom\u00e1tica"
+      "description": "Tipo de atividade"
     },
     "data": {
       "type": "string",
-      "format": "date",
-      "description": "Data da tarefa"
-    },
-    "prazo": {
-      "type": "string",
-      "format": "date",
-      "description": "Prazo final"
-    },
-    "area": {
-      "type": "string",
-      "description": "\u00c1rea"
-    },
-    "equipe": {
-      "type": "string",
-      "description": "Equipe"
+      "format": "date"
     },
     "celula": {
-      "type": "string",
-      "description": "C\u00e9lula"
+      "type": "string"
+    },
+    "equipe": {
+      "type": "string"
     },
     "responsavel": {
-      "type": "string",
-      "description": "Nome do respons\u00e1vel"
-    },
-    "responsavel_id": {
-      "type": "string",
-      "description": "ID do respons\u00e1vel"
+      "type": "string"
     },
     "status": {
       "type": "string",
@@ -70,32 +61,13 @@
         "concluido",
         "atrasado"
       ],
-      "default": "nao_iniciado",
-      "description": "Status"
+      "default": "nao_iniciado"
+    },
+    "observacoes": {
+      "type": "string"
     },
     "foto": {
-      "type": "string",
-      "description": "URL da foto de evid\u00eancia"
-    },
-    "observacao": {
-      "type": "string",
-      "description": "Observa\u00e7\u00e3o"
-    },
-    "arquivo_url": {
-      "type": "string",
-      "description": "URL de arquivo anexo"
-    },
-    "arquivo_nome": {
-      "type": "string",
-      "description": "Nome do arquivo"
-    },
-    "sugestao_ia": {
-      "type": "string",
-      "description": "Sugest\u00e3o gerada pela IA"
-    },
-    "criado_por": {
-      "type": "string",
-      "description": "Nome de quem criou"
+      "type": "string"
     }
   },
   "required": [
