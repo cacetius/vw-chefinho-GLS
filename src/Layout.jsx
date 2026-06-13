@@ -17,7 +17,7 @@ const NAV_SECTIONS = [
   {
     title: "Principal",
     items: [
-      { title: "Dashboard", url: "Dashboard", icon: LayoutDashboard },
+      { title: "Quadro do Monitor", url: "QuadroMonitor", icon: Monitor },
       { title: "Calendário", url: "Calendario", icon: CalendarIcon },
     ]
   },
@@ -65,7 +65,7 @@ const NAV_SECTIONS = [
 ];
 
 const BOTTOM_NAV = [
-  { title: "Início", url: "Dashboard", icon: Home },
+  { title: "Início", url: "QuadroMonitor", icon: Home },
   { title: "EPI", url: "OperacoesHub", icon: Truck },
   { title: "Calendário", url: "Calendario", icon: CalendarIcon },
   { title: "Segurança", url: "SegurancaHub", icon: Shield },

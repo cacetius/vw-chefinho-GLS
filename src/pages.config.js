@@ -7,6 +7,7 @@ import LayoutLinhaPage from './pages/LayoutLinhaPage';
 import LiderArea from './pages/LiderArea';
 import LinhaProducao from './pages/LinhaProducao';
 import MonitorArea from './pages/MonitorArea';
+import QuadroMonitor from './pages/QuadroMonitor';
 import OperacoesHub from './pages/OperacoesHub';
 import PessoasHub from './pages/PessoasHub';
 import Perfil from './pages/Perfil';
@@ -24,6 +25,7 @@ export const PAGES = {
     "LiderArea": LiderArea,
     "LinhaProducao": LinhaProducao,
     "MonitorArea": MonitorArea,
+    "QuadroMonitor": QuadroMonitor,
     "OperacoesHub": OperacoesHub,
     "PessoasHub": PessoasHub,
     "Perfil": Perfil,
@@ -32,7 +34,7 @@ export const PAGES = {
 }
 
 export const pagesConfig = {
-    mainPage: "Dashboard",
+    mainPage: "QuadroMonitor",
     Pages: PAGES,
     Layout: __Layout,
 };

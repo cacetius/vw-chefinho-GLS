@@ -11,9 +11,10 @@
       "enum": [
         "diaria",
         "semanal",
-        "mensal"
+        "mensal",
+        "personalizada"
       ],
-      "description": "Frequ\u00eancia da atividade"
+      "description": "Frequ\u00eancia"
     },
     "tipo": {
       "type": "string",
@@ -38,20 +39,37 @@
         "auditoria_rapida",
         "outro"
       ],
-      "description": "Tipo de atividade"
+      "description": "Tipo"
     },
     "data": {
       "type": "string",
-      "format": "date"
+      "format": "date",
+      "description": "Data da tarefa"
+    },
+    "prazo": {
+      "type": "string",
+      "format": "date",
+      "description": "Prazo m\u00e1ximo"
+    },
+    "area": {
+      "type": "string",
+      "description": "\u00c1rea"
     },
     "celula": {
-      "type": "string"
+      "type": "string",
+      "description": "C\u00e9lula"
     },
     "equipe": {
-      "type": "string"
+      "type": "string",
+      "description": "Equipe"
     },
     "responsavel": {
-      "type": "string"
+      "type": "string",
+      "description": "Respons\u00e1vel"
+    },
+    "criado_por": {
+      "type": "string",
+      "description": "Quem criou a tarefa"
     },
     "status": {
       "type": "string",
@@ -61,13 +79,53 @@
         "concluido",
         "atrasado"
       ],
-      "default": "nao_iniciado"
+      "default": "nao_iniciado",
+      "description": "Status"
+    },
+    "recorrencia": {
+      "type": "string",
+      "enum": [
+        "nenhuma",
+        "diaria",
+        "semanal",
+        "mensal"
+      ],
+      "default": "nenhuma",
+      "description": "Recorr\u00eancia"
+    },
+    "origem_recorrencia": {
+      "type": "string",
+      "description": "ID da tarefa original (para tarefas recorrentes)"
     },
     "observacoes": {
-      "type": "string"
+      "type": "string",
+      "description": "Observa\u00e7\u00f5es"
     },
     "foto": {
-      "type": "string"
+      "type": "string",
+      "description": "URL da foto de evid\u00eancia"
+    },
+    "fotos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "URLs de fotos de evid\u00eancia"
+    },
+    "arquivos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Arquivos anexados"
     }
   },
   "required": [
