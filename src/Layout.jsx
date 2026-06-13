@@ -15,7 +15,7 @@ const NAV_SECTIONS = [
   {
     title: "Principal",
     items: [
-      { title: "Início", url: "Dashboard", icon: LayoutDashboard },
+      { title: "Início", url: "", icon: LayoutDashboard },
       { title: "Ferramentas", url: "Ferramentas", icon: Wrench },
       { title: "Auditorias", url: "AuditoriaIndustrial", icon: ClipboardCheck },
       { title: "Calendário", url: "Calendario", icon: CalendarIcon },
@@ -26,7 +26,7 @@ const NAV_SECTIONS = [
 ];
 
 const BOTTOM_NAV = [
-  { title: "Início", url: "Dashboard", icon: Home },
+  { title: "Início", url: "", icon: Home },
   { title: "Ferramentas", url: "Ferramentas", icon: Wrench },
   { title: "Auditorias", url: "AuditoriaIndustrial", icon: ClipboardCheck },
   { title: "Atividades", url: "QuadroMonitor", icon: CheckCircle2 },
@@ -62,7 +62,10 @@ export default function Layout({ children, currentPageName }) {
       })).filter(s => s.items.length > 0)
     : [];
 
-  const isActive = (url) => url && location.pathname === createPageUrl(url);
+  const isActive = (url) => {
+    if (url === "") return location.pathname === "/";
+    return url && location.pathname === createPageUrl(url);
+  };
 
   if (loading) {
     return (
