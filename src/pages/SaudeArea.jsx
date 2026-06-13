@@ -257,6 +257,38 @@ function NaoConformidadeCard({ nc, onStatusChange, onPlanoAcao, onEdit }) {
   );
 }
 
+// ─── Mapa da Área ───────────────────────────────────────────
+function MapaArea({ setFiltroLocal }) {
+  const tatos = [
+    { nome: "Equipe 2", tatos: [
+      { nome: "Tacto 1", icon: "🔩" }, { nome: "Tacto 2", icon: "⚙️" },
+      { nome: "Tacto 3", icon: "🔧" }, { nome: "Tacto 4", icon: "🛠️" }, { nome: "Tacto 5", icon: "🔨" }
+    ]}
+  ];
+  return (
+    <Card>
+      <CardContent className="p-4">
+        <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+          <MapPin className="w-4 h-4" /> Mapa da Área
+        </h3>
+        {tatos.map(area => (
+          <div key={area.nome} className="mb-3 last:mb-0">
+            <p className="text-xs font-bold text-slate-500 mb-2">{area.nome}</p>
+            <div className="flex flex-wrap gap-2">
+              {area.tatos.map(t => (
+                <button key={t.nome} onClick={() => setFiltroLocal(t.nome)}
+                  className="flex items-center gap-1.5 px-3 py-2 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 text-xs font-medium text-slate-700 transition-colors active:bg-blue-50 active:border-blue-300">
+                  <span>{t.icon}</span> {t.nome}
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
+
 // ─── IA Insight Component ──────────────────────────────────
 function ChefinhoInsight({ insights }) {
   if (!insights || insights.length === 0) return null;
@@ -296,6 +328,7 @@ export default function SaudeAreaPage() {
   const [editingNC, setEditingNC] = useState(null);
   const [planoAcaoNC, setPlanoAcaoNC] = useState(null);
   const [filtroStatus, setFiltroStatus] = useState("todas");
+  const [filtroLocal, setFiltroLocal] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [verificando, setVerificando] = useState(false);
 
@@ -462,6 +495,7 @@ export default function SaudeAreaPage() {
   // ── Filters ──
   const filteredNC = naoConformidades.filter(nc => {
     if (filtroStatus !== "todas" && nc.status !== filtroStatus) return false;
+    if (filtroLocal && !nc.local?.toLowerCase().includes(filtroLocal.toLowerCase())) return false;
     if (searchTerm && !nc.problema?.toLowerCase().includes(searchTerm.toLowerCase()) && 
         !nc.local?.toLowerCase().includes(searchTerm.toLowerCase())) return false;
     return true;
@@ -541,6 +575,9 @@ export default function SaudeAreaPage() {
       {/* IA Insights */}
       {insights.length > 0 && <ChefinhoInsight insights={insights} />}
 
+      {/* Mapa da Área */}
+      <MapaArea setFiltroLocal={setFiltroLocal} />
+
       {/* Radar: Alertas Rápidos */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Card className="bg-red-50 border-red-200">
@@ -574,6 +611,7 @@ export default function SaudeAreaPage() {
         <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
           <h2 className="text-sm font-bold text-slate-700 flex items-center gap-2">
             <ClipboardList className="w-4 h-4" /> Não Conformidades
+            {filtroLocal && <Badge variant="outline" className="text-xs cursor-pointer" onClick={() => setFiltroLocal("")}>{filtroLocal} ✕</Badge>}
           </h2>
           <div className="flex gap-2 flex-1 max-w-md">
             <div className="relative flex-1">
