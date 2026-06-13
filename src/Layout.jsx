@@ -6,7 +6,7 @@ import {
   Truck, Users, Shield, LogOut,
   Menu, X, User, Home, MoreHorizontal,
   ClipboardList, ChevronRight, Target, Calendar as CalendarIcon,
-  Wrench, Gauge, ClipboardCheck, LayoutGrid, Sparkles, Monitor,
+  Wrench, Gauge, ClipboardCheck, Sparkles, Monitor,
   ShieldCheck, Zap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,16 +26,20 @@ const NAV_SECTIONS = [
     ]
   },
   {
-    title: "Auditoria & Ferramentas",
+    title: "Auditoria",
     items: [
       { title: "Auditoria Industrial", url: "AuditoriaIndustrial", icon: ClipboardCheck },
       { title: "Checklist", url: "ChecklistAuditoria", icon: ClipboardList },
       { title: "Gestão 5S", url: "CincoS", icon: Sparkles },
+      { title: "Segurança & DDS", url: "SegurancaHub", icon: Shield },
+    ]
+  },
+  {
+    title: "Ferramentas & Equipamentos",
+    items: [
       { title: "Ferramentas", url: "Ferramentas", icon: Wrench },
       { title: "Calibração", url: "Calibracao", icon: Gauge },
-      { title: "Bancadas", url: "Bancadas", icon: LayoutGrid },
       { title: "EPI & Estoque", url: "OperacoesHub", icon: Truck },
-      { title: "Segurança & DDS", url: "SegurancaHub", icon: Shield },
     ]
   },
   {
