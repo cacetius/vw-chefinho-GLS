@@ -6,6 +6,16 @@
       "type": "string",
       "description": "Nome da ferramenta"
     },
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "maquina",
+        "torque",
+        "ferramenta",
+        "equipamento"
+      ],
+      "description": "Tipo"
+    },
     "codigo": {
       "type": "string",
       "description": "C\u00f3digo identificador"
@@ -72,7 +82,22 @@
         "fora_de_uso"
       ],
       "default": "ativo",
-      "description": "Status da ferramenta"
+      "description": "Status"
+    },
+    "calibracao": {
+      "type": "boolean",
+      "default": false,
+      "description": "Possui calibra\u00e7\u00e3o"
+    },
+    "data_ultima_calibracao": {
+      "type": "string",
+      "format": "date",
+      "description": "Data da \u00faltima calibra\u00e7\u00e3o"
+    },
+    "data_proxima_calibracao": {
+      "type": "string",
+      "format": "date",
+      "description": "Data da pr\u00f3xima calibra\u00e7\u00e3o"
     },
     "foto": {
       "type": "string",
@@ -84,7 +109,6 @@
     }
   },
   "required": [
-    "nome",
-    "categoria"
+    "nome"
   ]
 }

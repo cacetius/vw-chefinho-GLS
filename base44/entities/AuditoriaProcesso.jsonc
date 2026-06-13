@@ -35,6 +35,10 @@
       "type": "string",
       "description": "Ferramenta relacionada"
     },
+    "ferramenta_id": {
+      "type": "string",
+      "description": "ID da ferramenta relacionada"
+    },
     "equipamento": {
       "type": "string",
       "description": "Equipamento relacionado"
@@ -64,6 +68,7 @@
       "type": "string",
       "enum": [
         "conforme",
+        "atencao",
         "nao_conforme",
         "em_analise",
         "resolvido"
@@ -98,7 +103,6 @@
   },
   "required": [
     "data",
-    "area",
     "conformidade"
   ]
 }

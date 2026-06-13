@@ -1,120 +1,174 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ClipboardList, CheckCircle2, Clock, AlertTriangle, Circle, Play, Check, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
-import { format } from "date-fns";
+import { CheckCircle2, AlertTriangle, Circle, Check } from "lucide-react";
+import { format, differenceInDays } from "date-fns";
 
-const ATIVIDADES_DIARIAS = [
-  { tipo: "verificar_ferramentas_criticas", titulo: "Verificar Ferramentas Críticas", icone: "🔧" },
-  { tipo: "verificar_torques", titulo: "Verificar Torques", icone: "🔩" },
-  { tipo: "verificar_etiquetas", titulo: "Verificar Etiquetas", icone: "🏷️" },
-  { tipo: "verificar_faixas", titulo: "Verificar Faixas", icone: "📏" },
-  { tipo: "verificar_epi", titulo: "Verificar EPIs", icone: "🦺" },
-  { tipo: "verificar_5s", titulo: "Verificar 5S", icone: "✨" },
-  { tipo: "verificar_equipamentos", titulo: "Verificar Equipamentos", icone: "⚙️" },
-];
-const ATIVIDADES_SEMANAIS = [
-  { tipo: "auditoria_ferramentas", titulo: "Auditoria de Ferramentas", icone: "🔍" },
-  { tipo: "auditoria_bancadas", titulo: "Auditoria de Bancadas", icone: "🗄️" },
-  { tipo: "revisao_etiquetas", titulo: "Revisão de Etiquetas", icone: "🏷️" },
-  { tipo: "revisao_faixas", titulo: "Revisão de Faixas", icone: "📏" },
-  { tipo: "revisao_estoque_epi", titulo: "Revisão de Estoque de EPI", icone: "📦" },
-];
-const ATIVIDADES_MENSAIS = [
-  { tipo: "auditoria_completa", titulo: "Auditoria Completa", icone: "📊" },
-  { tipo: "inventario", titulo: "Inventário", icone: "🗃️" },
-  { tipo: "revisao_documental", titulo: "Revisão Documental", icone: "📄" },
-  { tipo: "revisao_calibracoes", titulo: "Revisão de Calibrações", icone: "📐" },
-  { tipo: "revisao_equipamentos_criticos", titulo: "Revisão de Equipamentos Críticos", icone: "⚠️" },
+const ATIVIDADES_HOJE = [
+  { icone: "🔩", titulo: "Conferir torque Tacto 10" },
+  { icone: "🏷️", titulo: "Verificar etiquetas Bancada 4" },
+  { icone: "🔍", titulo: "Auditoria rápida da área" },
+  { icone: "✨", titulo: "Atualizar 5S" },
+  { icone: "🦺", titulo: "Conferir EPIs" },
 ];
 
-const STATUS_CONFIG = {
-  nao_iniciado: { icon: Circle, color: "text-slate-300", bg: "bg-slate-50", label: "Não iniciado" },
-  em_andamento: { icon: Loader2, color: "text-blue-500", bg: "bg-blue-50", label: "Em andamento" },
-  concluido: { icon: CheckCircle2, color: "text-emerald-500", bg: "bg-emerald-50", label: "Concluído" },
-  atrasado: { icon: AlertTriangle, color: "text-red-500", bg: "bg-red-50", label: "Atrasado" },
-};
+const ATIVIDADES_SEMANA = [
+  { icone: "🔧", titulo: "Auditoria de ferramentas" },
+  { icone: "📏", titulo: "Revisão de faixas" },
+  { icone: "🗄️", titulo: "Auditoria de bancadas" },
+];
+
+const ATIVIDADES_MES = [
+  { icone: "📐", titulo: "Revisão de calibrações" },
+  { icone: "📊", titulo: "Auditoria completa" },
+];
 
 export default function QuadroMonitor() {
   const [currentUser, setCurrentUser] = useState(null);
+  const [checklistHoje, setChecklistHoje] = useState({});
   useEffect(() => { base44.auth.me().then(u => setCurrentUser(u)); }, []);
 
-  const { data: atividades = [], isLoading } = useQuery({
-    queryKey: ["atividades-monitor"], queryFn: () => base44.entities.AtividadeMonitor.list("-data", 200)
+  // Buscar dados críticos
+  const { data: criticos = { calVencidas: [], audPendentes: [], etiqCriticas: [], faixasCriticas: [] } } = useQuery({
+    queryKey: ["monitor-criticos"],
+    queryFn: async () => {
+      const hoje = new Date(); hoje.setHours(0,0,0,0);
+      const [cal, auds, etiq, faixas] = await Promise.all([
+        base44.entities.Calibracao.list(),
+        base44.entities.AuditoriaProcesso.list("-data", 50),
+        base44.entities.Etiqueta.list(),
+        base44.entities.Faixa.list(),
+      ]);
+
+      const calVencidas = cal.filter(c => {
+        if (!c.data_vencimento) return false;
+        return differenceInDays(new Date(c.data_vencimento + "T00:00:00"), hoje) < 0;
+      }).slice(0, 3);
+      const audPendentes = auds.filter(a => a.conformidade === "nao_conforme").slice(0, 3);
+      const etiqCriticas = etiq.filter(e => e.status === "substituir" || e.status === "desgastado").slice(0, 3);
+      const faixasCriticas = faixas.filter(f => f.condicao === "critico" || f.condicao === "ruim").slice(0, 3);
+
+      return { calVencidas, audPendentes, etiqCriticas, faixasCriticas };
+    },
+    enabled: !!currentUser,
+    refetchInterval: 300000
   });
 
-  const hoje = format(new Date(), "yyyy-MM-dd");
-
-  const getAtividadeHoje = (tipo) => atividades.find(a => a.tipo === tipo && a.data === hoje);
-  const getStatusHoje = (tipo) => getAtividadeHoje(tipo)?.status || "nao_iniciado";
-
-  const toggleStatus = async (tipo, categoria) => {
-    const existente = getAtividadeHoje(tipo);
-    if (existente) {
-      const novoStatus = existente.status === "concluido" ? "nao_iniciado" : existente.status === "nao_iniciado" ? "em_andamento" : "concluido";
-      await base44.entities.AtividadeMonitor.update(existente.id, { status: novoStatus });
-    } else {
-      await base44.entities.AtividadeMonitor.create({
-        titulo: [...ATIVIDADES_DIARIAS, ...ATIVIDADES_SEMANAIS, ...ATIVIDADES_MENSAIS].find(a => a.tipo === tipo)?.titulo || tipo,
-        tipo, categoria, data: hoje, status: "em_andamento",
-        celula: currentUser?.celula || "", equipe: currentUser?.equipe || "",
-        responsavel: currentUser?.nome_exibicao || currentUser?.full_name || ""
-      });
-    }
-    // Força refresh
-    window.location.reload();
+  const toggleChecklist = (idx) => {
+    setChecklistHoje(prev => ({ ...prev, [idx]: !prev[idx] }));
   };
 
-  const renderSecao = (titulo, lista, categoria) => {
-    const concluidas = lista.filter(a => getStatusHoje(a.tipo) === "concluido").length;
-    const pct = Math.round((concluidas / lista.length) * 100);
-    return (
-      <Card className="border border-slate-200 overflow-hidden">
-        <div className="px-4 py-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
-          <h3 className="text-sm font-bold text-slate-700">{titulo}</h3>
-          <Badge className={`text-[10px] ${pct === 100 ? "bg-emerald-100 text-emerald-700" : pct > 0 ? "bg-amber-100 text-amber-700" : "bg-slate-100 text-slate-500"}`}>{concluidas}/{lista.length} • {pct}%</Badge>
-        </div>
-        <CardContent className="p-2">
-          <div className="space-y-1">
-            {lista.map(({ tipo, titulo, icone }) => {
-              const status = getStatusHoje(tipo);
-              const cfg = STATUS_CONFIG[status];
-              const Icon = cfg.icon;
-              return (
-                <button key={tipo} onClick={() => toggleStatus(tipo, categoria)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-left ${cfg.bg} hover:opacity-80 active:scale-[0.98]`}>
-                  <span className="text-lg">{icone}</span>
-                  <span className="flex-1 text-xs font-medium text-slate-700">{titulo}</span>
-                  <Icon className={`w-4 h-4 ${cfg.color} ${status === "em_andamento" ? "animate-spin" : ""}`} />
-                </button>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
-    );
-  };
+  const totalCritico = criticos.calVencidas.length + criticos.audPendentes.length + criticos.etiqCriticas.length + criticos.faixasCriticas.length;
+  const concluidasHoje = Object.values(checklistHoje).filter(Boolean).length;
+
+  if (!currentUser) {
+    return <div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-4 border-slate-200 border-t-[#0066b1] rounded-full animate-spin" /></div>;
+  }
 
   return (
-    <div className="space-y-3 max-w-full">
-      <div className="bg-[#0d2d6b] rounded-xl py-3 px-4">
-        <h1 className="text-lg font-bold text-white">Quadro do Monitor</h1>
-        <p className="text-blue-200 text-xs">Painel visual de atividades diárias, semanais e mensais</p>
+    <div className="max-w-md mx-auto w-full px-1 space-y-3 pb-4">
+
+      {/* O QUE ESTÁ ATRASADO */}
+      <div>
+        <div className="flex items-center gap-2 mb-2">
+          <div className="w-7 h-7 bg-red-500 rounded-lg flex items-center justify-center">
+            <AlertTriangle className="w-4 h-4 text-white" />
+          </div>
+          <h2 className="text-sm font-extrabold text-red-700">O QUE ESTÁ ATRASADO</h2>
+        </div>
+
+        {totalCritico === 0 ? (
+          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <p className="text-xs font-medium text-emerald-700">Nada atrasado! 🎉</p>
+          </div>
+        ) : (
+          <div className="space-y-1.5">
+            {criticos.calVencidas.map((c, i) => (
+              <div key={`cal-${i}`} className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-xl px-3 py-2.5">
+                <span className="text-red-500 text-sm">🔴</span>
+                <span className="flex-1 text-xs text-red-800 font-medium">Calibração vencida: {c.equipamento || c.nome || "—"}</span>
+                <span className="text-[10px] text-red-500">{c.data_vencimento && format(new Date(c.data_vencimento + "T00:00:00"), "dd/MM")}</span>
+              </div>
+            ))}
+            {criticos.audPendentes.map((a, i) => (
+              <div key={`aud-${i}`} className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-xl px-3 py-2.5">
+                <span className="text-red-500 text-sm">🔴</span>
+                <span className="flex-1 text-xs text-red-800 font-medium">Auditoria não conforme: {a.titulo || a.area || "—"}</span>
+              </div>
+            ))}
+            {criticos.etiqCriticas.map((e, i) => (
+              <div key={`etiq-${i}`} className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-xl px-3 py-2.5">
+                <span className="text-red-500 text-sm">🔴</span>
+                <span className="flex-1 text-xs text-red-800 font-medium">Etiqueta: {e.descricao || e.codigo || "—"}</span>
+                <span className="text-[10px] text-red-500 font-bold">{e.status}</span>
+              </div>
+            ))}
+            {criticos.faixasCriticas.map((f, i) => (
+              <div key={`faixa-${i}`} className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-xl px-3 py-2.5">
+                <span className="text-red-500 text-sm">🔴</span>
+                <span className="flex-1 text-xs text-red-800 font-medium">Faixa: {f.descricao || f.localizacao || "—"}</span>
+                <span className="text-[10px] text-red-500 font-bold">{f.condicao}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        {renderSecao("📅 Atividades Diárias", ATIVIDADES_DIARIAS, "diaria")}
-        {renderSecao("📆 Atividades Semanais", ATIVIDADES_SEMANAIS, "semanal")}
-        {renderSecao("🗓️ Atividades Mensais", ATIVIDADES_MENSAIS, "mensal")}
+      {/* O QUE DEVO FAZER HOJE */}
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 bg-[#0066b1] rounded-lg flex items-center justify-center">
+              <CheckCircle2 className="w-4 h-4 text-white" />
+            </div>
+            <h2 className="text-sm font-extrabold text-[#001e50]">O QUE DEVO FAZER HOJE</h2>
+          </div>
+          <span className="text-[10px] font-bold text-slate-400">{concluidasHoje}/{ATIVIDADES_HOJE.length}</span>
+        </div>
+
+        <div className="space-y-1.5">
+          {ATIVIDADES_HOJE.map((item, idx) => {
+            const feito = checklistHoje[idx];
+            return (
+              <motion.button key={idx} whileTap={{ scale: 0.98 }}
+                onClick={() => toggleChecklist(idx)}
+                className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl border-2 transition-all text-left ${
+                  feito ? "border-emerald-300 bg-emerald-50" : "border-slate-200 bg-white hover:border-[#0066b1]/30"
+                }`}>
+                <span className="text-lg">{item.icone}</span>
+                <span className={`flex-1 text-xs font-medium ${feito ? "text-emerald-700 line-through" : "text-slate-700"}`}>{item.titulo}</span>
+                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                  feito ? "border-emerald-500 bg-emerald-500" : "border-slate-300"
+                }`}>
+                  {feito && <Check className="w-3.5 h-3.5 text-white" />}
+                </div>
+              </motion.button>
+            );
+          })}
+        </div>
       </div>
 
-      <div className="text-[10px] text-slate-400 text-center pb-2">
-        Toque em uma atividade para alternar o status • Clique novamente para concluir
+      {/* QUADRO DIGITAL */}
+      <div>
+        <h2 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider mb-2">Quadro Digital</h2>
+        <div className="grid grid-cols-3 gap-2">
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-3 text-center">
+            <p className="text-2xl font-extrabold text-blue-700">{ATIVIDADES_HOJE.length}</p>
+            <p className="text-[10px] text-blue-600 font-medium leading-tight mt-0.5">atividades para hoje</p>
+          </div>
+          <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-xl p-3 text-center">
+            <p className="text-2xl font-extrabold text-purple-700">{ATIVIDADES_SEMANA.length}</p>
+            <p className="text-[10px] text-purple-600 font-medium leading-tight mt-0.5">auditorias esta semana</p>
+          </div>
+          <div className="bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200 rounded-xl p-3 text-center">
+            <p className="text-2xl font-extrabold text-amber-700">{ATIVIDADES_MES.length}</p>
+            <p className="text-[10px] text-amber-600 font-medium leading-tight mt-0.5">calibrações este mês</p>
+          </div>
+        </div>
       </div>
+
     </div>
   );
 }
