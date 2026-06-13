@@ -3,11 +3,11 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import {
-  LayoutDashboard, Truck, Users, Shield, LogOut,
+  Truck, Users, Shield, LogOut,
   Menu, X, User, Home, MoreHorizontal,
-  ClipboardList, ChevronRight, Target, Package, Calendar as CalendarIcon,
+  ClipboardList, ChevronRight, Target, Calendar as CalendarIcon,
   Wrench, Gauge, ClipboardCheck, LayoutGrid, Sparkles, Monitor,
-  ShieldCheck, Zap, Activity
+  ShieldCheck, Zap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -16,50 +16,32 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const NAV_SECTIONS = [
   {
-    title: "Principal",
+    title: "Diário",
     items: [
       { title: "Quadro do Monitor", url: "QuadroMonitor", icon: Monitor },
+      { title: "Mochila do Monitor", url: "MochilaMonitor", icon: Zap },
       { title: "Saúde da Área", url: "SaudeArea", icon: ShieldCheck },
-      { title: "Mochila", url: "MochilaMonitor", icon: Zap },
       { title: "Calendário", url: "Calendario", icon: CalendarIcon },
+      { title: "Objetivos do Mês", url: "ObjetivosMes", icon: Target },
     ]
   },
   {
-    title: "Módulos",
-    items: [
-      { title: "EPI", url: "OperacoesHub", icon: Truck },
-      { title: "Segurança & DDS", url: "SegurancaHub", icon: Shield },
-    ]
-  },
-  {
-    title: "Auditoria & Qualidade",
+    title: "Auditoria & Ferramentas",
     items: [
       { title: "Auditoria Industrial", url: "AuditoriaIndustrial", icon: ClipboardCheck },
-      { title: "Auditoria VDA", url: "AuditoriaVDA", icon: ClipboardList },
       { title: "Checklist", url: "ChecklistAuditoria", icon: ClipboardList },
       { title: "Gestão 5S", url: "CincoS", icon: Sparkles },
-    ]
-  },
-  {
-    title: "Ferramentas & Equipamentos",
-    items: [
       { title: "Ferramentas", url: "Ferramentas", icon: Wrench },
       { title: "Calibração", url: "Calibracao", icon: Gauge },
       { title: "Bancadas", url: "Bancadas", icon: LayoutGrid },
-      { title: "Estoque EPI", url: "Estoque", icon: Package },
-    ]
-  },
-  {
-    title: "Operação",
-    items: [
-      { title: "Objetivos do Mês", url: "ObjetivosMes", icon: Target },
-      { title: "Rotatividade", url: "PlanejamentoRotatividade", icon: ClipboardList },
+      { title: "EPI & Estoque", url: "OperacoesHub", icon: Truck },
+      { title: "Segurança & DDS", url: "SegurancaHub", icon: Shield },
     ]
   },
   {
     title: "Gestão",
     items: [
-      { title: "Área do Monitor", url: "MonitorArea", icon: ClipboardList },
+      { title: "Rotatividade", url: "PlanejamentoRotatividade", icon: ClipboardList },
       { title: "Área do Líder", url: "LiderArea", icon: Shield, liderOnly: true },
       { title: "Gerenciar Usuários", url: "GerenciarUsuarios", icon: Users, liderOnly: true },
     ]
@@ -69,8 +51,8 @@ const NAV_SECTIONS = [
 const BOTTOM_NAV = [
   { title: "Início", url: "QuadroMonitor", icon: Home },
   { title: "Mochila", url: "MochilaMonitor", icon: Zap },
+  { title: "Auditoria", url: "AuditoriaIndustrial", icon: ClipboardCheck },
   { title: "Saúde", url: "SaudeArea", icon: ShieldCheck },
-  { title: "Calendário", url: "Calendario", icon: CalendarIcon },
   { title: "Menu", url: null, icon: MoreHorizontal },
 ];
 
