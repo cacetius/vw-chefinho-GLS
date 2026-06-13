@@ -6,7 +6,8 @@ import {
   LayoutDashboard, Truck, Users, Shield, LogOut,
   Menu, X, User, Home, MoreHorizontal,
   ClipboardList, ChevronRight, Target, Package, Calendar as CalendarIcon,
-  Wrench, Gauge, ClipboardCheck, LayoutGrid, Sparkles, Monitor
+  Wrench, Gauge, ClipboardCheck, LayoutGrid, Sparkles, Monitor,
+  ShieldCheck, Zap, Activity
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -18,6 +19,8 @@ const NAV_SECTIONS = [
     title: "Principal",
     items: [
       { title: "Quadro do Monitor", url: "QuadroMonitor", icon: Monitor },
+      { title: "Saúde da Área", url: "SaudeArea", icon: ShieldCheck },
+      { title: "Mochila", url: "MochilaMonitor", icon: Zap },
       { title: "Calendário", url: "Calendario", icon: CalendarIcon },
     ]
   },
@@ -49,7 +52,6 @@ const NAV_SECTIONS = [
   {
     title: "Operação",
     items: [
-      { title: "Quadro do Monitor", url: "QuadroMonitor", icon: Monitor },
       { title: "Objetivos do Mês", url: "ObjetivosMes", icon: Target },
       { title: "Rotatividade", url: "PlanejamentoRotatividade", icon: ClipboardList },
     ]
@@ -66,9 +68,9 @@ const NAV_SECTIONS = [
 
 const BOTTOM_NAV = [
   { title: "Início", url: "QuadroMonitor", icon: Home },
-  { title: "EPI", url: "OperacoesHub", icon: Truck },
+  { title: "Mochila", url: "MochilaMonitor", icon: Zap },
+  { title: "Saúde", url: "SaudeArea", icon: ShieldCheck },
   { title: "Calendário", url: "Calendario", icon: CalendarIcon },
-  { title: "Segurança", url: "SegurancaHub", icon: Shield },
   { title: "Menu", url: null, icon: MoreHorizontal },
 ];
 

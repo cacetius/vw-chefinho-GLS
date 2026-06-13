@@ -1,0 +1,81 @@
+{
+  "name": "NaoConformidade",
+  "type": "object",
+  "properties": {
+    "problema": {
+      "type": "string",
+      "description": "Descrição do problema encontrado"
+    },
+    "local": {
+      "type": "string",
+      "description": "Local/tacto/célula onde foi encontrado"
+    },
+    "foto": {
+      "type": "string",
+      "description": "URL da foto do problema"
+    },
+    "responsavel": {
+      "type": "string",
+      "description": "Responsável pela correção"
+    },
+    "prazo": {
+      "type": "string",
+      "format": "date",
+      "description": "Prazo para resolução"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["aberta", "em_andamento", "resolvida"],
+      "default": "aberta"
+    },
+    "categoria": {
+      "type": "string",
+      "enum": ["ferramenta", "calibracao", "etiqueta", "bancada", "5s", "epi", "seguranca", "auditoria", "outro"],
+      "description": "Categoria da não conformidade"
+    },
+    "equipe": {
+      "type": "string",
+      "description": "Equipe relacionada"
+    },
+    "area": {
+      "type": "string",
+      "description": "Área"
+    },
+    "celula": {
+      "type": "string",
+      "description": "Célula"
+    },
+    "criado_por": {
+      "type": "string",
+      "description": "Quem registrou"
+    },
+    "plano_acao": {
+      "type": "string",
+      "description": "Descrição do plano de ação"
+    },
+    "plano_responsavel": {
+      "type": "string",
+      "description": "Responsável pelo plano de ação"
+    },
+    "plano_prazo": {
+      "type": "string",
+      "format": "date",
+      "description": "Prazo do plano de ação"
+    },
+    "plano_status": {
+      "type": "string",
+      "enum": ["pendente", "em_andamento", "concluido"],
+      "default": "pendente"
+    },
+    "evidencia": {
+      "type": "string",
+      "description": "URL da evidência de resolução"
+    },
+    "data_resolucao": {
+      "type": "string",
+      "format": "date",
+      "description": "Data da resolução"
+    }
+  },
+  "required": ["problema", "local", "categoria"]
+}

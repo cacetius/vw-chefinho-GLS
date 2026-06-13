@@ -20,6 +20,8 @@ import AuditoriaIndustrialPage from './pages/AuditoriaIndustrial';
 import BancadasPage from './pages/Bancadas';
 import ChecklistPagePage from './pages/ChecklistPage';
 import CincoSPagePage from './pages/CincoSPage';
+import SaudeAreaPage from './pages/SaudeArea';
+import MochilaMonitorPage from './pages/MochilaMonitor';
 
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -86,6 +88,8 @@ const AuthenticatedApp = () => {
       <Route path="/Bancadas" element={<LayoutWrapper currentPageName="Bancadas"><BancadasPage /></LayoutWrapper>} />
       <Route path="/ChecklistAuditoria" element={<LayoutWrapper currentPageName="Checklist de Auditoria"><ChecklistPagePage /></LayoutWrapper>} />
       <Route path="/CincoS" element={<LayoutWrapper currentPageName="Gestão 5S"><CincoSPagePage /></LayoutWrapper>} />
+      <Route path="/SaudeArea" element={<LayoutWrapper currentPageName="Saúde da Área"><SaudeAreaPage /></LayoutWrapper>} />
+      <Route path="/MochilaMonitor" element={<LayoutWrapper currentPageName="Mochila do Monitor"><MochilaMonitorPage /></LayoutWrapper>} />
     
       <Route path="/Calendario" element={<LayoutWrapper currentPageName="Calendário"><CalendarioPage /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
