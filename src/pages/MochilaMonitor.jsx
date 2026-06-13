@@ -15,12 +15,12 @@ import {
 } from "lucide-react";
 
 // ─── Quick Action Card ─────────────────────────────────────
-function QuickCard({ icon: Icon, title, subtitle, bgColor, textColor, badge, onClick }) {
+function QuickCard({ icon: Icon, title, subtitle, bg, textColor, badge, onClick }) {
   return (
     <motion.div whileTap={{ scale: 0.97 }} onClick={onClick} className="cursor-pointer">
-      <Card className={`hover:shadow-md transition-shadow border-l-4 ${bgColor}`}>
+      <Card className={`hover:shadow-md transition-shadow border-l-4 ${bg}`}>
         <CardContent className="p-4 flex items-center gap-3">
-          <div className={`p-2.5 rounded-xl ${bgColor.replace('border-l-', 'bg-').replace('-400', '-100').replace('-500', '-100').replace('-600', '-100').replace('-700', '-100')}`}>
+          <div className={`p-2.5 rounded-xl ${bg.replace('border-l-', 'bg-').replace('-400', '-100').replace('-500', '-100').replace('-600', '-100').replace('-700', '-100')}`}>
             <Icon className={`w-5 h-5 ${textColor.replace('border-l-', 'text-')}`} />
           </div>
           <div className="flex-1 min-w-0">
