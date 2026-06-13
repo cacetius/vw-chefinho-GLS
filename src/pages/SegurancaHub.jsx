@@ -2,16 +2,14 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useEquipeFilter } from "@/lib/useEquipeFilter";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, Target, BookOpen, Plus, Bell } from "lucide-react";
+import { Shield, Target, BookOpen, Plus } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 import ObjetivoForm from "../components/objetivos/ObjetivoForm";
 import ObjetivosDiarios from "../components/objetivos/ObjetivosDiarios";
 import ObjetivosMensais from "../components/objetivos/ObjetivosMensais";
-import AvisoForm from "../components/avisos/AvisoForm";
-import AvisosList from "../components/avisos/AvisosList";
 import DialogoForm from "../components/dialogo/DialogoForm";
 import AssistenteIA from "../components/dialogo/AssistenteIA";
 import DialogoApresentacao from "../components/dialogo/DialogoApresentacao";
@@ -20,8 +18,6 @@ export default function SegurancaHub() {
   const [activeTab, setActiveTab] = useState("objetivos");
   const [showObjetivoForm, setShowObjetivoForm] = useState(false);
   const [editingObjetivo, setEditingObjetivo] = useState(null);
-  const [showAvisoForm, setShowAvisoForm] = useState(false);
-  const [editingAviso, setEditingAviso] = useState(null);
   const [showDialogoForm, setShowDialogoForm] = useState(false);
   const [editingDialogo, setEditingDialogo] = useState(null);
   const [apresentandoDialogo, setApresentandoDialogo] = useState(null);
@@ -38,12 +34,6 @@ export default function SegurancaHub() {
     enabled: !!currentUser
   });
 
-  const { data: avisos = [] } = useQuery({
-    queryKey: ["avisos", currentUser?.equipe],
-    queryFn: async () => filtrar(await base44.entities.Aviso.list("-created_date")),
-    enabled: !!currentUser
-  });
-
   const { data: dialogos = [] } = useQuery({
     queryKey: ["dialogos", currentUser?.equipe],
     queryFn: async () => filtrar(await base44.entities.DialogoSeguranca.list("-created_date")),
@@ -55,14 +45,6 @@ export default function SegurancaHub() {
     else await base44.entities.Objetivo.create({ ...data, equipe: data.equipe || currentUser?.equipe });
     queryClient.invalidateQueries({ queryKey: ["objetivos"] });
     setShowObjetivoForm(false); setEditingObjetivo(null);
-  };
-
-  const handleAvisoSubmit = async (data) => {
-    const payload = { ...data, autor: currentUser.nome_exibicao || currentUser.full_name, cargo_autor: currentUser.cargo, equipe: data.equipe || currentUser?.equipe };
-    if (editingAviso) await base44.entities.Aviso.update(editingAviso.id, payload);
-    else await base44.entities.Aviso.create(payload);
-    queryClient.invalidateQueries({ queryKey: ["avisos"] });
-    setShowAvisoForm(false); setEditingAviso(null);
   };
 
   const hoje = new Date().toISOString().split('T')[0];
@@ -97,7 +79,7 @@ export default function SegurancaHub() {
             <Shield className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-slate-900">Segurança & Qualidade</h1>
+            <h1 className="text-base font-bold text-slate-900">Segurança & DDS</h1>
             <p className="text-[10px] text-slate-400">{taxaConclusao}% objetivos concluídos hoje</p>
           </div>
         </div>
@@ -105,11 +87,6 @@ export default function SegurancaHub() {
           {activeTab === "objetivos" && (
             <Button size="sm" className="h-8 bg-green-600 hover:bg-green-700 text-xs" onClick={() => setShowObjetivoForm(v => !v)}>
               <Plus className="w-3.5 h-3.5 sm:mr-1" /><span className="hidden sm:inline">Objetivo</span>
-            </Button>
-          )}
-          {activeTab === "avisos" && (
-            <Button size="sm" className="h-8 bg-green-600 hover:bg-green-700 text-xs" onClick={() => setShowAvisoForm(v => !v)}>
-              <Plus className="w-3.5 h-3.5 sm:mr-1" /><span className="hidden sm:inline">Aviso</span>
             </Button>
           )}
           {activeTab === "dialogos" && (
@@ -121,17 +98,11 @@ export default function SegurancaHub() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 gap-2">
         <Card className="border border-slate-200">
           <CardContent className="p-2.5 text-center">
             <p className="text-2xl font-bold text-green-600">{taxaConclusao}%</p>
             <p className="text-[9px] text-slate-500">Objetivos Hoje</p>
-          </CardContent>
-        </Card>
-        <Card className="border border-slate-200">
-          <CardContent className="p-2.5 text-center">
-            <p className="text-2xl font-bold text-red-500">{avisos.filter(a => a.prioridade === "urgente").length}</p>
-            <p className="text-[9px] text-slate-500">Avisos Urgentes</p>
           </CardContent>
         </Card>
         <Card className="border border-slate-200">
@@ -153,15 +124,6 @@ export default function SegurancaHub() {
         )}
       </AnimatePresence>
       <AnimatePresence>
-        {showAvisoForm && (
-          <AvisoForm
-            aviso={editingAviso}
-            onSubmit={handleAvisoSubmit}
-            onCancel={() => { setShowAvisoForm(false); setEditingAviso(null); }}
-          />
-        )}
-      </AnimatePresence>
-      <AnimatePresence>
         {showDialogoForm && (
           <DialogoForm
             dialogo={editingDialogo}
@@ -179,14 +141,10 @@ export default function SegurancaHub() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3 h-10">
+        <TabsList className="grid w-full grid-cols-2 h-10">
           <TabsTrigger value="objetivos" className="text-[11px] flex flex-col sm:flex-row items-center gap-0.5 sm:gap-1 px-1">
             <Target className="w-3.5 h-3.5 flex-shrink-0" />
             <span className="leading-tight">Objetivos</span>
-          </TabsTrigger>
-          <TabsTrigger value="avisos" className="text-[11px] flex flex-col sm:flex-row items-center gap-0.5 sm:gap-1 px-1">
-            <Bell className="w-3.5 h-3.5 flex-shrink-0" />
-            <span className="leading-tight">Avisos</span>
           </TabsTrigger>
           <TabsTrigger value="dialogos" className="text-[11px] flex flex-col sm:flex-row items-center gap-0.5 sm:gap-1 px-1">
             <BookOpen className="w-3.5 h-3.5 flex-shrink-0" />
@@ -217,17 +175,6 @@ export default function SegurancaHub() {
               />
             </TabsContent>
           </Tabs>
-        </TabsContent>
-
-        <TabsContent value="avisos" className="mt-3">
-          <AvisosList
-            avisos={avisos}
-            onEdit={(a) => { setEditingAviso(a); setShowAvisoForm(true); }}
-            onDelete={async (id) => { await base44.entities.Aviso.delete(id); queryClient.invalidateQueries({ queryKey: ["avisos"] }); }}
-            onToggleFixar={async (a) => { await base44.entities.Aviso.update(a.id, { ...a, fixado: !a.fixado }); queryClient.invalidateQueries({ queryKey: ["avisos"] }); }}
-            canEdit={(a) => isSupervisor || currentUser?.cargo === "lider" || a.created_by === currentUser?.email}
-            currentUser={currentUser}
-          />
         </TabsContent>
 
         <TabsContent value="dialogos" className="mt-3">

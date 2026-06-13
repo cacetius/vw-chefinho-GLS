@@ -15,6 +15,7 @@ import PessoasHubPage from './pages/PessoasHub';
 import SegurancaHubPage from './pages/SegurancaHub';
 import FerramentasPage from './pages/Ferramentas';
 import CalibracaoPage from './pages/Calibracao';
+import CalendarioPage from './pages/Calendario';
 import AuditoriaIndustrialPage from './pages/AuditoriaIndustrial';
 import BancadasPage from './pages/Bancadas';
 import ChecklistPagePage from './pages/ChecklistPage';
@@ -86,6 +87,7 @@ const AuthenticatedApp = () => {
       <Route path="/ChecklistAuditoria" element={<LayoutWrapper currentPageName="Checklist de Auditoria"><ChecklistPagePage /></LayoutWrapper>} />
       <Route path="/CincoS" element={<LayoutWrapper currentPageName="Gestão 5S"><CincoSPagePage /></LayoutWrapper>} />
       <Route path="/QuadroMonitor" element={<LayoutWrapper currentPageName="Quadro do Monitor"><QuadroMonitorPage /></LayoutWrapper>} />
+      <Route path="/Calendario" element={<LayoutWrapper currentPageName="Calendário"><CalendarioPage /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

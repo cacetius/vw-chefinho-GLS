@@ -14,7 +14,7 @@ const EPI_SUGESTOES = [
   "Máscara respiratória", "Avental", "Cinto de segurança", "Luvas de borracha"
 ];
 
-export default function PedidoForm({ pedido, onSubmit, currentUser, onCancel, orcamentosAtivos = [] }) {
+export default function PedidoForm({ pedido, onSubmit, currentUser, onCancel }) {
   const [formData, setFormData] = useState(pedido || {
     solicitante: currentUser?.nome_exibicao || currentUser?.full_name || "",
     item: "",

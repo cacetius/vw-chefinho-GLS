@@ -3,10 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Pencil, Trash2, Check, X, Download, Users, ShoppingCart, ChevronDown, ChevronUp, AlertTriangle, Filter, Search } from "lucide-react";
 import { format } from "date-fns";
 
@@ -17,16 +13,8 @@ const STATUS_CONFIG = {
   entregue:  { label: "Entregue",  className: "bg-blue-100 text-blue-800" },
 };
 
-function PedidoCard({ pedido, hasLeaderAccess, onEdit, onDelete, onUpdateStatus, onAprovar, orcamentosAtivos }) {
+function PedidoCard({ pedido, hasLeaderAccess, onEdit, onDelete, onUpdateStatus }) {
   const [expanded, setExpanded] = useState(false);
-
-  // Mostra o saldo disponível no orçamento vinculado
-  const orcVinculado = orcamentosAtivos?.find(o =>
-    o.status === "ativo" && o.categoria === "epi" &&
-    (!pedido.equipe || o.equipe === pedido.equipe || !o.equipe)
-  );
-  const saldoOrc = orcVinculado ? (orcVinculado.valor_total - (orcVinculado._utilizado || 0)) : null;
-  const excede = saldoOrc !== null && pedido.valor_total > saldoOrc;
 
   return (
     <Card className={`border transition-all active:scale-[0.99] ${pedido.urgencia === "urgente" ? "border-red-200 bg-red-50/20" : "border-slate-200"}`}>
@@ -48,7 +36,7 @@ function PedidoCard({ pedido, hasLeaderAccess, onEdit, onDelete, onUpdateStatus,
           <div className="flex gap-0.5 flex-shrink-0">
             {hasLeaderAccess && pedido.status === "pendente" && (
               <>
-                <button onClick={() => onAprovar(pedido)}
+                <button onClick={() => onUpdateStatus(pedido.id, "aprovado")}
                   className="w-8 h-8 rounded-lg bg-green-50 text-green-600 active:bg-green-200 flex items-center justify-center touch-manipulation" title="Aprovar">
                   <Check className="w-3.5 h-3.5" />
                 </button>
@@ -86,18 +74,9 @@ function PedidoCard({ pedido, hasLeaderAccess, onEdit, onDelete, onUpdateStatus,
               )}
               <Badge variant="outline" className="text-[10px] px-1.5 py-0">Qtd: {pedido.quantidade}</Badge>
               {pedido.equipe && <Badge variant="outline" className="text-[10px] px-1.5 py-0"><Users className="w-2.5 h-2.5 mr-0.5" />{pedido.equipe}</Badge>}
-              {excede && <Badge className="text-[10px] px-1.5 py-0 bg-amber-100 text-amber-800">Excede orçamento</Badge>}
             </div>
 
             <div className="flex items-center justify-between mt-2">
-              <div>
-                <span className="text-sm font-bold text-green-700">R$ {(pedido.valor_total || 0).toFixed(2)}</span>
-                {saldoOrc !== null && (
-                  <span className={`text-[10px] ml-2 ${excede ? "text-red-500" : "text-slate-400"}`}>
-                    (saldo orç: R${saldoOrc.toFixed(0)})
-                  </span>
-                )}
-              </div>
               <button onClick={() => setExpanded(e => !e)}
                 className="flex items-center gap-1 text-[10px] text-slate-400 hover:text-slate-600">
                 {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
@@ -113,29 +92,14 @@ function PedidoCard({ pedido, hasLeaderAccess, onEdit, onDelete, onUpdateStatus,
                     {pedido.data_solicitacao && (
                       <p><span className="text-slate-400">Data:</span> {format(new Date(pedido.data_solicitacao), "dd/MM/yyyy")}</p>
                     )}
-                    {pedido.valor_unitario > 0 && (
-                      <p><span className="text-slate-400">Valor unitário:</span> R$ {pedido.valor_unitario.toFixed(2)} × {pedido.quantidade}</p>
-                    )}
                     {pedido.justificativa && (
                       <p><span className="text-slate-400">Justificativa:</span> {pedido.justificativa}</p>
                     )}
-                    {orcVinculado && (
-                      <div className="p-2 bg-slate-50 rounded-lg border border-slate-200">
-                        <p className="font-semibold text-slate-700">📦 Orçamento vinculado: {orcVinculado.titulo}</p>
-                        <p className="text-slate-500 mt-0.5">
-                          Total: R${orcVinculado.valor_total.toFixed(2)} |
-                          Utilizado: R${(orcVinculado._utilizado || 0).toFixed(2)} |
-                          <span className={excede ? "text-red-600 font-semibold" : "text-green-600 font-semibold"}>
-                            &nbsp;Saldo: R${saldoOrc.toFixed(2)}
-                          </span>
-                        </p>
-                      </div>
+                    {pedido.turno && (
+                      <p><span className="text-slate-400">Turno:</span> {pedido.turno}</p>
                     )}
-                    {pedido.orcamento_aprovado > 0 && (
-                      <div className="p-2 bg-green-50 rounded-lg border border-green-200">
-                        <p className="font-semibold text-green-800">✅ Orç. aprovado pelo líder: R$ {pedido.orcamento_aprovado.toFixed(2)}</p>
-                        {pedido.observacoes_orcamento && <p className="text-green-700 mt-0.5">{pedido.observacoes_orcamento}</p>}
-                      </div>
+                    {pedido.celula && (
+                      <p><span className="text-slate-400">Célula:</span> {pedido.celula}</p>
                     )}
                   </div>
                 </motion.div>
@@ -148,39 +112,18 @@ function PedidoCard({ pedido, hasLeaderAccess, onEdit, onDelete, onUpdateStatus,
   );
 }
 
-export default function PedidosList({ pedidos, onEdit, onDelete, onUpdateStatus, currentUser, orcamentosAtivos = [] }) {
-  const [selectedPedido, setSelectedPedido] = useState(null);
-  const [orcamentoAprovado, setOrcamentoAprovado] = useState("");
-  const [observacoesOrcamento, setObservacoesOrcamento] = useState("");
-  const [showDialog, setShowDialog] = useState(false);
+export default function PedidosList({ pedidos, onEdit, onDelete, onUpdateStatus, currentUser }) {
   const [filtroStatus, setFiltroStatus] = useState("todos");
 
   const hasLeaderAccess = currentUser?.cargo === "lider" ||
     (currentUser?.cargo_temporario === "lider" && currentUser?.data_cargo_temporario &&
       new Date(currentUser.data_cargo_temporario) >= new Date());
 
-  const handleAprovar = (pedido) => {
-    setSelectedPedido(pedido);
-    setOrcamentoAprovado(pedido.valor_total?.toString() || "");
-    setObservacoesOrcamento(pedido.observacoes_orcamento || "");
-    setShowDialog(true);
-  };
-
-  const confirmAprovar = () => {
-    if (selectedPedido) {
-      onUpdateStatus(selectedPedido.id, "aprovado", parseFloat(orcamentoAprovado) || 0, observacoesOrcamento);
-      setShowDialog(false);
-      setSelectedPedido(null);
-    }
-  };
-
   const exportarCSV = () => {
     if (pedidos.length === 0) return;
     const dados = pedidos.map(p => ({
       'Solicitante': p.solicitante || p.solicitante_full_name,
       'Item': p.item, 'Quantidade': p.quantidade,
-      'Valor Unitário': `R$ ${p.valor_unitario?.toFixed(2) || '0.00'}`,
-      'Valor Total': `R$ ${p.valor_total?.toFixed(2) || '0.00'}`,
       'Status': p.status, 'Urgência': p.urgencia,
       'Equipe': p.equipe || '-', 'Turno': p.turno || '-',
       'Data': p.data_solicitacao ? format(new Date(p.data_solicitacao), "dd/MM/yyyy") : '-',
@@ -208,113 +151,55 @@ export default function PedidosList({ pedidos, onEdit, onDelete, onUpdateStatus,
   const contagens = { todos: pedidos.length, pendente: 0, aprovado: 0, reprovado: 0, entregue: 0 };
   pedidos.forEach(p => { if (contagens[p.status] !== undefined) contagens[p.status]++; });
 
-  // Calcula saldo real de cada orçamento baseado nos pedidos aprovados/entregues
-  const orcamentosComSaldo = orcamentosAtivos.map(o => {
-    const utilizado = pedidos
-      .filter(p => (p.status === "aprovado" || p.status === "entregue") &&
-        (!o.equipe || p.equipe === o.equipe) && (o.turno === "todos" || p.turno === o.turno))
-      .reduce((s, p) => s + (p.valor_total || 0), 0);
-    return { ...o, _utilizado: utilizado };
-  });
-
   return (
-    <>
-      {/* Modal de aprovação */}
-      {showDialog && (
-        <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-4">
-          <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-2xl shadow-xl w-full max-w-md p-5">
-            <h3 className="text-base font-bold mb-1">Aprovar Pedido</h3>
-            <p className="text-xs text-slate-500 mb-4">
-              Item: <strong>{selectedPedido?.item}</strong> — Qtd: {selectedPedido?.quantidade} — Solicitado: R$ {selectedPedido?.valor_total?.toFixed(2)}
-            </p>
-            {/* Saldo disponível */}
-            {(() => {
-              const orc = orcamentosComSaldo.find(o =>
-                o.status === "ativo" && o.categoria === "epi" &&
-                (!selectedPedido?.equipe || o.equipe === selectedPedido?.equipe || !o.equipe)
-              );
-              if (!orc) return null;
-              const saldo = orc.valor_total - orc._utilizado;
-              return (
-                <div className={`mb-3 p-2.5 rounded-lg text-xs border ${saldo >= (selectedPedido?.valor_total || 0) ? "bg-green-50 border-green-200 text-green-800" : "bg-amber-50 border-amber-200 text-amber-800"}`}>
-                  📦 <strong>{orc.titulo}</strong> — Saldo disponível: <strong>R$ {saldo.toFixed(2)}</strong>
-                  {saldo < (selectedPedido?.valor_total || 0) && " ⚠️ Saldo insuficiente"}
-                </div>
-              );
-            })()}
-            <div className="space-y-3">
-              <div>
-                <Label className="text-xs">Valor Aprovado (R$) *</Label>
-                <Input type="number" step="0.01" value={orcamentoAprovado}
-                  onChange={e => setOrcamentoAprovado(e.target.value)} className="mt-1 h-9" />
-              </div>
-              <div>
-                <Label className="text-xs">Observações</Label>
-                <Textarea value={observacoesOrcamento} onChange={e => setObservacoesOrcamento(e.target.value)}
-                  placeholder="Observações sobre a aprovação..." className="mt-1 h-16 text-sm resize-none" />
-              </div>
-              <div className="flex gap-2 pt-1">
-                <Button variant="outline" className="flex-1 h-9" onClick={() => setShowDialog(false)}>Cancelar</Button>
-                <Button className="flex-1 h-9 bg-green-600 hover:bg-green-700" onClick={confirmAprovar}>✓ Aprovar</Button>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      )}
-
-      <div className="space-y-3">
-        {/* Busca rápida */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Buscar por item, solicitante ou equipe..."
-            value={buscaItem}
-            onChange={e => setBuscaItem(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-200"
-          />
-          {buscaItem && (
-            <button onClick={() => setBuscaItem("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">✕</button>
-          )}
-        </div>
-
-        {/* Filtros + export */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
-            <Filter className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-            {Object.entries({ todos: "Todos", pendente: "Pend.", aprovado: "Aprov.", reprovado: "Reprov.", entregue: "Entreg." }).map(([key, label]) => (
-              <button key={key} onClick={() => setFiltroStatus(key)}
-                className={`flex-shrink-0 text-[11px] px-3 py-1.5 rounded-full border transition-all font-medium touch-manipulation min-h-[32px] ${
-                  filtroStatus === key ? "bg-[#0066b1] text-white border-[#0066b1]" : "border-slate-200 text-slate-600 bg-white"
-                }`}>
-                {label} <span className="opacity-70">({contagens[key] ?? 0})</span>
-              </button>
-            ))}
-            <Button onClick={exportarCSV} variant="outline" size="sm"
-              className="flex-shrink-0 h-7 text-[11px] bg-green-50 hover:bg-green-100 text-green-700 border-green-200 ml-auto">
-              <Download className="w-3 h-3 mr-1" /> CSV
-            </Button>
-          </div>
-        </div>
-
-        {pedidosFiltrados.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-slate-400">
-            <ShoppingCart className="w-10 h-10 mb-2 opacity-30" />
-            <p className="text-sm">Nenhum pedido {filtroStatus !== "todos" ? `com status "${filtroStatus}"` : "encontrado"}</p>
-          </div>
-        ) : (
-          <AnimatePresence>
-            {pedidosFiltrados.map((p, i) => (
-              <motion.div key={p.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ delay: i * 0.02 }}>
-                <PedidoCard pedido={p} hasLeaderAccess={hasLeaderAccess}
-                  onEdit={onEdit} onDelete={onDelete} onUpdateStatus={onUpdateStatus}
-                  onAprovar={handleAprovar} orcamentosAtivos={orcamentosComSaldo} />
-              </motion.div>
-            ))}
-          </AnimatePresence>
+    <div className="space-y-3">
+      {/* Busca rápida */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+        <input
+          type="text"
+          placeholder="Buscar por item, solicitante ou equipe..."
+          value={buscaItem}
+          onChange={e => setBuscaItem(e.target.value)}
+          className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-200"
+        />
+        {buscaItem && (
+          <button onClick={() => setBuscaItem("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">✕</button>
         )}
       </div>
-    </>
+
+      {/* Filtros + export */}
+      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+        <Filter className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+        {Object.entries({ todos: "Todos", pendente: "Pend.", aprovado: "Aprov.", reprovado: "Reprov.", entregue: "Entreg." }).map(([key, label]) => (
+          <button key={key} onClick={() => setFiltroStatus(key)}
+            className={`flex-shrink-0 text-[11px] px-3 py-1.5 rounded-full border transition-all font-medium touch-manipulation min-h-[32px] ${
+              filtroStatus === key ? "bg-[#0066b1] text-white border-[#0066b1]" : "border-slate-200 text-slate-600 bg-white"
+            }`}>
+            {label} <span className="opacity-70">({contagens[key] ?? 0})</span>
+          </button>
+        ))}
+        <Button onClick={exportarCSV} variant="outline" size="sm"
+          className="flex-shrink-0 h-7 text-[11px] bg-green-50 hover:bg-green-100 text-green-700 border-green-200 ml-auto">
+          <Download className="w-3 h-3 mr-1" /> CSV
+        </Button>
+      </div>
+
+      {pedidosFiltrados.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-12 text-slate-400">
+          <ShoppingCart className="w-10 h-10 mb-2 opacity-30" />
+          <p className="text-sm">Nenhum pedido {filtroStatus !== "todos" ? `com status "${filtroStatus}"` : "encontrado"}</p>
+        </div>
+      ) : (
+        <AnimatePresence>
+          {pedidosFiltrados.map((p, i) => (
+            <motion.div key={p.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ delay: i * 0.02 }}>
+              <PedidoCard pedido={p} hasLeaderAccess={hasLeaderAccess}
+                onEdit={onEdit} onDelete={onDelete} onUpdateStatus={onUpdateStatus} />
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      )}
+    </div>
   );
 }

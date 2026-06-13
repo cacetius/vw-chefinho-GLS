@@ -5,7 +5,7 @@ import { base44 } from "@/api/base44Client";
 import {
   LayoutDashboard, Truck, Users, Shield, LogOut,
   Menu, X, User, Home, MoreHorizontal,
-  ClipboardList, ChevronRight, Target, Package, Bell, DollarSign,
+  ClipboardList, ChevronRight, Target, Package, Calendar as CalendarIcon,
   Wrench, Gauge, ClipboardCheck, LayoutGrid, Sparkles, Monitor
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,14 +18,14 @@ const NAV_SECTIONS = [
     title: "Principal",
     items: [
       { title: "Dashboard", url: "Dashboard", icon: LayoutDashboard },
+      { title: "Calendário", url: "Calendario", icon: CalendarIcon },
     ]
   },
   {
     title: "Módulos",
     items: [
-      { title: "EPI & Orçamentos", url: "OperacoesHub", icon: Truck },
-      { title: "Pessoas & Times", url: "PessoasHub", icon: Users },
-      { title: "Segurança & Qualidade", url: "SegurancaHub", icon: Shield },
+      { title: "EPI", url: "OperacoesHub", icon: Truck },
+      { title: "Segurança & DDS", url: "SegurancaHub", icon: Shield },
     ]
   },
   {
@@ -44,7 +44,6 @@ const NAV_SECTIONS = [
       { title: "Calibração", url: "Calibracao", icon: Gauge },
       { title: "Bancadas", url: "Bancadas", icon: LayoutGrid },
       { title: "Estoque EPI", url: "Estoque", icon: Package },
-      { title: "Gastos EPI", url: "GastosEPI", icon: DollarSign },
     ]
   },
   {
@@ -68,7 +67,7 @@ const NAV_SECTIONS = [
 const BOTTOM_NAV = [
   { title: "Início", url: "Dashboard", icon: Home },
   { title: "EPI", url: "OperacoesHub", icon: Truck },
-  { title: "Pessoas", url: "PessoasHub", icon: Users },
+  { title: "Calendário", url: "Calendario", icon: CalendarIcon },
   { title: "Segurança", url: "SegurancaHub", icon: Shield },
   { title: "Menu", url: null, icon: MoreHorizontal },
 ];

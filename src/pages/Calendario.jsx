@@ -67,15 +67,12 @@ export default function Calendario() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 p-4 md:p-8">
+    <div className="space-y-4">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div className="flex items-center justify-between gap-2 mb-4">
           <div>
-            <h1 className="text-3xl font-bold text-[#001e50] flex items-center gap-3">
-              <CalendarIcon className="w-8 h-8 text-[#0066b1]" />
-              Calendário
-            </h1>
-            <p className="text-gray-600 mt-1">Visualize todos os eventos, tarefas e compromissos</p>
+            <h1 className="text-base font-bold text-slate-900">Calendário</h1>
+            <p className="text-[10px] text-slate-400">Visualize todos os eventos, tarefas e compromissos</p>
           </div>
           <Button onClick={() => setShowForm(!showForm)} className="bg-gradient-to-r from-[#001e50] to-[#0066b1]">
             <Plus className="w-5 h-5 mr-2" />
