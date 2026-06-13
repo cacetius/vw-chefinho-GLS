@@ -9,23 +9,27 @@ import { motion } from "framer-motion";
 import { format } from "date-fns";
 
 const ATIVIDADES_DIARIAS = [
-  { tipo: "auditoria_rapida", titulo: "Auditoria Rápida", icone: "🔍" },
-  { tipo: "verificacao_ferramentas", titulo: "Verificação de Ferramentas", icone: "🔧" },
-  { tipo: "verificacao_epi", titulo: "Verificação de EPI", icone: "🦺" },
-  { tipo: "verificacao_5s", titulo: "Verificação de 5S", icone: "✨" },
-  { tipo: "atualizacao_area", titulo: "Atualização da Área", icone: "📋" },
+  { tipo: "verificar_ferramentas_criticas", titulo: "Verificar Ferramentas Críticas", icone: "🔧" },
+  { tipo: "verificar_torques", titulo: "Verificar Torques", icone: "🔩" },
+  { tipo: "verificar_etiquetas", titulo: "Verificar Etiquetas", icone: "🏷️" },
+  { tipo: "verificar_faixas", titulo: "Verificar Faixas", icone: "📏" },
+  { tipo: "verificar_epi", titulo: "Verificar EPIs", icone: "🦺" },
+  { tipo: "verificar_5s", titulo: "Verificar 5S", icone: "✨" },
+  { tipo: "verificar_equipamentos", titulo: "Verificar Equipamentos", icone: "⚙️" },
 ];
 const ATIVIDADES_SEMANAIS = [
-  { tipo: "conferencia_etiquetas", titulo: "Conferência de Etiquetas", icone: "🏷️" },
-  { tipo: "conferencia_faixas", titulo: "Conferência de Faixas", icone: "📏" },
-  { tipo: "revisao_estoque", titulo: "Revisão de Estoque", icone: "📦" },
-  { tipo: "revisao_equipamentos", titulo: "Revisão de Equipamentos", icone: "⚙️" },
+  { tipo: "auditoria_ferramentas", titulo: "Auditoria de Ferramentas", icone: "🔍" },
+  { tipo: "auditoria_bancadas", titulo: "Auditoria de Bancadas", icone: "🗄️" },
+  { tipo: "revisao_etiquetas", titulo: "Revisão de Etiquetas", icone: "🏷️" },
+  { tipo: "revisao_faixas", titulo: "Revisão de Faixas", icone: "📏" },
+  { tipo: "revisao_estoque_epi", titulo: "Revisão de Estoque de EPI", icone: "📦" },
 ];
 const ATIVIDADES_MENSAIS = [
-  { tipo: "auditoria_geral", titulo: "Auditoria Geral", icone: "📊" },
-  { tipo: "revisao_documental", titulo: "Revisão Documental", icone: "📄" },
+  { tipo: "auditoria_completa", titulo: "Auditoria Completa", icone: "📊" },
   { tipo: "inventario", titulo: "Inventário", icone: "🗃️" },
-  { tipo: "revisao_calibracao", titulo: "Revisão de Calibração", icone: "📐" },
+  { tipo: "revisao_documental", titulo: "Revisão Documental", icone: "📄" },
+  { tipo: "revisao_calibracoes", titulo: "Revisão de Calibrações", icone: "📐" },
+  { tipo: "revisao_equipamentos_criticos", titulo: "Revisão de Equipamentos Críticos", icone: "⚠️" },
 ];
 
 const STATUS_CONFIG = {

@@ -1,258 +1,271 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { useEquipeFilter } from "@/lib/useEquipeFilter";
 import { useQuery } from "@tanstack/react-query";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useNavigate, Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
-  Users, Shield,
-  Activity,
-  ArrowRight, Bell, Target, ClipboardList, Package
+  Wrench, Gauge, ClipboardCheck, Sparkles, Monitor,
+  Calendar, Tag, Ruler, AlertTriangle, CheckCircle2,
+  Clock, TrendingUp, BarChart3, ArrowRight, Bell,
+  FileText, Zap
 } from "lucide-react";
 import { motion } from "framer-motion";
-import HistoricoAtividades from "../components/shared/HistoricoAtividades";
-import PrazoAlertas from "../components/dashboard/PrazoAlertas";
-import GraficosGerais from "../components/dashboard/GraficosGerais";
-import ExportarDados from "../components/dashboard/ExportarDados";
+import { format, differenceInDays } from "date-fns";
+import ChefinhoIA from "../components/dashboard/ChefinhoIA";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [mostrarIA, setMostrarIA] = useState(false);
 
-  useEffect(() => { loadUser(); }, []);
+  useEffect(() => { base44.auth.me().then(u => setCurrentUser(u) || u).catch(() => {}); }, []);
 
-  const loadUser = async () => {
-    try {
-      const user = await base44.auth.me();
-      if (!user.cargo) { navigate(createPageUrl("Registro")); setLoading(false); return; }
-      setCurrentUser(user);
-    } catch {
-      navigate(createPageUrl("Registro"));
-    }
-    setLoading(false);
-  };
-
-  const { data: stats = {} } = useQuery({
-    queryKey: ["dashboard-stats", currentUser?.equipe, currentUser?.cargo],
+  const { data: kpis = {}, isLoading } = useQuery({
+    queryKey: ["dashboard-executivo", currentUser?.equipe],
     queryFn: async () => {
-      const user = await base44.auth.me();
-      const isSup = user?.cargo === "supervisor" || user?.role === "admin";
-      const filtraEquipe = (arr) =>
-        isSup ? arr : arr.filter(x => x.equipe === user?.equipe);
-
-      const [pedidos, versatilidade, objetivos, avisos] = await Promise.all([
-        base44.entities.PedidoEPI.list(),
-        base44.entities.Versatilidade.list(),
-        base44.entities.Objetivo.list(),
-        base44.entities.Aviso.list()
+      const [ferramentas, calibracoes, auditorias, cincoS, atividades, bancadas, etiquetas, faixas] = await Promise.all([
+        base44.entities.Ferramenta.list(),
+        base44.entities.Calibracao.list(),
+        base44.entities.AuditoriaProcesso.list("-data", 100),
+        base44.entities.CincoS.list("-data", 50),
+        base44.entities.AtividadeMonitor.list("-data", 200),
+        base44.entities.Bancada.list(),
+        base44.entities.Etiqueta.list(),
+        base44.entities.Faixa.list(),
       ]);
 
-      const pedidosFilt = filtraEquipe(pedidos);
-      const colabFilt = filtraEquipe(versatilidade);
-      const objetivosFilt = filtraEquipe(objetivos);
-      const avisosFilt = filtraEquipe(avisos);
+      const hoje = new Date(); hoje.setHours(0,0,0,0);
 
+      // Calibração status
+      const calStatus = calibracoes.reduce((acc, c) => {
+        if (!c.data_vencimento) { acc.semData++; return acc; }
+        const dias = differenceInDays(new Date(c.data_vencimento + "T00:00:00"), hoje);
+        if (dias < 0) acc.vencido++;
+        else if (dias <= 15) acc.vence15++;
+        else if (dias <= 30) acc.vence30++;
+        else acc.ok++;
+        return acc;
+      }, { ok: 0, vence30: 0, vence15: 0, vencido: 0, semData: 0 });
+
+      // Auditoria
+      const audStatus = auditorias.reduce((acc, a) => {
+        if (a.conformidade === "conforme") acc.conforme++;
+        else if (a.conformidade === "nao_conforme") acc.naoConforme++;
+        else acc.outros++;
+        return acc;
+      }, { conforme: 0, naoConforme: 0, outros: 0 });
+
+      // 5S - última pontuação
+      const ultimo5S = cincoS.length > 0 ? cincoS[0] : null;
+
+      // Atividades
+      const ativStatus = atividades.reduce((acc, a) => {
+        if (a.status === "concluido") acc.concluidas++;
+        else if (a.status === "atrasado") acc.atrasadas++;
+        else if (a.status === "em_andamento") acc.emAndamento++;
+        else acc.naoIniciadas++;
+        return acc;
+      }, { concluidas: 0, atrasadas: 0, emAndamento: 0, naoIniciadas: 0 });
+
+      // Etiquetas/Faixas status
+      const etiqCriticas = etiquetas.filter(e => e.status === "substituir" || e.status === "desgastado").length;
+      const faixasCriticas = faixas.filter(f => f.condicao === "critico" || f.condicao === "ruim").length;
 
       return {
-        epiPendentes: pedidosFilt.filter(p => p.status === "pendente").length,
-        colaboradores: colabFilt.length,
-        objetivosConcluidos: objetivosFilt.filter(o => o.concluido).length,
-        objetivosTotal: objetivosFilt.length,
-        urgentes: avisosFilt.filter(a => a.prioridade === "urgente" || a.prioridade === "importante").length,
+        ferramentas: ferramentas.length,
+        ferramentasAtivas: ferramentas.filter(f => f.status === "ativo").length,
+        calStatus,
+        calTotal: calibracoes.length,
+        audStatus,
+        audTotal: auditorias.length,
+        ultimo5S,
+        cincoSTotal: cincoS.length,
+        ativStatus,
+        ativTotal: atividades.length,
+        bancadas: bancadas.length,
+        etiquetas: etiquetas.length,
+        etiqCriticas,
+        faixas: faixas.length,
+        faixasCriticas,
       };
     },
     enabled: !!currentUser,
-    refetchInterval: 30000
+    refetchInterval: 60000
   });
 
-  if (loading || !currentUser) {
+  if (isLoading || !currentUser) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-[3px] border-slate-200 border-t-[#0066b1] rounded-full animate-spin"></div>
-          <p className="text-slate-500 text-sm font-medium">Carregando...</p>
-        </div>
+      <div className="flex items-center justify-center h-64">
+        <div className="w-8 h-8 border-[3px] border-slate-200 border-t-[#0066b1] rounded-full animate-spin" />
       </div>
     );
   }
 
-  const isSupervisor = currentUser?.cargo === "supervisor" || currentUser?.role === "admin";
   const firstName = (currentUser?.nome_exibicao || currentUser?.full_name || "").split(" ")[0];
-  const turnoLabel = currentUser?.turno === "manha" ? "1º Turno · Manhã" : currentUser?.turno === "tarde" ? "2º Turno · Tarde" : currentUser?.turno === "noite" ? "3º Turno · Noite" : "";
 
-  const objetivosPercent = stats.objetivosTotal > 0
-    ? Math.round((stats.objetivosConcluidos / stats.objetivosTotal) * 100)
-    : 0;
-
-  // Os módulos principais
-  const MODULES = [
-    {
-      title: "EPI & Orçamentos",
-      desc: `${stats.epiPendentes ?? 0} pedidos pendentes`,
-      icon: Shield,
-      url: "OperacoesHub",
-      gradient: "from-[#0066b1] to-[#004d82]",
-      badge: (stats.epiPendentes ?? 0) > 0 ? stats.epiPendentes : null,
-    },
-    {
-      title: "Pessoas & Times",
-      desc: `${stats.colaboradores ?? 0} colaboradores`,
-      icon: Users,
-      url: "PessoasHub",
-      gradient: "from-purple-600 to-pink-600",
-      badge: null,
-    },
-    {
-      title: "Segurança & Qualidade",
-      desc: `${objetivosPercent}% objetivos · ${stats.urgentes ?? 0} avisos`,
-      icon: Shield,
-      url: "SegurancaHub",
-      gradient: "from-emerald-600 to-green-700",
-      badge: (stats.urgentes ?? 0) > 0 ? stats.urgentes : null,
-    },
-    {
-      title: "Auditoria VDA",
-      desc: "Auditorias e planos de ação",
-      icon: ClipboardList,
-      url: "AuditoriaVDA",
-      gradient: "from-amber-600 to-orange-600",
-      badge: null,
-    },
-    {
-      title: "Estoque EPI",
-      desc: "Controle de estoque",
-      icon: Package,
-      url: "Estoque",
-      gradient: "from-teal-600 to-cyan-700",
-      badge: null,
-    },
-    {
-      title: "Rotatividade",
-      desc: "Planejamento mensal",
-      icon: Activity,
-      url: "PlanejamentoRotatividade",
-      gradient: "from-slate-600 to-slate-800",
-      badge: null,
-    },
+  const KPI_CARDS = [
+    { label: "Ferramentas", valor: kpis.ferramentas, sub: `${kpis.ferramentasAtivas} ativas`, icon: Wrench, color: "from-blue-600 to-blue-800", url: "Ferramentas" },
+    { label: "Calibrações", valor: kpis.calTotal, sub: `${kpis.calStatus.vencido} vencidas · ${kpis.calStatus.vence15 + kpis.calStatus.vence30} próximas`, icon: Gauge, color: "from-amber-600 to-orange-700", url: "Calibracao", alert: kpis.calStatus.vencido > 0 },
+    { label: "Auditorias", valor: kpis.audTotal, sub: `${kpis.audStatus.naoConforme} não conformes`, icon: ClipboardCheck, color: "from-emerald-600 to-teal-700", url: "AuditoriaIndustrial", alert: kpis.audStatus.naoConforme > 0 },
+    { label: "5S", valor: kpis.ultimo5S ? `${kpis.ultimo5S.pontuacao_total}/50` : "-", sub: `${kpis.cincoSTotal} avaliações`, icon: Sparkles, color: "from-purple-600 to-violet-700", url: "CincoS" },
+    { label: "Monitor", valor: `${kpis.ativStatus.concluidas}/${kpis.ativTotal}`, sub: `${kpis.ativStatus.atrasadas} atrasadas`, icon: Monitor, color: "from-cyan-600 to-sky-700", url: "QuadroMonitor", alert: kpis.ativStatus.atrasadas > 0 },
+    { label: "Bancadas", valor: kpis.bancadas, sub: "em monitoramento", icon: BarChart3, color: "from-slate-600 to-slate-800", url: "Bancadas" },
   ];
+
+  const hasAlertas = kpis.calStatus.vencido > 0 || kpis.audStatus.naoConforme > 0 || kpis.ativStatus.atrasadas > 0 || kpis.etiqCriticas > 0 || kpis.faixasCriticas > 0;
 
   return (
     <div className="space-y-3 w-full min-w-0 overflow-x-hidden">
 
       {/* Welcome Banner */}
       <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
         className="bg-gradient-to-r from-[#001e50] to-[#0066b1] rounded-2xl p-4 text-white overflow-hidden relative"
       >
         <div className="absolute right-0 top-0 bottom-0 w-24 opacity-5 select-none text-[90px] leading-none overflow-hidden">🏭</div>
-        <div className="relative flex items-start justify-between gap-2 w-full min-w-0">
-          <div className="flex-1 min-w-0 overflow-hidden">
-            <p className="text-blue-200 text-[10px] font-medium uppercase tracking-wide truncate">VW Chefinho</p>
-            <h1 className="text-lg font-bold leading-tight mt-0.5 truncate">
-              Olá, {firstName}! 👋
-            </h1>
-            <p className="text-blue-200 text-[11px] mt-0.5 capitalize truncate">
-              {new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })}
+        <div className="relative flex items-start justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <p className="text-blue-200 text-[10px] font-medium uppercase tracking-wide">VW Chefinho GLS</p>
+            <h1 className="text-lg font-bold leading-tight mt-0.5">Olá, {firstName}! 👋</h1>
+            <p className="text-blue-200 text-[11px] mt-0.5">
+              {format(new Date(), "EEEE, d 'de' MMMM", { locale: undefined }).replace(/^\w/, c => c.toUpperCase())}
             </p>
           </div>
-          <div className="flex flex-col items-end gap-1 flex-shrink-0 max-w-[45%]">
-            <Badge className="bg-white/20 text-white border-transparent text-[10px] px-2 py-0.5 whitespace-nowrap">
+          <div className="flex flex-col items-end gap-1 flex-shrink-0">
+            <Badge className="bg-white/20 text-white border-transparent text-[10px] px-2 py-0.5">
               {currentUser?.cargo === "supervisor" ? "🎖️ Supervisor" : currentUser?.cargo === "lider" ? "👔 Líder" : "👷 Monitor"}
             </Badge>
-            {currentUser?.equipe && (
-              <Badge className="bg-white/10 text-white/80 border-transparent text-[9px] px-2 py-0.5 max-w-full truncate">
-                {currentUser.equipe}
+            {currentUser?.equipe && <Badge className="bg-white/10 text-white/80 border-transparent text-[9px] px-2 py-0.5 max-w-full truncate">{currentUser.equipe}</Badge>}
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Alertas Consolidados */}
+      {hasAlertas && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-3 space-y-2">
+          <p className="text-xs font-bold text-red-700 flex items-center gap-1.5"><Bell className="w-3.5 h-3.5" /> Alertas do Sistema</p>
+          <div className="flex flex-wrap gap-1.5">
+            {kpis.calStatus.vencido > 0 && (
+              <Badge className="bg-red-100 text-red-700 text-[10px] cursor-pointer" onClick={() => navigate(createPageUrl("Calibracao"))}>
+                ⚠️ {kpis.calStatus.vencido} calibrações vencidas
               </Badge>
             )}
-            {turnoLabel && (
-              <Badge className="bg-white/10 text-white/80 border-transparent text-[9px] px-2 py-0.5 whitespace-nowrap">
-                {turnoLabel}
+            {kpis.calStatus.vence15 > 0 && (
+              <Badge className="bg-amber-100 text-amber-700 text-[10px] cursor-pointer" onClick={() => navigate(createPageUrl("Calibracao"))}>
+                ⏰ {kpis.calStatus.vence15} vencem em 15 dias
+              </Badge>
+            )}
+            {kpis.audStatus.naoConforme > 0 && (
+              <Badge className="bg-red-100 text-red-700 text-[10px] cursor-pointer" onClick={() => navigate(createPageUrl("AuditoriaIndustrial"))}>
+                ❌ {kpis.audStatus.naoConforme} não conformidades
+              </Badge>
+            )}
+            {kpis.ativStatus.atrasadas > 0 && (
+              <Badge className="bg-red-100 text-red-700 text-[10px] cursor-pointer" onClick={() => navigate(createPageUrl("QuadroMonitor"))}>
+                📋 {kpis.ativStatus.atrasadas} atividades atrasadas
+              </Badge>
+            )}
+            {kpis.etiqCriticas > 0 && (
+              <Badge className="bg-amber-100 text-amber-700 text-[10px] cursor-pointer" onClick={() => navigate(createPageUrl("ChecklistAuditoria"))}>
+                🏷️ {kpis.etiqCriticas} etiquetas críticas
+              </Badge>
+            )}
+            {kpis.faixasCriticas > 0 && (
+              <Badge className="bg-amber-100 text-amber-700 text-[10px] cursor-pointer" onClick={() => navigate(createPageUrl("ChecklistAuditoria"))}>
+                📏 {kpis.faixasCriticas} faixas críticas
               </Badge>
             )}
           </div>
         </div>
-
-        {/* Barra de objetivos */}
-        {stats.objetivosTotal > 0 && (
-          <div className="relative mt-3 pt-3 border-t border-white/20">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-white/80 text-[10px] flex items-center gap-1"><Target className="w-3 h-3" /> Objetivos de hoje</span>
-              <span className="text-white font-bold text-[10px]">{objetivosPercent}%</span>
-            </div>
-            <div className="w-full bg-white/20 rounded-full h-1.5">
-              <div className="bg-white rounded-full h-1.5 transition-all" style={{ width: `${objetivosPercent}%` }} />
-            </div>
-          </div>
-        )}
-      </motion.div>
-
-      {/* Alerta urgente */}
-      {(stats.urgentes ?? 0) > 0 && (
-        <Link to={createPageUrl("SegurancaHub")}>
-          <div className="bg-red-50 border border-red-200 rounded-xl p-3 flex items-center gap-3 active:bg-red-100 transition-colors cursor-pointer">
-            <div className="w-9 h-9 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Bell className="w-4 h-4 text-red-600" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-red-800">
-                {stats.urgentes} aviso{stats.urgentes > 1 ? "s" : ""} importante{stats.urgentes > 1 ? "s" : ""}
-              </p>
-              <p className="text-xs text-red-500">Ver em Segurança & Qualidade</p>
-            </div>
-            <ArrowRight className="w-4 h-4 text-red-400 flex-shrink-0" />
-          </div>
-        </Link>
       )}
 
-      {/* 6 Módulos */}
+      {/* Botão Chefinho IA */}
+      <Button
+        onClick={() => setMostrarIA(v => !v)}
+        className="w-full bg-gradient-to-r from-violet-600 to-purple-700 hover:from-violet-700 hover:to-purple-800 text-white gap-2 h-11 rounded-xl"
+      >
+        <Zap className="w-4 h-4" />
+        {mostrarIA ? "Fechar Chefinho IA" : "Gerar Relatório Inteligente — Chefinho IA"}
+      </Button>
+
+      {mostrarIA && <ChefinhoIA kpis={kpis} currentUser={currentUser} />}
+
+      {/* KPIs Grid */}
       <div>
         <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-          <Activity className="w-3.5 h-3.5" /> Módulos
+          <TrendingUp className="w-3.5 h-3.5" /> Indicadores em Tempo Real
         </h2>
-        <div className="grid grid-cols-2 gap-2">
-          {MODULES.map(({ title, desc, icon: Icon, url, gradient, badge }, i) => (
-            <Link key={url} to={createPageUrl(url)}>
-              <div className={`bg-gradient-to-br ${gradient} rounded-2xl p-3 text-white relative overflow-hidden active:opacity-80 transition-all cursor-pointer min-h-[100px] flex flex-col justify-between touch-manipulation select-none`}>
-                <div className="flex items-start justify-between">
-                  <div className="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Icon className="w-4 h-4 text-white" />
-                  </div>
-                  {badge !== null && (
-                    <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-[9px] font-bold text-white">{badge}</span>
-                    </div>
-                  )}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+          {KPI_CARDS.map(({ label, valor, sub, icon: Icon, color, url, alert }, i) => (
+            <motion.div key={label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+              onClick={() => navigate(createPageUrl(url))}
+              className={`bg-gradient-to-br ${color} rounded-xl p-3 text-white cursor-pointer active:opacity-80 transition-all relative overflow-hidden`}>
+              <div className="flex items-start justify-between">
+                <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                  <Icon className="w-4 h-4" />
                 </div>
-                <div className="mt-2 min-w-0">
-                  <p className="font-bold text-[12px] leading-tight line-clamp-2">{title}</p>
-                  <p className="text-white/65 text-[10px] mt-0.5 leading-tight line-clamp-2">{desc}</p>
-                </div>
-                <div className="absolute bottom-0 right-0 w-14 h-14 bg-white/5 rounded-full -mr-5 -mb-5" />
+                {alert && <div className="w-2.5 h-2.5 bg-red-400 rounded-full animate-pulse" />}
               </div>
-            </Link>
+              <p className="text-2xl font-bold mt-2">{valor}</p>
+              <p className="text-[10px] text-white/70 mt-0.5">{sub}</p>
+              <p className="text-[10px] font-medium mt-1.5 flex items-center gap-0.5 text-white/80">
+                {label} <ArrowRight className="w-3 h-3" />
+              </p>
+            </motion.div>
           ))}
         </div>
       </div>
 
-      {/* Alertas de prazo */}
-      <PrazoAlertas currentUser={currentUser} />
+      {/* Calibração Status Detalhado */}
+      <Card className="border border-slate-200">
+        <CardContent className="p-3">
+          <h3 className="text-xs font-bold text-slate-700 mb-2 flex items-center gap-1.5">
+            <Gauge className="w-3.5 h-3.5 text-amber-600" /> Status das Calibrações
+          </h3>
+          <div className="grid grid-cols-4 gap-2">
+            {[
+              { label: "Em Dia", val: kpis.calStatus.ok, color: "bg-emerald-100 text-emerald-700" },
+              { label: "30 dias", val: kpis.calStatus.vence30, color: "bg-yellow-100 text-yellow-700" },
+              { label: "15 dias", val: kpis.calStatus.vence15, color: "bg-orange-100 text-orange-700" },
+              { label: "Vencidas", val: kpis.calStatus.vencido, color: "bg-red-100 text-red-700" },
+            ].map(s => (
+              <div key={s.label} className={`text-center py-2 rounded-lg ${s.color}`}>
+                <p className="text-lg font-bold">{s.val}</p>
+                <p className="text-[9px] font-medium">{s.label}</p>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* Gráficos gerais */}
+      {/* Módulos Rápidos */}
       <div>
         <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-          <Activity className="w-3.5 h-3.5" /> Indicadores
+          <FileText className="w-3.5 h-3.5" /> Acessos Rápidos
         </h2>
-        <GraficosGerais currentUser={currentUser} />
+        <div className="grid grid-cols-3 gap-1.5">
+          {[
+            { label: "Ferramentas", url: "Ferramentas", icon: Wrench },
+            { label: "Calibração", url: "Calibracao", icon: Gauge },
+            { label: "Auditoria", url: "AuditoriaIndustrial", icon: ClipboardCheck },
+            { label: "Quadro Monitor", url: "QuadroMonitor", icon: Monitor },
+            { label: "5S", url: "CincoS", icon: Sparkles },
+            { label: "Bancadas", url: "Bancadas", icon: BarChart3 },
+            { label: "Etiquetas", url: "ChecklistAuditoria", icon: Tag },
+            { label: "Faixas", url: "ChecklistAuditoria", icon: Ruler },
+            { label: "Calendário", url: "Calendario", icon: Calendar },
+          ].map(({ label, url, icon: Icon }) => (
+            <button key={url} onClick={() => navigate(createPageUrl(url))}
+              className="flex flex-col items-center gap-1 p-2.5 rounded-xl bg-slate-50 border border-slate-100 hover:bg-slate-100 active:bg-slate-200 transition-colors">
+              <Icon className="w-4 h-4 text-slate-600" />
+              <span className="text-[10px] font-medium text-slate-600 text-center leading-tight">{label}</span>
+            </button>
+          ))}
+        </div>
       </div>
-
-      {/* Exportar dados — só admin/supervisor */}
-      {isSupervisor && <ExportarDados currentUser={currentUser} />}
-
-      {/* Histórico */}
-      <HistoricoAtividades currentUser={currentUser} />
     </div>
   );
 }
