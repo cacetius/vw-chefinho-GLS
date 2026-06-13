@@ -1,0 +1,68 @@
+{
+  "name": "CincoS",
+  "type": "object",
+  "properties": {
+    "data": {
+      "type": "string",
+      "format": "date"
+    },
+    "area": {
+      "type": "string"
+    },
+    "celula": {
+      "type": "string"
+    },
+    "equipe": {
+      "type": "string"
+    },
+    "auditor_nome": {
+      "type": "string"
+    },
+    "utilizacao": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10,
+      "description": "Nota do senso Utiliza\u00e7\u00e3o"
+    },
+    "organizacao": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10,
+      "description": "Nota do senso Organiza\u00e7\u00e3o"
+    },
+    "limpeza": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10,
+      "description": "Nota do senso Limpeza"
+    },
+    "padronizacao": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10,
+      "description": "Nota do senso Padroniza\u00e7\u00e3o"
+    },
+    "disciplina": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10,
+      "description": "Nota do senso Disciplina"
+    },
+    "pontuacao_total": {
+      "type": "number",
+      "description": "Pontua\u00e7\u00e3o total (m\u00e1x 50)"
+    },
+    "foto": {
+      "type": "string",
+      "description": "URL da foto"
+    },
+    "observacoes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "data",
+    "area",
+    "equipe"
+  ]
+}

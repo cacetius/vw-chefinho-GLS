@@ -47,7 +47,7 @@ export default function EstoqueChart({ itens }) {
               </ResponsiveContainer>
               <div className="mt-4 p-4 bg-gray-50 rounded-lg">
                 <p className="text-sm text-gray-600">
-                  Preço atual: <span className="font-bold text-green-600">R$ {item.preco_atual.toFixed(2)}</span>
+                  Preço atual: <span className="font-bold text-green-600">R$ {item.quantidade_atual.toFixed(2)}</span>
                   {item.fornecedor && <span className="ml-2">• Fornecedor: {item.fornecedor}</span>}
                 </p>
               </div>

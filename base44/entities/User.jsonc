@@ -45,6 +45,10 @@
       "type": "string",
       "description": "Nome da equipe"
     },
+    "celula": {
+      "type": "string",
+      "description": "Nome da c\u00e9lula (agrupamento de equipes sob um l\u00edder)"
+    },
     "turno": {
       "type": "string",
       "enum": [

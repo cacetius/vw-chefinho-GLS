@@ -13,6 +13,13 @@ import PlanejamentoRotatividadePage from './pages/PlanejamentoRotatividade';
 import OperacoesHubPage from './pages/OperacoesHub';
 import PessoasHubPage from './pages/PessoasHub';
 import SegurancaHubPage from './pages/SegurancaHub';
+import FerramentasPage from './pages/Ferramentas';
+import CalibracaoPage from './pages/Calibracao';
+import AuditoriaIndustrialPage from './pages/AuditoriaIndustrial';
+import BancadasPage from './pages/Bancadas';
+import ChecklistPagePage from './pages/ChecklistPage';
+import CincoSPagePage from './pages/CincoSPage';
+import QuadroMonitorPage from './pages/QuadroMonitor';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -72,6 +79,13 @@ const AuthenticatedApp = () => {
       <Route path="/ObjetivosMes" element={<LayoutWrapper currentPageName="Objetivos do Mês"><ObjetivosMesPage /></LayoutWrapper>} />
       <Route path="/PlanejamentoRotatividade" element={<LayoutWrapper currentPageName="Planejamento de Rotatividade"><PlanejamentoRotatividadePage /></LayoutWrapper>} />
       <Route path="/GastosEPI" element={<LayoutWrapper currentPageName="Gastos EPI"><GastosEPIPage /></LayoutWrapper>} />
+      <Route path="/Ferramentas" element={<LayoutWrapper currentPageName="Ferramentas"><FerramentasPage /></LayoutWrapper>} />
+      <Route path="/Calibracao" element={<LayoutWrapper currentPageName="Calibração"><CalibracaoPage /></LayoutWrapper>} />
+      <Route path="/AuditoriaIndustrial" element={<LayoutWrapper currentPageName="Auditoria Industrial"><AuditoriaIndustrialPage /></LayoutWrapper>} />
+      <Route path="/Bancadas" element={<LayoutWrapper currentPageName="Bancadas"><BancadasPage /></LayoutWrapper>} />
+      <Route path="/ChecklistAuditoria" element={<LayoutWrapper currentPageName="Checklist de Auditoria"><ChecklistPagePage /></LayoutWrapper>} />
+      <Route path="/CincoS" element={<LayoutWrapper currentPageName="Gestão 5S"><CincoSPagePage /></LayoutWrapper>} />
+      <Route path="/QuadroMonitor" element={<LayoutWrapper currentPageName="Quadro do Monitor"><QuadroMonitorPage /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

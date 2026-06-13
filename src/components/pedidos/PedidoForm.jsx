@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { X, AlertTriangle, ShoppingCart, DollarSign } from "lucide-react";
+import { X, ShoppingCart } from "lucide-react";
 
 const EPI_SUGESTOES = [
   "Luvas de proteção", "Capacete de segurança", "Óculos de proteção",
@@ -19,8 +19,6 @@ export default function PedidoForm({ pedido, onSubmit, currentUser, onCancel, or
     solicitante: currentUser?.nome_exibicao || currentUser?.full_name || "",
     item: "",
     quantidade: 1,
-    valor_unitario: 0,
-    valor_total: 0,
     justificativa: "",
     status: "pendente",
     urgencia: "normal",
@@ -28,23 +26,10 @@ export default function PedidoForm({ pedido, onSubmit, currentUser, onCancel, or
   });
   const [showSugestoes, setShowSugestoes] = useState(false);
 
-  const updateTotal = (quantidade, valor_unitario) => {
-    setFormData(f => ({ ...f, quantidade, valor_unitario, valor_total: quantidade * valor_unitario }));
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ ...formData, valor_total: formData.quantidade * formData.valor_unitario });
+    onSubmit({ ...formData });
   };
-
-  // Saldo disponível nos orçamentos ativos de EPI para a equipe do usuário
-  const orcEPI = orcamentosAtivos.filter(o =>
-    o.status === "ativo" && o.categoria === "epi" &&
-    (!currentUser?.equipe || o.equipe === currentUser.equipe || !o.equipe)
-  );
-  const saldoDisponivel = orcEPI.reduce((s, o) => s + (o.valor_total - (o._utilizado || 0)), 0);
-  const valorPedido = formData.quantidade * formData.valor_unitario;
-  const excedeBudget = saldoDisponivel > 0 && valorPedido > saldoDisponivel;
 
   return (
     <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }} className="mb-4">
@@ -57,19 +42,7 @@ export default function PedidoForm({ pedido, onSubmit, currentUser, onCancel, or
           <Button variant="ghost" size="icon" onClick={onCancel} className="w-7 h-7"><X className="w-4 h-4" /></Button>
         </CardHeader>
         <CardContent className="p-4">
-          {/* Saldo de orçamento disponível */}
-          {orcEPI.length > 0 && (
-            <div className={`mb-4 p-3 rounded-lg border text-xs flex items-center gap-2 ${
-              excedeBudget ? "bg-red-50 border-red-200 text-red-800" : "bg-green-50 border-green-200 text-green-800"
-            }`}>
-              <DollarSign className="w-4 h-4 flex-shrink-0" />
-              <span>
-                Saldo disponível nos orçamentos EPI:&nbsp;
-                <strong>R$ {saldoDisponivel.toFixed(2)}</strong>
-                {excedeBudget && " — ⚠️ Este pedido excede o saldo disponível!"}
-              </span>
-            </div>
-          )}
+
 
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className="grid md:grid-cols-2 gap-3">
@@ -99,25 +72,10 @@ export default function PedidoForm({ pedido, onSubmit, currentUser, onCancel, or
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
-              <div className="space-y-1">
+            <div className="space-y-1">
                 <Label className="text-xs">Quantidade *</Label>
                 <Input type="number" min="1" value={formData.quantidade}
-                  onChange={e => updateTotal(parseInt(e.target.value) || 1, formData.valor_unitario)} required className="h-9 text-sm" />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs">Valor Unitário (R$)</Label>
-                <Input type="number" step="0.01" min="0" value={formData.valor_unitario}
-                  onChange={e => updateTotal(formData.quantidade, parseFloat(e.target.value) || 0)} className="h-9 text-sm" />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs">Total</Label>
-                <div className={`h-9 px-3 flex items-center rounded-md border text-sm font-bold ${
-                  excedeBudget ? "bg-red-50 border-red-200 text-red-700" : "bg-green-50 border-green-200 text-green-700"
-                }`}>
-                  R$ {valorPedido.toFixed(2)}
-                </div>
-              </div>
+                  onChange={e => setFormData(f => ({ ...f, quantidade: parseInt(e.target.value) || 1 }))} required className="h-9 text-sm" />
             </div>
 
             <div className="space-y-1">
@@ -146,12 +104,7 @@ export default function PedidoForm({ pedido, onSubmit, currentUser, onCancel, or
               </div>
             </div>
 
-            {excedeBudget && (
-              <div className="flex items-start gap-2 p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
-                <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
-                <span>O valor deste pedido (R$ {valorPedido.toFixed(2)}) excede o saldo de orçamento disponível (R$ {saldoDisponivel.toFixed(2)}). O líder precisará analisar antes de aprovar.</span>
-              </div>
-            )}
+
 
             <div className="flex justify-end gap-2 pt-1">
               <Button type="button" variant="outline" onClick={onCancel} className="h-9 text-sm">Cancelar</Button>

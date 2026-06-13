@@ -1,0 +1,104 @@
+{
+  "name": "AuditoriaProcesso",
+  "type": "object",
+  "properties": {
+    "data": {
+      "type": "string",
+      "format": "date",
+      "description": "Data da auditoria"
+    },
+    "hora": {
+      "type": "string",
+      "description": "Hora da auditoria"
+    },
+    "area": {
+      "type": "string",
+      "description": "\u00c1rea auditada"
+    },
+    "celula": {
+      "type": "string",
+      "description": "C\u00e9lula"
+    },
+    "equipe": {
+      "type": "string",
+      "description": "Equipe"
+    },
+    "tacto": {
+      "type": "string",
+      "description": "Tacto"
+    },
+    "lado": {
+      "type": "string",
+      "description": "Lado"
+    },
+    "ferramenta": {
+      "type": "string",
+      "description": "Ferramenta relacionada"
+    },
+    "equipamento": {
+      "type": "string",
+      "description": "Equipamento relacionado"
+    },
+    "categoria": {
+      "type": "string",
+      "enum": [
+        "ferramenta",
+        "torque",
+        "equipamento",
+        "bancada",
+        "etiqueta",
+        "faixa",
+        "5s",
+        "seguranca",
+        "documentacao",
+        "qualidade",
+        "outro"
+      ],
+      "description": "Categoria"
+    },
+    "condicao_encontrada": {
+      "type": "string",
+      "description": "Condi\u00e7\u00e3o encontrada"
+    },
+    "conformidade": {
+      "type": "string",
+      "enum": [
+        "conforme",
+        "nao_conforme",
+        "em_analise",
+        "resolvido"
+      ],
+      "default": "conforme",
+      "description": "Status de conformidade"
+    },
+    "observacao": {
+      "type": "string",
+      "description": "Observa\u00e7\u00e3o"
+    },
+    "foto": {
+      "type": "string",
+      "description": "URL da foto"
+    },
+    "acao_corretiva": {
+      "type": "string",
+      "description": "A\u00e7\u00e3o corretiva"
+    },
+    "responsavel_acao": {
+      "type": "string",
+      "description": "Respons\u00e1vel pela a\u00e7\u00e3o"
+    },
+    "auditor_id": {
+      "type": "string",
+      "description": "ID do auditor"
+    },
+    "auditor_nome": {
+      "type": "string",
+      "description": "Nome do auditor"
+    }
+  },
+  "required": [
+    "data",
+    "area",
+    "conformidade"
+  ]
+}

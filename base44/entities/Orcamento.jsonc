@@ -14,6 +14,10 @@
       "type": "string",
       "description": "Equipe relacionada"
     },
+    "celula": {
+      "type": "string",
+      "description": "C\u00e9lula relacionada"
+    },
     "turno": {
       "type": "string",
       "enum": [
@@ -28,15 +32,6 @@
       "type": "string",
       "format": "date",
       "description": "M\u00eas de refer\u00eancia do or\u00e7amento"
-    },
-    "valor_total": {
-      "type": "number",
-      "description": "Valor total do or\u00e7amento"
-    },
-    "valor_utilizado": {
-      "type": "number",
-      "default": 0,
-      "description": "Valor j\u00e1 utilizado"
     },
     "categoria": {
       "type": "string",
@@ -61,7 +56,6 @@
   "required": [
     "titulo",
     "mes_referencia",
-    "valor_total",
     "categoria"
   ]
 }

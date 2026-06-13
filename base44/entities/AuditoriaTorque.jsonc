@@ -1,0 +1,74 @@
+{
+  "name": "AuditoriaTorque",
+  "type": "object",
+  "properties": {
+    "ferramenta": {
+      "type": "string",
+      "description": "Ferramenta de torque"
+    },
+    "tacto": {
+      "type": "string",
+      "description": "Tacto"
+    },
+    "lado": {
+      "type": "string",
+      "description": "Lado"
+    },
+    "posto": {
+      "type": "string",
+      "description": "Posto de trabalho"
+    },
+    "ultima_calibracao": {
+      "type": "string",
+      "format": "date",
+      "description": "Data da \u00faltima calibra\u00e7\u00e3o"
+    },
+    "vencimento_calibracao": {
+      "type": "string",
+      "format": "date",
+      "description": "Data de vencimento"
+    },
+    "condicao": {
+      "type": "string",
+      "description": "Condi\u00e7\u00e3o encontrada"
+    },
+    "foto": {
+      "type": "string",
+      "description": "URL da foto"
+    },
+    "resultado": {
+      "type": "string",
+      "enum": [
+        "conforme",
+        "nao_conforme",
+        "em_analise"
+      ],
+      "default": "conforme"
+    },
+    "acao_necessaria": {
+      "type": "string",
+      "description": "A\u00e7\u00e3o necess\u00e1ria"
+    },
+    "data_auditoria": {
+      "type": "string",
+      "format": "date"
+    },
+    "celula": {
+      "type": "string"
+    },
+    "equipe": {
+      "type": "string"
+    },
+    "auditor_nome": {
+      "type": "string"
+    },
+    "observacoes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "ferramenta",
+    "data_auditoria",
+    "resultado"
+  ]
+}

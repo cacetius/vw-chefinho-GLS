@@ -1,0 +1,70 @@
+{
+  "name": "Etiqueta",
+  "type": "object",
+  "properties": {
+    "nome": {
+      "type": "string",
+      "description": "Nome da etiqueta"
+    },
+    "codigo": {
+      "type": "string",
+      "description": "C\u00f3digo"
+    },
+    "descricao": {
+      "type": "string"
+    },
+    "area": {
+      "type": "string"
+    },
+    "celula": {
+      "type": "string"
+    },
+    "equipe": {
+      "type": "string"
+    },
+    "data_instalacao": {
+      "type": "string",
+      "format": "date"
+    },
+    "ultima_revisao": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ativo",
+        "desgastado",
+        "substituir"
+      ],
+      "default": "ativo"
+    },
+    "legivel": {
+      "type": "boolean",
+      "default": true
+    },
+    "atualizada": {
+      "type": "boolean",
+      "default": true
+    },
+    "correta": {
+      "type": "boolean",
+      "default": true
+    },
+    "fixada": {
+      "type": "boolean",
+      "default": true
+    },
+    "foto": {
+      "type": "string",
+      "description": "URL da foto"
+    },
+    "observacoes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "nome",
+    "area"
+  ]
+}

@@ -35,28 +35,28 @@ export default function GastosEPI() {
     return data && data.startsWith(mesRef) && (p.status === "aprovado" || p.status === "entregue");
   });
 
-  // Gastos por setor/equipe
+  // Consumo por setor/equipe
   const porSetor = {};
   pedidosMes.forEach(p => {
     const equipe = p.equipe || "Sem equipe";
-    porSetor[equipe] = (porSetor[equipe] || 0) + (p.valor_total || 0);
+    porSetor[equipe] = (porSetor[equipe] || 0) + (p.quantidade || 0);
   });
   const dadosSetor = Object.entries(porSetor)
     .map(([equipe, total]) => ({ equipe, total }))
     .sort((a, b) => b.total - a.total);
 
-  // Gastos por item EPI
+  // Consumo por item EPI
   const porItem = {};
   pedidosMes.forEach(p => {
     const item = p.item || "Outros";
-    porItem[item] = (porItem[item] || 0) + (p.valor_total || 0);
+    porItem[item] = (porItem[item] || 0) + (p.quantidade || 0);
   });
   const dadosItem = Object.entries(porItem)
     .map(([item, total]) => ({ item, total }))
     .sort((a, b) => b.total - a.total)
     .slice(0, 6);
 
-  const totalMes = pedidosMes.reduce((s, p) => s + (p.valor_total || 0), 0);
+  const totalMes = pedidosMes.reduce((s, p) => s + (p.quantidade || 0), 0);
   const qtdPedidos = pedidosMes.length;
 
   // Objetivos do mês para calendário circular
@@ -141,9 +141,9 @@ export default function GastosEPI() {
           <CardContent className="p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <DollarSign className="w-3.5 h-3.5 text-green-600" />
-              <p className="text-[9px] text-slate-500">Total Gasto</p>
+              <p className="text-[9px] text-slate-500">Total Consumido</p>
             </div>
-            <p className="text-lg font-bold text-slate-900">R${totalMes.toFixed(0)}</p>
+            <p className="text-lg font-bold text-slate-900">{totalMes} unid.</p>
           </CardContent>
         </Card>
         <Card className="border-slate-200">
@@ -173,7 +173,7 @@ export default function GastosEPI() {
         <Card className="border-slate-200 shadow-sm">
           <div className="px-3 pt-3 pb-1">
             <p className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-              <TrendingUp className="w-3.5 h-3.5 text-[#0066b1]" /> Gasto por Setor (R$)
+              <TrendingUp className="w-3.5 h-3.5 text-[#0066b1]" /> Consumo por Setor (unid.)
             </p>
           </div>
           <CardContent className="pt-2 pb-3">
@@ -184,8 +184,8 @@ export default function GastosEPI() {
                 <BarChart data={dadosSetor} margin={{ top: 4, right: 8, left: -16, bottom: 4 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                   <XAxis dataKey="equipe" tick={{ fontSize: 9 }} />
-                  <YAxis tick={{ fontSize: 9 }} tickFormatter={v => `R$${v}`} />
-                  <Tooltip formatter={(v) => [`R$ ${v.toFixed(2)}`, "Total"]} />
+                  <YAxis tick={{ fontSize: 9 }} tickFormatter={v => `${v}`} />
+                  <Tooltip formatter={(v) => [`${v} unid.`, "Total"]} />
                   <Bar dataKey="total" radius={[4, 4, 0, 0]}>
                     {dadosSetor.map((_, i) => <Cell key={i} fill={CORES[i % CORES.length]} />)}
                   </Bar>
@@ -199,7 +199,7 @@ export default function GastosEPI() {
         <Card className="border-slate-200 shadow-sm">
           <div className="px-3 pt-3 pb-1">
             <p className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-              <DollarSign className="w-3.5 h-3.5 text-green-600" /> Distribuição por Item EPI
+              <DollarSign className="w-3.5 h-3.5 text-green-600" /> Consumo por Item EPI
             </p>
           </div>
           <CardContent className="pt-2 pb-3">
@@ -212,7 +212,7 @@ export default function GastosEPI() {
                     <Pie data={dadosItem} dataKey="total" nameKey="item" cx="50%" cy="50%" outerRadius={55} innerRadius={28}>
                       {dadosItem.map((_, i) => <Cell key={i} fill={CORES[i % CORES.length]} />)}
                     </Pie>
-                    <Tooltip formatter={(v) => `R$ ${v.toFixed(2)}`} />
+                    <Tooltip formatter={(v) => `${v} unid.`} />
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="flex-1 space-y-1">
@@ -221,7 +221,7 @@ export default function GastosEPI() {
                       <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: CORES[i % CORES.length] }} />
                       <div className="flex-1 min-w-0">
                         <p className="text-[9px] font-semibold text-slate-700 truncate">{d.item}</p>
-                        <p className="text-[9px] text-slate-400">R${d.total.toFixed(0)}</p>
+                        <p className="text-[9px] text-slate-400">{d.total} unid.</p>
                       </div>
                     </div>
                   ))}
@@ -316,7 +316,7 @@ export default function GastosEPI() {
                     <p className="text-[10px] text-slate-400">{p.equipe || "—"} • {p.solicitante}</p>
                   </div>
                   <div className="text-right flex-shrink-0 ml-2">
-                    <p className="text-xs font-bold text-green-700">R${(p.valor_total || 0).toFixed(2)}</p>
+                    <p className="text-xs font-bold text-green-700">{p.quantidade || 0} unid.</p>
                     <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-semibold ${p.status === "entregue" ? "bg-blue-100 text-blue-700" : "bg-green-100 text-green-700"}`}>
                       {p.status}
                     </span>

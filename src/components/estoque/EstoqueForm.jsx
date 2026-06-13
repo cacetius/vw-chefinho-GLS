@@ -16,7 +16,6 @@ export default function EstoqueForm({ item, onSubmit, onCancel }) {
     unidade: "unidade",
     localizacao: "",
     fornecedor: "",
-    preco_atual: 0,
     validade: ""
   });
 
@@ -115,8 +114,7 @@ export default function EstoqueForm({ item, onSubmit, onCancel }) {
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
+            <div className="space-y-2">
                 <Label htmlFor="fornecedor">Fornecedor</Label>
                 <Input
                   id="fornecedor"
@@ -124,18 +122,6 @@ export default function EstoqueForm({ item, onSubmit, onCancel }) {
                   value={formData.fornecedor}
                   onChange={(e) => setFormData({...formData, fornecedor: e.target.value})}
                 />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="preco_atual">Preço Unitário (R$)</Label>
-                <Input
-                  id="preco_atual"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.preco_atual}
-                  onChange={(e) => setFormData({...formData, preco_atual: parseFloat(e.target.value)})}
-                />
-              </div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-4">

@@ -1,0 +1,90 @@
+{
+  "name": "ChecklistAuditoria",
+  "type": "object",
+  "properties": {
+    "titulo": {
+      "type": "string",
+      "description": "T\u00edtulo do checklist"
+    },
+    "categoria": {
+      "type": "string",
+      "enum": [
+        "ferramentas",
+        "torques",
+        "equipamentos",
+        "bancadas",
+        "etiquetas",
+        "faixas",
+        "5s",
+        "seguranca",
+        "documentacao",
+        "qualidade"
+      ],
+      "description": "Categoria"
+    },
+    "data": {
+      "type": "string",
+      "format": "date"
+    },
+    "area": {
+      "type": "string"
+    },
+    "celula": {
+      "type": "string"
+    },
+    "equipe": {
+      "type": "string"
+    },
+    "itens": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "descricao": {
+            "type": "string"
+          },
+          "conforme": {
+            "type": "boolean"
+          },
+          "observacao": {
+            "type": "string"
+          },
+          "evidencia_foto": {
+            "type": "string"
+          },
+          "pontuacao": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 10
+          }
+        }
+      }
+    },
+    "pontuacao_total": {
+      "type": "number"
+    },
+    "assinatura_digital": {
+      "type": "string",
+      "description": "Assinatura digital"
+    },
+    "auditor_nome": {
+      "type": "string"
+    },
+    "observacoes_gerais": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "rascunho",
+        "finalizado"
+      ],
+      "default": "rascunho"
+    }
+  },
+  "required": [
+    "titulo",
+    "categoria",
+    "data"
+  ]
+}

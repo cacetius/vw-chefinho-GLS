@@ -1,0 +1,67 @@
+{
+  "name": "Faixa",
+  "type": "object",
+  "properties": {
+    "nome": {
+      "type": "string",
+      "description": "Nome da faixa"
+    },
+    "area": {
+      "type": "string"
+    },
+    "celula": {
+      "type": "string"
+    },
+    "equipe": {
+      "type": "string"
+    },
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "demarcacao",
+        "seguranca",
+        "fluxo",
+        "identificacao",
+        "outro"
+      ],
+      "description": "Tipo de faixa"
+    },
+    "data_instalacao": {
+      "type": "string",
+      "format": "date"
+    },
+    "ultima_troca": {
+      "type": "string",
+      "format": "date"
+    },
+    "condicao": {
+      "type": "string",
+      "enum": [
+        "bom",
+        "regular",
+        "ruim",
+        "critico"
+      ],
+      "default": "bom"
+    },
+    "fotos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "URLs das fotos"
+    },
+    "indicador_desgaste": {
+      "type": "number",
+      "description": "Percentual de desgaste (0-100)"
+    },
+    "observacoes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "nome",
+    "area",
+    "tipo"
+  ]
+}

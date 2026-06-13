@@ -1,0 +1,73 @@
+{
+  "name": "AtividadeMonitor",
+  "type": "object",
+  "properties": {
+    "titulo": {
+      "type": "string",
+      "description": "T\u00edtulo da atividade"
+    },
+    "categoria": {
+      "type": "string",
+      "enum": [
+        "diaria",
+        "semanal",
+        "mensal"
+      ],
+      "description": "Frequ\u00eancia da atividade"
+    },
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "auditoria_rapida",
+        "verificacao_ferramentas",
+        "verificacao_epi",
+        "verificacao_5s",
+        "atualizacao_area",
+        "conferencia_etiquetas",
+        "conferencia_faixas",
+        "revisao_estoque",
+        "revisao_equipamentos",
+        "auditoria_geral",
+        "revisao_documental",
+        "inventario",
+        "revisao_calibracao",
+        "outro"
+      ],
+      "description": "Tipo de atividade"
+    },
+    "data": {
+      "type": "string",
+      "format": "date"
+    },
+    "celula": {
+      "type": "string"
+    },
+    "equipe": {
+      "type": "string"
+    },
+    "responsavel": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "nao_iniciado",
+        "em_andamento",
+        "concluido",
+        "atrasado"
+      ],
+      "default": "nao_iniciado"
+    },
+    "observacoes": {
+      "type": "string"
+    },
+    "foto": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "titulo",
+    "categoria",
+    "data"
+  ]
+}

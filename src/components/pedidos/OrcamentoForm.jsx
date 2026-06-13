@@ -15,8 +15,6 @@ export default function OrcamentoForm({ orcamento, onSubmit, onCancel }) {
     equipe: "",
     turno: "todos",
     mes_referencia: new Date().toISOString().split('T')[0],
-    valor_total: 0,
-    valor_utilizado: 0,
     categoria: "epi",
     status: "ativo"
   });
@@ -122,35 +120,16 @@ export default function OrcamentoForm({ orcamento, onSubmit, onCancel }) {
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="valor_total">Valor Total (R$) *</Label>
-                <Input
-                  id="valor_total"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.valor_total}
-                  onChange={(e) => setFormData({...formData, valor_total: parseFloat(e.target.value)})}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="status">Status</Label>
-                <Select
-                  value={formData.status}
-                  onValueChange={(value) => setFormData({...formData, status: value})}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ativo">Ativo</SelectItem>
-                    <SelectItem value="esgotado">Esgotado</SelectItem>
-                    <SelectItem value="cancelado">Cancelado</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="status">Status</Label>
+              <Select value={formData.status} onValueChange={(value) => setFormData({...formData, status: value})}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ativo">Ativo</SelectItem>
+                  <SelectItem value="esgotado">Esgotado</SelectItem>
+                  <SelectItem value="cancelado">Cancelado</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="flex justify-end gap-3">

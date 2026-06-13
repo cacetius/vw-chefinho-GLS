@@ -155,9 +155,7 @@ export default function EstoqueList({ itens, onEdit, onDelete, onMovimentar, has
                             <div className="pt-2 mt-1 border-t border-slate-100 space-y-1 text-xs text-slate-600">
                               {item.localizacao && <p><span className="text-slate-400">Local:</span> {item.localizacao}</p>}
                               {item.fornecedor && <p><span className="text-slate-400">Fornecedor:</span> {item.fornecedor}</p>}
-                              {item.preco_atual > 0 && (
-                                <p><span className="text-slate-400">Preço unit.:</span> R$ {item.preco_atual?.toFixed(2)} · Total: R$ {(item.quantidade_atual * item.preco_atual).toFixed(2)}</p>
-                              )}
+
                               {item.validade && (
                                 <p><span className="text-slate-400">Validade:</span> {new Date(item.validade).toLocaleDateString("pt-BR")}</p>
                               )}
