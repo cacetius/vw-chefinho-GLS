@@ -7,6 +7,20 @@ import NavigationTracker from '@/lib/NavigationTracker'
 import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
+import ObjetivosMesPage from './pages/ObjetivosMes';
+import GastosEPIPage from './pages/GastosEPI';
+import PlanejamentoRotatividadePage from './pages/PlanejamentoRotatividade';
+import OperacoesHubPage from './pages/OperacoesHub';
+import PessoasHubPage from './pages/PessoasHub';
+import SegurancaHubPage from './pages/SegurancaHub';
+import FerramentasPage from './pages/Ferramentas';
+import CalibracaoPage from './pages/Calibracao';
+import CalendarioPage from './pages/Calendario';
+import AuditoriaIndustrialPage from './pages/AuditoriaIndustrial';
+import BancadasPage from './pages/Bancadas';
+import ChecklistPagePage from './pages/ChecklistPage';
+import CincoSPagePage from './pages/CincoSPage';
+
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -21,6 +35,7 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, navigateToLogin } = useAuth();
 
+  // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
@@ -29,19 +44,22 @@ const AuthenticatedApp = () => {
     );
   }
 
+  // Handle authentication errors
   if (authError) {
     if (authError.type === 'user_not_registered') {
       return <UserNotRegisteredError />;
     } else if (authError.type === 'auth_required') {
+      // Redirect to login automatically
       navigateToLogin();
       return null;
     }
   }
 
+  // Render the main app
   return (
     <Routes>
       <Route path="/" element={
-        <LayoutWrapper currentPageName="Quadro do Monitor">
+        <LayoutWrapper currentPageName={mainPageKey}>
           <MainPage />
         </LayoutWrapper>
       } />
@@ -50,18 +68,34 @@ const AuthenticatedApp = () => {
           key={path}
           path={`/${path}`}
           element={
-            <LayoutWrapper currentPageName={path === "QuadroMonitor" ? "Quadro do Monitor" : path}>
+            <LayoutWrapper currentPageName={path}>
               <Page />
             </LayoutWrapper>
           }
         />
       ))}
+      <Route path="/OperacoesHub" element={<LayoutWrapper currentPageName="Operações"><OperacoesHubPage /></LayoutWrapper>} />
+      <Route path="/PessoasHub" element={<LayoutWrapper currentPageName="Pessoas & Times"><PessoasHubPage /></LayoutWrapper>} />
+      <Route path="/SegurancaHub" element={<LayoutWrapper currentPageName="Segurança & Qualidade"><SegurancaHubPage /></LayoutWrapper>} />
+      <Route path="/ObjetivosMes" element={<LayoutWrapper currentPageName="Objetivos do Mês"><ObjetivosMesPage /></LayoutWrapper>} />
+      <Route path="/PlanejamentoRotatividade" element={<LayoutWrapper currentPageName="Planejamento de Rotatividade"><PlanejamentoRotatividadePage /></LayoutWrapper>} />
+      <Route path="/GastosEPI" element={<LayoutWrapper currentPageName="Gastos EPI"><GastosEPIPage /></LayoutWrapper>} />
+      <Route path="/Ferramentas" element={<LayoutWrapper currentPageName="Ferramentas"><FerramentasPage /></LayoutWrapper>} />
+      <Route path="/Calibracao" element={<LayoutWrapper currentPageName="Calibração"><CalibracaoPage /></LayoutWrapper>} />
+      <Route path="/AuditoriaIndustrial" element={<LayoutWrapper currentPageName="Auditoria Industrial"><AuditoriaIndustrialPage /></LayoutWrapper>} />
+      <Route path="/Bancadas" element={<LayoutWrapper currentPageName="Bancadas"><BancadasPage /></LayoutWrapper>} />
+      <Route path="/ChecklistAuditoria" element={<LayoutWrapper currentPageName="Checklist de Auditoria"><ChecklistPagePage /></LayoutWrapper>} />
+      <Route path="/CincoS" element={<LayoutWrapper currentPageName="Gestão 5S"><CincoSPagePage /></LayoutWrapper>} />
+    
+      <Route path="/Calendario" element={<LayoutWrapper currentPageName="Calendário"><CalendarioPage /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
 };
 
+
 function App() {
+
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>

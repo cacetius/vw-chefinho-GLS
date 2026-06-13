@@ -3,27 +3,73 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import {
-  Monitor, LogOut, Menu, X, User, Home,
-  Wrench, Gauge, ClipboardCheck, BarChart3
+  LayoutDashboard, Truck, Users, Shield, LogOut,
+  Menu, X, User, Home, MoreHorizontal,
+  ClipboardList, ChevronRight, Target, Package, Calendar as CalendarIcon,
+  Wrench, Gauge, ClipboardCheck, LayoutGrid, Sparkles, Monitor
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 
-const NAV_ITEMS = [
-  { title: "Quadro do Monitor", url: "QuadroMonitor", icon: Monitor },
-  { title: "Ferramentas", url: "Ferramentas", icon: Wrench },
-  { title: "Auditorias", url: "AuditoriaIndustrial", icon: ClipboardCheck },
-  { title: "Calibração", url: "Calibracao", icon: Gauge },
-  { title: "Indicadores", url: "Dashboard", icon: BarChart3 },
+const NAV_SECTIONS = [
+  {
+    title: "Principal",
+    items: [
+      { title: "Quadro do Monitor", url: "QuadroMonitor", icon: Monitor },
+      { title: "Calendário", url: "Calendario", icon: CalendarIcon },
+    ]
+  },
+  {
+    title: "Módulos",
+    items: [
+      { title: "EPI", url: "OperacoesHub", icon: Truck },
+      { title: "Segurança & DDS", url: "SegurancaHub", icon: Shield },
+    ]
+  },
+  {
+    title: "Auditoria & Qualidade",
+    items: [
+      { title: "Auditoria Industrial", url: "AuditoriaIndustrial", icon: ClipboardCheck },
+      { title: "Auditoria VDA", url: "AuditoriaVDA", icon: ClipboardList },
+      { title: "Checklist", url: "ChecklistAuditoria", icon: ClipboardList },
+      { title: "Gestão 5S", url: "CincoS", icon: Sparkles },
+    ]
+  },
+  {
+    title: "Ferramentas & Equipamentos",
+    items: [
+      { title: "Ferramentas", url: "Ferramentas", icon: Wrench },
+      { title: "Calibração", url: "Calibracao", icon: Gauge },
+      { title: "Bancadas", url: "Bancadas", icon: LayoutGrid },
+      { title: "Estoque EPI", url: "Estoque", icon: Package },
+    ]
+  },
+  {
+    title: "Operação",
+    items: [
+      { title: "Quadro do Monitor", url: "QuadroMonitor", icon: Monitor },
+      { title: "Objetivos do Mês", url: "ObjetivosMes", icon: Target },
+      { title: "Rotatividade", url: "PlanejamentoRotatividade", icon: ClipboardList },
+    ]
+  },
+  {
+    title: "Gestão",
+    items: [
+      { title: "Área do Monitor", url: "MonitorArea", icon: ClipboardList },
+      { title: "Área do Líder", url: "LiderArea", icon: Shield, liderOnly: true },
+      { title: "Gerenciar Usuários", url: "GerenciarUsuarios", icon: Users, liderOnly: true },
+    ]
+  }
 ];
 
 const BOTTOM_NAV = [
   { title: "Início", url: "QuadroMonitor", icon: Home },
-  { title: "Ferramentas", url: "Ferramentas", icon: Wrench },
-  { title: "Auditorias", url: "AuditoriaIndustrial", icon: ClipboardCheck },
-  { title: "Calibração", url: "Calibracao", icon: Gauge },
-  { title: "Menu", url: null, icon: Menu },
+  { title: "EPI", url: "OperacoesHub", icon: Truck },
+  { title: "Calendário", url: "Calendario", icon: CalendarIcon },
+  { title: "Segurança", url: "SegurancaHub", icon: Shield },
+  { title: "Menu", url: null, icon: MoreHorizontal },
 ];
 
 export default function Layout({ children, currentPageName }) {
@@ -38,6 +84,22 @@ export default function Layout({ children, currentPageName }) {
   }, []);
 
   const handleLogout = async () => { await base44.auth.logout(); };
+
+  const hasLeaderAccess = (user) => {
+    if (!user) return false;
+    if (user.cargo === "supervisor" || user.role === "admin") return true;
+    if (user.cargo === "lider") return true;
+    if (user.cargo_temporario === "lider" && user.data_cargo_temporario)
+      return new Date(user.data_cargo_temporario) >= new Date();
+    return false;
+  };
+
+  const filteredSections = currentUser
+    ? NAV_SECTIONS.map(s => ({
+        ...s,
+        items: s.items.filter(item => !item.liderOnly || hasLeaderAccess(currentUser))
+      })).filter(s => s.items.length > 0)
+    : [];
 
   const isActive = (url) => url && location.pathname === createPageUrl(url);
 
@@ -74,18 +136,22 @@ export default function Layout({ children, currentPageName }) {
         </div>
 
         <nav className="flex-1 overflow-y-auto py-2 px-2">
-          <p className="px-2 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Módulos</p>
-          {NAV_ITEMS.map(item => (
-            <Link key={item.url} to={createPageUrl(item.url)}>
-              <div className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 mb-0.5 ${
-                isActive(item.url)
-                  ? 'bg-[#0066b1] text-white'
-                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-              }`}>
-                <item.icon className="w-4 h-4 flex-shrink-0" />
-                <span className="truncate">{item.title}</span>
-              </div>
-            </Link>
+          {filteredSections.map(section => (
+            <div key={section.title} className="mb-3">
+              <p className="px-2 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest">{section.title}</p>
+              {section.items.map(item => (
+                <Link key={item.url} to={createPageUrl(item.url)}>
+                  <div className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 mb-0.5 ${
+                    isActive(item.url)
+                      ? 'bg-[#0066b1] text-white'
+                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                  }`}>
+                    <item.icon className="w-4 h-4 flex-shrink-0" />
+                    <span className="truncate">{item.title}</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
           ))}
         </nav>
 
@@ -159,16 +225,21 @@ export default function Layout({ children, currentPageName }) {
               </div>
 
               <nav className="flex-1 overflow-y-auto py-3 px-2">
-                <p className="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Módulos</p>
-                {NAV_ITEMS.map(item => (
-                  <Link key={item.url} to={createPageUrl(item.url)} onClick={() => setDrawerOpen(false)}>
-                    <div className={`flex items-center gap-3 px-3 py-2.5 rounded-xl mb-0.5 transition-all ${
-                      isActive(item.url) ? 'bg-[#0066b1] text-white' : 'text-slate-700 hover:bg-slate-100'
-                    }`}>
-                      <item.icon className="w-4 h-4 flex-shrink-0" />
-                      <span className="text-sm font-medium">{item.title}</span>
-                    </div>
-                  </Link>
+                {filteredSections.map(section => (
+                  <div key={section.title} className="mb-3">
+                    <p className="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest">{section.title}</p>
+                    {section.items.map(item => (
+                      <Link key={item.url} to={createPageUrl(item.url)} onClick={() => setDrawerOpen(false)}>
+                        <div className={`flex items-center gap-3 px-3 py-2.5 rounded-xl mb-0.5 transition-all ${
+                          isActive(item.url) ? 'bg-[#0066b1] text-white' : 'text-slate-700 hover:bg-slate-100'
+                        }`}>
+                          <item.icon className="w-4 h-4 flex-shrink-0" />
+                          <span className="text-sm font-medium">{item.title}</span>
+                          {isActive(item.url) && <ChevronRight className="w-4 h-4 ml-auto opacity-60" />}
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
                 ))}
               </nav>
 
