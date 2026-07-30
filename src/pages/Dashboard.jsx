@@ -1,45 +1,96 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
-  Wrench, Gauge, ClipboardCheck, Sparkles, Monitor,
-  Calendar, Tag, Ruler, AlertTriangle, CheckCircle2,
-  Clock, TrendingUp, BarChart3, ArrowRight, Bell,
-  FileText, Zap
+  Wrench, Gauge, ClipboardCheck, Sparkles,
+  AlertTriangle, Clock, TrendingUp, ArrowRight,
+  Zap, BarChart2, Shield, Activity
 } from "lucide-react";
-import { motion } from "framer-motion";
 import { format, differenceInDays } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import ChefinhoIA from "../components/dashboard/ChefinhoIA";
+
+// ─── Micro componentes ─────────────────────────────────────────────────────
+
+function StatRow({ label, value, variant = "default" }) {
+  const cls = variant === "danger" ? "text-red-600" : variant === "warn" ? "text-amber-600" : variant === "ok" ? "text-emerald-600" : "text-slate-700";
+  return (
+    <div className="flex items-center justify-between py-1.5 border-b border-slate-50 last:border-0">
+      <span className="text-xs text-slate-500">{label}</span>
+      <span className={`text-xs font-semibold tabular-nums ${cls}`}>{value}</span>
+    </div>
+  );
+}
+
+function AlertBadge({ children, onClick }) {
+  return (
+    <button onClick={onClick}
+      className="inline-flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 transition-colors">
+      <span className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />
+      {children}
+    </button>
+  );
+}
+
+function AlertWarnBadge({ children, onClick }) {
+  return (
+    <button onClick={onClick}
+      className="inline-flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors">
+      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 flex-shrink-0" />
+      {children}
+    </button>
+  );
+}
+
+function NavTile({ label, icon: Icon, onClick, alert }) {
+  return (
+    <button onClick={onClick}
+      className="relative flex flex-col items-start gap-2 p-3 rounded-lg border border-slate-200 bg-white hover:border-blue-400 hover:bg-blue-50/30 transition-all group text-left">
+      {alert && <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500" />}
+      <Icon className="w-4 h-4 text-slate-500 group-hover:text-blue-600 transition-colors" />
+      <span className="text-[11px] font-semibold text-slate-600 group-hover:text-blue-700 leading-tight">{label}</span>
+    </button>
+  );
+}
+
+function CalBar({ label, value, total, colorClass }) {
+  const pct = total > 0 ? Math.round((value / total) * 100) : 0;
+  return (
+    <div className="flex items-center gap-3">
+      <span className="text-[11px] text-slate-500 w-14 flex-shrink-0">{label}</span>
+      <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+        <div className={`h-full rounded-full ${colorClass}`} style={{ width: `${pct}%` }} />
+      </div>
+      <span className={`text-xs font-semibold tabular-nums w-5 text-right ${value > 0 && colorClass.includes("red") ? "text-red-600" : value > 0 && colorClass.includes("amber") ? "text-amber-600" : "text-slate-500"}`}>{value}</span>
+    </div>
+  );
+}
+
+// ─── MAIN ──────────────────────────────────────────────────────────────────
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
   const [mostrarIA, setMostrarIA] = useState(false);
 
-  useEffect(() => { base44.auth.me().then(u => setCurrentUser(u) || u).catch(() => {}); }, []);
+  useEffect(() => { base44.auth.me().then(u => setCurrentUser(u)).catch(() => {}); }, []);
 
   const { data: kpis = {}, isLoading } = useQuery({
     queryKey: ["dashboard-executivo", currentUser?.equipe],
     queryFn: async () => {
-      const [ferramentas, calibracoes, auditorias, cincoS, atividades, bancadas, etiquetas, faixas] = await Promise.all([
+      const [ferramentas, calibracoes, auditorias, cincoS, atividades, bancadas] = await Promise.all([
         base44.entities.Ferramenta.list(),
         base44.entities.Calibracao.list(),
-        base44.entities.AuditoriaIndustrialProcesso.list("-data", 100),
+        base44.entities.AuditoriaProcesso.list("-data", 100),
         base44.entities.CincoS.list("-data", 50),
         base44.entities.AtividadeMonitor.list("-data", 200),
         base44.entities.Bancada.list(),
-        base44.entities.Etiqueta.list(),
-        base44.entities.Faixa.list(),
       ]);
 
-      const hoje = new Date(); hoje.setHours(0,0,0,0);
+      const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
 
-      // Calibração status
       const calStatus = calibracoes.reduce((acc, c) => {
         if (!c.data_vencimento) { acc.semData++; return acc; }
         const dias = differenceInDays(new Date(c.data_vencimento + "T00:00:00"), hoje);
@@ -50,7 +101,6 @@ export default function Dashboard() {
         return acc;
       }, { ok: 0, vence30: 0, vence15: 0, vencido: 0, semData: 0 });
 
-      // AuditoriaIndustrial
       const audStatus = auditorias.reduce((acc, a) => {
         if (a.conformidade === "conforme") acc.conforme++;
         else if (a.conformidade === "nao_conforme") acc.naoConforme++;
@@ -58,10 +108,6 @@ export default function Dashboard() {
         return acc;
       }, { conforme: 0, naoConforme: 0, outros: 0 });
 
-      // 5S - última pontuação
-      const ultimo5S = cincoS.length > 0 ? cincoS[0] : null;
-
-      // Atividades
       const ativStatus = atividades.reduce((acc, a) => {
         if (a.status === "concluido") acc.concluidas++;
         else if (a.status === "atrasado") acc.atrasadas++;
@@ -70,200 +116,219 @@ export default function Dashboard() {
         return acc;
       }, { concluidas: 0, atrasadas: 0, emAndamento: 0, naoIniciadas: 0 });
 
-      // Etiquetas/Faixas status
-      const etiqCriticas = etiquetas.filter(e => e.status === "substituir" || e.status === "desgastado").length;
-      const faixasCriticas = faixas.filter(f => f.condicao === "critico" || f.condicao === "ruim").length;
+      const ultimo5S = cincoS.length > 0 ? cincoS[0] : null;
+      const score5S = ultimo5S ? Math.round((ultimo5S.pontuacao_total / 50) * 100) : null;
+
+      // Cal vence em 30 dias (inclui vence15)
+      const calProximas = calStatus.vence15 + calStatus.vence30;
 
       return {
         ferramentas: ferramentas.length,
         ferramentasAtivas: ferramentas.filter(f => f.status === "ativo").length,
-        calStatus,
-        calTotal: calibracoes.length,
-        audStatus,
-        audTotal: auditorias.length,
-        ultimo5S,
-        cincoSTotal: cincoS.length,
-        ativStatus,
-        ativTotal: atividades.length,
+        calStatus, calTotal: calibracoes.length, calProximas,
+        audStatus, audTotal: auditorias.length,
+        ultimo5S, score5S, cincoSTotal: cincoS.length,
+        ativStatus, ativTotal: atividades.length,
         bancadas: bancadas.length,
-        etiquetas: etiquetas.length,
-        etiqCriticas,
-        faixas: faixas.length,
-        faixasCriticas,
       };
     },
     enabled: !!currentUser,
-    refetchInterval: 60000
+    refetchInterval: 60000,
   });
 
   if (isLoading || !currentUser) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-[3px] border-slate-200 border-t-[#0066b1] rounded-full animate-spin" />
+        <div className="w-5 h-5 border-2 border-slate-200 border-t-blue-600 rounded-full animate-spin" />
       </div>
     );
   }
 
   const firstName = (currentUser?.nome_exibicao || currentUser?.full_name || "").split(" ")[0];
-
-  const KPI_CARDS = [
-    { label: "Ferramentas", valor: kpis.ferramentas, sub: `${kpis.ferramentasAtivas} ativas`, icon: Wrench, color: "from-blue-600 to-blue-800", url: "Ferramentas" },
-    { label: "Calibrações", valor: kpis.calTotal, sub: `${kpis.calStatus.vencido} vencidas · ${kpis.calStatus.vence15 + kpis.calStatus.vence30} próximas`, icon: Gauge, color: "from-amber-600 to-orange-700", url: "Calibracao", alert: kpis.calStatus.vencido > 0 },
-    { label: "AuditoriaIndustrials", valor: kpis.audTotal, sub: `${kpis.audStatus.naoConforme} não conformes`, icon: ClipboardCheck, color: "from-emerald-600 to-teal-700", url: "AuditoriaIndustrial", alert: kpis.audStatus.naoConforme > 0 },
-    { label: "5S", valor: kpis.ultimo5S ? `${kpis.ultimo5S.pontuacao_total}/50` : "-", sub: `${kpis.cincoSTotal} avaliações`, icon: Sparkles, color: "from-purple-600 to-violet-700", url: "CincoS" },
-    { label: "Monitor", valor: `${kpis.ativStatus.concluidas}/${kpis.ativTotal}`, sub: `${kpis.ativStatus.atrasadas} atrasadas`, icon: Monitor, color: "from-cyan-600 to-sky-700", url: "QuadroMonitor", alert: kpis.ativStatus.atrasadas > 0 },
-    { label: "Bancadas", valor: kpis.bancadas, sub: "em monitoramento", icon: BarChart3, color: "from-slate-600 to-slate-800", url: "Bancadas" },
-  ];
-
-  const hasAlertas = kpis.calStatus.vencido > 0 || kpis.audStatus.naoConforme > 0 || kpis.ativStatus.atrasadas > 0 || kpis.etiqCriticas > 0 || kpis.faixasCriticas > 0;
+  const hasAlertas = (kpis.calStatus?.vencido > 0) || (kpis.audStatus?.naoConforme > 0) || (kpis.ativStatus?.atrasadas > 0);
+  const score5S = kpis.score5S;
+  const pctAtiv = kpis.ativTotal > 0 ? Math.round((kpis.ativStatus.concluidas / kpis.ativTotal) * 100) : 0;
 
   return (
-    <div className="space-y-3 w-full min-w-0 overflow-x-hidden">
+    <div className="max-w-5xl mx-auto space-y-5 pb-8">
 
-      {/* Welcome Banner */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-r from-[#001e50] to-[#0066b1] rounded-2xl p-4 text-white overflow-hidden relative"
-      >
-        <div className="absolute right-0 top-0 bottom-0 w-24 opacity-5 select-none text-[90px] leading-none overflow-hidden">🏭</div>
-        <div className="relative flex items-start justify-between gap-2">
-          <div className="flex-1 min-w-0">
-            <p className="text-blue-200 text-[10px] font-medium uppercase tracking-wide">VW Chefinho GLS</p>
-            <h1 className="text-lg font-bold leading-tight mt-0.5">Olá, {firstName}! 👋</h1>
-            <p className="text-blue-200 text-[11px] mt-0.5">
-              {format(new Date(), "EEEE, d 'de' MMMM", { locale: undefined }).replace(/^\w/, c => c.toUpperCase())}
-            </p>
-          </div>
-          <div className="flex flex-col items-end gap-1 flex-shrink-0">
-            <Badge className="bg-white/20 text-white border-transparent text-[10px] px-2 py-0.5">
-              {currentUser?.cargo === "supervisor" ? "🎖️ Supervisor" : currentUser?.cargo === "lider" ? "👔 Líder" : "👷 Monitor"}
-            </Badge>
-            {currentUser?.equipe && <Badge className="bg-white/10 text-white/80 border-transparent text-[9px] px-2 py-0.5 max-w-full truncate">{currentUser.equipe}</Badge>}
-          </div>
+      {/* ── Topo ─────────────────────────────────────────────── */}
+      <div className="flex items-start justify-between gap-4 pt-1">
+        <div>
+          <p className="text-[11px] text-slate-400 font-medium uppercase tracking-widest mb-0.5">VW Chefinho GLS</p>
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Bom dia, {firstName}</h1>
+          <p className="text-xs text-slate-400 mt-0.5">{format(new Date(), "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}</p>
         </div>
-      </motion.div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <span className="text-[11px] font-medium text-slate-500 bg-slate-100 px-2.5 py-1 rounded">
+            {currentUser?.cargo === "supervisor" ? "Supervisor" : currentUser?.cargo === "lider" ? "Líder" : "Monitor"}
+          </span>
+          <button onClick={() => setMostrarIA(v => !v)}
+            className="h-7 px-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded flex items-center gap-1.5 transition-colors">
+            <Zap className="w-3 h-3" /> IA
+          </button>
+        </div>
+      </div>
 
-      {/* Alertas Consolidados */}
+      {mostrarIA && <ChefinhoIA kpis={kpis} currentUser={currentUser} />}
+
+      {/* ── Alertas ──────────────────────────────────────────── */}
       {hasAlertas && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-3 space-y-2">
-          <p className="text-xs font-bold text-red-700 flex items-center gap-1.5"><Bell className="w-3.5 h-3.5" /> Alertas do Sistema</p>
-          <div className="flex flex-wrap gap-1.5">
-            {kpis.calStatus.vencido > 0 && (
-              <Badge className="bg-red-100 text-red-700 text-[10px] cursor-pointer" onClick={() => navigate(createPageUrl("Calibracao"))}>
-                ⚠️ {kpis.calStatus.vencido} calibrações vencidas
-              </Badge>
-            )}
-            {kpis.calStatus.vence15 > 0 && (
-              <Badge className="bg-amber-100 text-amber-700 text-[10px] cursor-pointer" onClick={() => navigate(createPageUrl("Calibracao"))}>
-                ⏰ {kpis.calStatus.vence15} vencem em 15 dias
-              </Badge>
-            )}
-            {kpis.audStatus.naoConforme > 0 && (
-              <Badge className="bg-red-100 text-red-700 text-[10px] cursor-pointer" onClick={() => navigate(createPageUrl("AuditoriaIndustrial"))}>
-                ❌ {kpis.audStatus.naoConforme} não conformidades
-              </Badge>
-            )}
-            {kpis.ativStatus.atrasadas > 0 && (
-              <Badge className="bg-red-100 text-red-700 text-[10px] cursor-pointer" onClick={() => navigate(createPageUrl("QuadroMonitor"))}>
-                📋 {kpis.ativStatus.atrasadas} atividades atrasadas
-              </Badge>
-            )}
-            {kpis.etiqCriticas > 0 && (
-              <Badge className="bg-amber-100 text-amber-700 text-[10px] cursor-pointer" onClick={() => navigate(createPageUrl("ChecklistAuditoriaIndustrial"))}>
-                🏷️ {kpis.etiqCriticas} etiquetas críticas
-              </Badge>
-            )}
-            {kpis.faixasCriticas > 0 && (
-              <Badge className="bg-amber-100 text-amber-700 text-[10px] cursor-pointer" onClick={() => navigate(createPageUrl("ChecklistAuditoriaIndustrial"))}>
-                📏 {kpis.faixasCriticas} faixas críticas
-              </Badge>
-            )}
+        <div className="border border-red-200 rounded-xl bg-red-50 px-4 py-3">
+          <p className="text-[11px] font-semibold text-red-700 mb-2 flex items-center gap-1.5">
+            <AlertTriangle className="w-3.5 h-3.5" /> Requer atenção
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {kpis.calStatus?.vencido > 0 && <AlertBadge onClick={() => navigate(createPageUrl("Calibracao"))}>{kpis.calStatus.vencido} calibração{kpis.calStatus.vencido > 1 ? "ões" : ""} vencida{kpis.calStatus.vencido > 1 ? "s" : ""}</AlertBadge>}
+            {kpis.calStatus?.vence15 > 0 && <AlertWarnBadge onClick={() => navigate(createPageUrl("Calibracao"))}>{kpis.calStatus.vence15} vencem em 15 dias</AlertWarnBadge>}
+            {kpis.audStatus?.naoConforme > 0 && <AlertBadge onClick={() => navigate(createPageUrl("AuditoriaIndustrial"))}>{kpis.audStatus.naoConforme} não conformidade{kpis.audStatus.naoConforme > 1 ? "s" : ""}</AlertBadge>}
+            {kpis.ativStatus?.atrasadas > 0 && <AlertBadge onClick={() => navigate(createPageUrl("QuadroMonitor"))}>{kpis.ativStatus.atrasadas} atividade{kpis.ativStatus.atrasadas > 1 ? "s" : ""} atrasada{kpis.ativStatus.atrasadas > 1 ? "s" : ""}</AlertBadge>}
           </div>
         </div>
       )}
 
-      {/* Botão Chefinho IA */}
-      <Button
-        onClick={() => setMostrarIA(v => !v)}
-        className="w-full bg-gradient-to-r from-violet-600 to-purple-700 hover:from-violet-700 hover:to-purple-800 text-white gap-2 h-11 rounded-xl"
-      >
-        <Zap className="w-4 h-4" />
-        {mostrarIA ? "Fechar Chefinho IA" : "Gerar Relatório Inteligente — Chefinho IA"}
-      </Button>
+      {/* ── Grid principal ───────────────────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-      {mostrarIA && <ChefinhoIA kpis={kpis} currentUser={currentUser} />}
+        {/* Coluna esquerda: KPI strip + Calibrações + Auditorias */}
+        <div className="lg:col-span-2 space-y-4">
 
-      {/* KPIs Grid */}
-      <div>
-        <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-          <TrendingUp className="w-3.5 h-3.5" /> Indicadores em Tempo Real
-        </h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-          {KPI_CARDS.map(({ label, valor, sub, icon: Icon, color, url, alert }, i) => (
-            <motion.div key={label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-              onClick={() => navigate(createPageUrl(url))}
-              className={`bg-gradient-to-br ${color} rounded-xl p-3 text-white cursor-pointer active:opacity-80 transition-all relative overflow-hidden`}>
-              <div className="flex items-start justify-between">
-                <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                  <Icon className="w-4 h-4" />
-                </div>
-                {alert && <div className="w-2.5 h-2.5 bg-red-400 rounded-full animate-pulse" />}
-              </div>
-              <p className="text-2xl font-bold mt-2">{valor}</p>
-              <p className="text-[10px] text-white/70 mt-0.5">{sub}</p>
-              <p className="text-[10px] font-medium mt-1.5 flex items-center gap-0.5 text-white/80">
-                {label} <ArrowRight className="w-3 h-3" />
-              </p>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-
-      {/* Calibração Status Detalhado */}
-      <Card className="border border-slate-200">
-        <CardContent className="p-3">
-          <h3 className="text-xs font-bold text-slate-700 mb-2 flex items-center gap-1.5">
-            <Gauge className="w-3.5 h-3.5 text-amber-600" /> Status das Calibrações
-          </h3>
-          <div className="grid grid-cols-4 gap-2">
+          {/* KPI strip */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-0 border border-slate-200 rounded-xl overflow-hidden bg-white divide-x divide-slate-100">
             {[
-              { label: "Em Dia", val: kpis.calStatus.ok, color: "bg-emerald-100 text-emerald-700" },
-              { label: "30 dias", val: kpis.calStatus.vence30, color: "bg-yellow-100 text-yellow-700" },
-              { label: "15 dias", val: kpis.calStatus.vence15, color: "bg-orange-100 text-orange-700" },
-              { label: "Vencidas", val: kpis.calStatus.vencido, color: "bg-red-100 text-red-700" },
-            ].map(s => (
-              <div key={s.label} className={`text-center py-2 rounded-lg ${s.color}`}>
-                <p className="text-lg font-bold">{s.val}</p>
-                <p className="text-[9px] font-medium">{s.label}</p>
-              </div>
-            ))}
+              { label: "Ferramentas", value: kpis.ferramentas, sub: `${kpis.ferramentasAtivas} ativas`, icon: Wrench },
+              { label: "Calibrações", value: kpis.calTotal, sub: `${kpis.calStatus?.vencido || 0} vencidas`, icon: Gauge, variant: kpis.calStatus?.vencido > 0 ? "danger" : "default" },
+              { label: "Auditorias", value: kpis.audTotal, sub: `${kpis.audStatus?.naoConforme || 0} NCs`, icon: ClipboardCheck, variant: kpis.audStatus?.naoConforme > 0 ? "danger" : "default" },
+              { label: "5S Score", value: score5S != null ? `${score5S}%` : "—", sub: `${kpis.cincoSTotal} avaliações`, icon: Sparkles, variant: score5S != null && score5S < 60 ? "danger" : score5S != null && score5S < 80 ? "warn" : "ok" },
+            ].map((k, i) => {
+              const cls = k.variant === "danger" ? "text-red-600" : k.variant === "warn" ? "text-amber-600" : k.variant === "ok" ? "text-emerald-600" : "text-slate-800";
+              return (
+                <div key={k.label} className={`p-4 ${i >= 2 ? "sm:block hidden" : ""}`}>
+                  <k.icon className="w-3.5 h-3.5 text-slate-400 mb-2" />
+                  <p className={`text-2xl font-black tabular-nums leading-none ${cls}`}>{k.value}</p>
+                  <p className="text-[10px] text-slate-400 mt-1 leading-tight">{k.label}</p>
+                  <p className="text-[10px] text-slate-300 leading-tight">{k.sub}</p>
+                </div>
+              );
+            })}
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Módulos Rápidos */}
-      <div>
-        <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-          <FileText className="w-3.5 h-3.5" /> Acessos Rápidos
-        </h2>
-        <div className="grid grid-cols-3 gap-1.5">
-          {[
-            { label: "Ferramentas", url: "Ferramentas", icon: Wrench },
-            { label: "Calibração", url: "Calibracao", icon: Gauge },
-            { label: "AuditoriaIndustrial", url: "AuditoriaIndustrial", icon: ClipboardCheck },
-            { label: "Quadro Monitor", url: "QuadroMonitor", icon: Monitor },
-            { label: "5S", url: "CincoS", icon: Sparkles },
-            { label: "Bancadas", url: "Bancadas", icon: BarChart3 },
-            { label: "Etiquetas", url: "ChecklistAuditoriaIndustrial", icon: Tag },
-            { label: "Faixas", url: "ChecklistAuditoriaIndustrial", icon: Ruler },
-            { label: "Calendário", url: "Calendario", icon: Calendar },
-          ].map(({ label, url, icon: Icon }) => (
-            <button key={url} onClick={() => navigate(createPageUrl(url))}
-              className="flex flex-col items-center gap-1 p-2.5 rounded-xl bg-slate-50 border border-slate-100 hover:bg-slate-100 active:bg-slate-200 transition-colors">
-              <Icon className="w-4 h-4 text-slate-600" />
-              <span className="text-[10px] font-medium text-slate-600 text-center leading-tight">{label}</span>
+          {/* Calibrações — barra detalhada */}
+          <div className="border border-slate-200 rounded-xl bg-white p-4">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-sm font-semibold text-slate-900">Status de Calibrações</h2>
+                <p className="text-xs text-slate-400 mt-0.5">{kpis.calTotal} equipamentos monitorados</p>
+              </div>
+              <button onClick={() => navigate(createPageUrl("Calibracao"))}
+                className="text-xs text-blue-600 font-medium flex items-center gap-1 hover:underline">
+                Ver tudo <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
+            <div className="space-y-3">
+              <CalBar label="Em dia" value={kpis.calStatus?.ok || 0} total={kpis.calTotal || 1} colorClass="bg-emerald-500" />
+              <CalBar label="30 dias" value={kpis.calStatus?.vence30 || 0} total={kpis.calTotal || 1} colorClass="bg-amber-400" />
+              <CalBar label="15 dias" value={kpis.calStatus?.vence15 || 0} total={kpis.calTotal || 1} colorClass="bg-orange-500" />
+              <CalBar label="Vencidas" value={kpis.calStatus?.vencido || 0} total={kpis.calTotal || 1} colorClass="bg-red-500" />
+            </div>
+          </div>
+
+          {/* Auditoria + Atividades lado a lado */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="border border-slate-200 rounded-xl bg-white p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <ClipboardCheck className="w-3.5 h-3.5 text-slate-400" />
+                <h2 className="text-sm font-semibold text-slate-900">Auditorias</h2>
+              </div>
+              <StatRow label="Conformes" value={kpis.audStatus?.conforme || 0} variant="ok" />
+              <StatRow label="Não Conf." value={kpis.audStatus?.naoConforme || 0} variant={kpis.audStatus?.naoConforme > 0 ? "danger" : "default"} />
+              <StatRow label="Em Análise" value={kpis.audStatus?.outros || 0} />
+              <button onClick={() => navigate(createPageUrl("AuditoriaIndustrial"))}
+                className="mt-3 text-xs text-blue-600 font-medium flex items-center gap-1 hover:underline">
+                Acessar <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
+
+            <div className="border border-slate-200 rounded-xl bg-white p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Activity className="w-3.5 h-3.5 text-slate-400" />
+                <h2 className="text-sm font-semibold text-slate-900">Atividades</h2>
+              </div>
+              <div className="mb-3">
+                <div className="flex items-end gap-1 mb-1">
+                  <span className="text-2xl font-black text-slate-800 tabular-nums">{pctAtiv}%</span>
+                  <span className="text-xs text-slate-400 mb-0.5">concluído</span>
+                </div>
+                <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div className={`h-full rounded-full transition-all ${pctAtiv >= 80 ? "bg-emerald-500" : pctAtiv >= 50 ? "bg-amber-500" : "bg-red-500"}`} style={{ width: `${pctAtiv}%` }} />
+                </div>
+              </div>
+              <StatRow label="Concluídas" value={kpis.ativStatus?.concluidas || 0} variant="ok" />
+              <StatRow label="Atrasadas" value={kpis.ativStatus?.atrasadas || 0} variant={kpis.ativStatus?.atrasadas > 0 ? "danger" : "default"} />
+              <button onClick={() => navigate(createPageUrl("QuadroMonitor"))}
+                className="mt-3 text-xs text-blue-600 font-medium flex items-center gap-1 hover:underline">
+                Ver quadro <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Coluna direita: Acessos rápidos + Score 5S */}
+        <div className="space-y-4">
+
+          {/* Score 5S */}
+          <div className="border border-slate-200 rounded-xl bg-white p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles className="w-3.5 h-3.5 text-slate-400" />
+              <h2 className="text-sm font-semibold text-slate-900">Score 5S</h2>
+            </div>
+            {kpis.ultimo5S ? (
+              <>
+                <div className="flex items-end gap-1 mb-3">
+                  <span className={`text-3xl font-black tabular-nums ${score5S >= 80 ? "text-emerald-600" : score5S >= 60 ? "text-amber-600" : "text-red-600"}`}>{score5S}%</span>
+                </div>
+                {[
+                  { label: "Utilização", val: kpis.ultimo5S.utilizacao },
+                  { label: "Organização", val: kpis.ultimo5S.organizacao },
+                  { label: "Limpeza", val: kpis.ultimo5S.limpeza },
+                  { label: "Padronização", val: kpis.ultimo5S.padronizacao },
+                  { label: "Disciplina", val: kpis.ultimo5S.disciplina },
+                ].map(s => (
+                  <div key={s.label} className="flex items-center gap-2 mb-1.5">
+                    <span className="text-[10px] text-slate-400 w-20 flex-shrink-0">{s.label}</span>
+                    <div className="flex-1 h-1 bg-slate-100 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full ${(s.val || 0) >= 7 ? "bg-emerald-500" : (s.val || 0) >= 5 ? "bg-amber-500" : "bg-red-500"}`}
+                        style={{ width: `${((s.val || 0) / 10) * 100}%` }} />
+                    </div>
+                    <span className="text-[10px] font-semibold text-slate-600 w-4 text-right">{s.val ?? "—"}</span>
+                  </div>
+                ))}
+              </>
+            ) : (
+              <p className="text-xs text-slate-400 py-2">Nenhuma avaliação registrada</p>
+            )}
+            <button onClick={() => navigate(createPageUrl("CincoS"))} className="mt-2 text-xs text-blue-600 font-medium flex items-center gap-1 hover:underline">
+              Gestão 5S <ArrowRight className="w-3 h-3" />
             </button>
-          ))}
+          </div>
+
+          {/* Acessos Rápidos */}
+          <div className="border border-slate-200 rounded-xl bg-white p-4">
+            <h2 className="text-sm font-semibold text-slate-900 mb-3">Acessos</h2>
+            <div className="grid grid-cols-3 gap-1.5">
+              {[
+                { label: "Ferramentas", url: "Ferramentas", icon: Wrench, alert: false },
+                { label: "Calibração", url: "Calibracao", icon: Gauge, alert: kpis.calStatus?.vencido > 0 },
+                { label: "Auditoria", url: "AuditoriaIndustrial", icon: ClipboardCheck, alert: kpis.audStatus?.naoConforme > 0 },
+                { label: "5S", url: "CincoS", icon: Sparkles, alert: false },
+                { label: "Quadro", url: "QuadroMonitor", icon: BarChart2, alert: kpis.ativStatus?.atrasadas > 0 },
+                { label: "Segurança", url: "SegurancaHub", icon: Shield, alert: false },
+              ].map(({ label, url, icon: Icon, alert }) => (
+                <NavTile key={url} label={label} icon={Icon} alert={alert} onClick={() => navigate(createPageUrl(url))} />
+              ))}
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
